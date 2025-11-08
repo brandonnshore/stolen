@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import { saveFile, validateFileType, validateFileSize } from '../services/uploadService';
 import { ApiError } from '../middleware/errorHandler';
+import jobService from '../services/jobService';
+import path from 'path';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -50,6 +52,60 @@ export const uploadFile = async (req: Request, res: Response, next: NextFunction
     res.status(201).json({
       success: true,
       data: { asset }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Upload shirt photo and start extraction job
+ * POST /api/uploads/shirt-photo
+ */
+export const uploadShirtPhoto = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.file) {
+      throw new ApiError(400, 'No file provided');
+    }
+
+    // Validate file type (only JPG and PNG for shirt photos)
+    const validTypes = ['image/jpeg', 'image/png'];
+    if (!validTypes.includes(req.file.mimetype)) {
+      throw new ApiError(400, 'Invalid file type. Please upload JPG or PNG');
+    }
+
+    // Validate file size (max 25MB)
+    const maxSize = 25 * 1024 * 1024; // 25MB
+    if (req.file.size > maxSize) {
+      throw new ApiError(400, 'File too large. Maximum size is 25MB');
+    }
+
+    // Save the uploaded shirt photo
+    const asset = await saveFile(req.file, 'shirt_upload');
+
+    // Get the full file path for processing
+    const uploadsDir = process.env.LOCAL_STORAGE_PATH || './uploads';
+    const filePath = path.join(process.cwd(), uploadsDir, path.basename(asset.file_url));
+
+    // Get user ID if authenticated
+    const userId = (req as any).user?.id;
+
+    // Automatically start extraction job
+    const jobId = await jobService.createJob({
+      userId,
+      uploadAssetId: asset.id,
+      filePath,
+    });
+
+    console.log(`✅ Shirt photo uploaded and job ${jobId} started for asset ${asset.id}`);
+
+    res.status(201).json({
+      success: true,
+      data: {
+        asset,
+        jobId,
+        message: 'Shirt photo uploaded. Extraction started.',
+      }
     });
   } catch (error) {
     next(error);

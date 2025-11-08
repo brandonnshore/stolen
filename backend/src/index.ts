@@ -18,6 +18,7 @@ import priceRoutes from './routes/pricing';
 import webhookRoutes from './routes/webhooks';
 import adminRoutes from './routes/admin';
 import designRoutes from './routes/designs';
+import jobRoutes from './routes/jobRoutes';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -118,6 +119,7 @@ app.use('/api/price', priceRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/designs', designRoutes);
+app.use('/api/jobs', jobRoutes);
 
 // Error handling
 app.use(notFound);
@@ -125,7 +127,7 @@ app.use(errorHandler);
 
 // Start server
 const server = app.listen(env.PORT, async () => {
-  logger.info('Raspberry API Server started', {
+  logger.info('Stolen Tee API Server started', {
     port: env.PORT,
     environment: env.NODE_ENV,
     apiUrl: `http://localhost:${env.PORT}`,

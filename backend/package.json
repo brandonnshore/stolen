@@ -1,7 +1,7 @@
 {
-  "name": "raspberry-backend",
+  "name": "stolentee-backend",
   "version": "1.0.0",
-  "description": "Backend API for Raspberry custom clothing ecommerce platform",
+  "description": "Backend API for Stolen Tee AI logo extraction platform",
   "main": "src/index.ts",
   "scripts": {
     "dev": "nodemon src/index.ts",
@@ -9,6 +9,8 @@
     "start": "node dist/index.js",
     "migrate": "node -r ts-node/register migrations/run.ts",
     "migrate:create": "node -r ts-node/register migrations/create.ts",
+    "worker": "node -r ts-node/register src/workers/extractionWorker.ts",
+    "worker:dev": "nodemon src/workers/extractionWorker.ts",
     "test": "jest",
     "lint": "eslint src --ext .ts"
   },
@@ -20,23 +22,28 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.77.0",
     "archiver": "^6.0.1",
     "aws-sdk": "^2.1524.0",
+    "axios": "^1.13.2",
     "bcrypt": "^5.1.1",
     "bull": "^4.12.0",
+    "bullmq": "^5.63.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
     "express-validator": "^7.0.1",
+    "form-data": "^4.0.4",
     "helmet": "^7.1.0",
+    "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.7",
     "pdfkit": "^0.14.0",
     "pg": "^8.11.3",
-    "sharp": "^0.33.1",
+    "sharp": "^0.33.5",
     "stripe": "^14.10.0"
   },
   "devDependencies": {
