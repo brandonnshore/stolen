@@ -24,7 +24,7 @@ export default function Home() {
       {
         id: '2',
         title: 'Classic Hoodie',
-        slug: 'hoodie',
+        slug: 'classic-hoodie',
         description: 'Premium heavyweight hoodie',
         images: ['/assets/hoodie-black-front.png'],
         status: 'active' as const,
@@ -50,23 +50,23 @@ export default function Home() {
           <div className="flex items-center justify-center px-6 sm:px-12 lg:px-20 order-2 lg:order-1">
             <div className="max-w-lg">
               <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold leading-tight mb-4 sm:mb-6">
-                Create and sell premium custom clothes easily
+                Steal any design.<br/>Recreate it instantly.
               </h1>
               <p className="text-base sm:text-lg text-gray-600 leading-relaxed mb-6 sm:mb-8">
-                Design, customize, and order high-quality apparel with our intuitive customization studio.
+                Upload a photo of any shirt. Our AI extracts the design and recreates it on premium blanks in seconds.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link
                   to="/products/classic-tee"
                   className="px-6 py-3.5 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors text-center"
                 >
-                  Start Designing
+                  Upload & Extract
                 </Link>
                 <Link
                   to="/products"
                   className="px-6 py-3.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors text-center"
                 >
-                  View Products
+                  See How It Works
                 </Link>
               </div>
 
@@ -78,7 +78,7 @@ export default function Home() {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-600">No MOQ</span>
+                  <span className="text-gray-600">AI-powered extraction</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center">
@@ -86,7 +86,7 @@ export default function Home() {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-600">High quality DTG</span>
+                  <span className="text-gray-600">300 DPI print quality</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center">
@@ -94,7 +94,7 @@ export default function Home() {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-600">Fast turnaround</span>
+                  <span className="text-gray-600">No minimum orders</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center">
@@ -102,7 +102,7 @@ export default function Home() {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-gray-600">100% organic cotton</span>
+                  <span className="text-gray-600">Premium blanks</span>
                 </div>
               </div>
             </div>
@@ -127,10 +127,10 @@ export default function Home() {
           {/* Header */}
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-3 sm:mb-4">
-              Beautiful bestselling blanks,<br className="hidden sm:block" /> ready for your vision
+              Premium blanks,<br className="hidden sm:block" /> perfected by AI
             </h2>
             <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
-              Specially curated high-quality garments perfect for your custom designs. Start with our premium basics and bring your creative vision to life.
+              Upload any design. Our AI extracts it perfectly and prints it on these premium garments at 300 DPI quality.
             </p>
 
             {/* Category Filters */}
@@ -171,7 +171,7 @@ export default function Home() {
               {products.slice(0, 5).map((product) => (
                 <Link
                   key={product.id}
-                  to={product.slug === 'hoodie' ? '/hoodie' : `/products/${product.slug}`}
+                  to={`/products/${product.slug}`}
                   className="group block"
                 >
                   {/* Product Image */}

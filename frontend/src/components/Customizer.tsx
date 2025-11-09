@@ -20,6 +20,14 @@ interface CustomizerProps {
   variants: Variant[];
 }
 
+// Rotating disclaimer messages for progress bar
+const DISCLAIMER_MESSAGES = [
+  "This is AI-powered extraction. Multiple attempts may be needed for perfect results.",
+  "Brand names may be altered due to copyright restrictions and AI safety filters.",
+  "Complex designs with multiple layers may require several tries to extract perfectly.",
+  "Trademarked logos and brand text might be regenerated differently by the AI."
+];
+
 export default function Customizer({ product, variants }: CustomizerProps) {
   const navigate = useNavigate();
   const addItem = useCartStore((state) => state.addItem);
@@ -32,11 +40,6 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   const [editingCartItemId, setEditingCartItemId] = useState<string | null>(null);
   const hasLoadedDesignRef = useRef<string | null>(null);
 
-  // Track customization started
-  useEffect(() => {
-    trackCustomizationStarted(product.title);
-  }, []); // Run only once on mount
-
   // Selection state
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
@@ -48,11 +51,41 @@ export default function Customizer({ product, variants }: CustomizerProps) {
 
   const [frontArtworks, setFrontArtworks] = useState<Array<{url: string, position: any, assetId?: string}>>([]);
   const [backArtworks, setBackArtworks] = useState<Array<{url: string, position: any, assetId?: string}>>([]);
+  const [neckArtwork, setNeckArtwork] = useState<{url: string, position: any, assetId?: string} | null>(null);
   const [extractedLogo, setExtractedLogo] = useState<{url: string, position: any} | null>(null);
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [uploadTargetView, setUploadTargetView] = useState<'front' | 'back'>('front'); // Track where to place uploaded image
   const [jobStatus, setJobStatus] = useState<'idle' | 'uploading' | 'processing' | 'done' | 'error'>('idle');
   const [jobError, setJobError] = useState<string | null>(null);
   const [jobProgress, setJobProgress] = useState<{message: string, percent: number}>({message: '', percent: 0});
+  const [disclaimerIndex, setDisclaimerIndex] = useState(0);
+
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [savedDesignName, setSavedDesignName] = useState('');
+
+  // Toast notification state
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const [colorSectionOpen, setColorSectionOpen] = useState(true);
+  const [frontArtworkSectionOpen, setFrontArtworkSectionOpen] = useState(false);
+  const [backArtworkSectionOpen, setBackArtworkSectionOpen] = useState(false);
+  const [neckLabelSectionOpen, setNeckLabelSectionOpen] = useState(false);
+
+  // Track customization started
+  useEffect(() => {
+    trackCustomizationStarted(product.title);
+  }, []); // Run only once on mount
+
+  // Rotate disclaimer messages during processing
+  useEffect(() => {
+    if (jobStatus === 'uploading' || jobStatus === 'processing') {
+      const interval = setInterval(() => {
+        setDisclaimerIndex((prev) => (prev + 1) % DISCLAIMER_MESSAGES.length);
+      }, 4000); // Rotate every 4 seconds
+      return () => clearInterval(interval);
+    }
+  }, [jobStatus]);
 
   // Current view's artwork
   const getCurrentArtworks = () => {
@@ -62,12 +95,6 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   };
 
   const currentArtwork = getCurrentArtworks()[0] || null;
-  const [showSaveModal, setShowSaveModal] = useState(false);
-  const [savedDesignName, setSavedDesignName] = useState('');
-
-  // Toast notification state
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
 
   const unitCost = calculateUnitCost(
     frontArtworks.length > 0,
@@ -166,8 +193,8 @@ export default function Customizer({ product, variants }: CustomizerProps) {
           if (transparentAsset) {
             const logoUrl = getFullAssetUrl(transparentAsset.file_url);
 
-            // Add the extracted logo to the current view (front or back)
-            if (view === 'back') {
+            // Add the extracted logo to the view that was selected at upload time
+            if (uploadTargetView === 'back') {
               setBackArtworks([{
                 url: logoUrl,
                 position: null, // Will be positioned by user
@@ -342,6 +369,9 @@ export default function Customizer({ product, variants }: CustomizerProps) {
     setJobError(null);
 
     try {
+      // Capture the current view for placement when job completes
+      setUploadTargetView(view);
+
       // Set status to uploading
       setJobStatus('uploading');
       setJobProgress({ message: 'Uploading your image...', percent: 5 });
@@ -555,11 +585,6 @@ export default function Customizer({ product, variants }: CustomizerProps) {
     }, 1500);
   };
 
-  const [colorSectionOpen, setColorSectionOpen] = useState(true);
-  const [frontArtworkSectionOpen, setFrontArtworkSectionOpen] = useState(false);
-  const [backArtworkSectionOpen, setBackArtworkSectionOpen] = useState(false);
-  const [neckLabelSectionOpen, setNeckLabelSectionOpen] = useState(false);
-
   // Auto-open appropriate section when view changes
   useEffect(() => {
     if (view === 'neck') {
@@ -681,8 +706,8 @@ export default function Customizer({ product, variants }: CustomizerProps) {
                     ></div>
                   </div>
                 </div>
-                <p className="text-xs text-blue-700">
-                  Your design is being extracted and optimized for printing...
+                <p className="text-xs text-blue-700 transition-opacity duration-300">
+                  {DISCLAIMER_MESSAGES[disclaimerIndex]}
                 </p>
               </div>
             )}

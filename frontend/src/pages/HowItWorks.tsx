@@ -1,321 +1,173 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { Upload, Sparkles, Shirt, ArrowRight } from 'lucide-react';
 
 export default function HowItWorks() {
-  const [activeStep, setActiveStep] = useState(0);
-
   const steps = [
     {
       number: '01',
-      title: 'Choose Your Canvas',
-      description: 'Select from our curated collection of premium blank apparel. From classic tees to cozy hoodies, we\'ve got the perfect base for your design.',
-      icon: '👕',
-      color: 'from-blue-500 to-blue-600',
-      features: ['Premium quality blanks', 'Multiple product types', 'Various colors & sizes'],
+      title: 'The Upload',
+      subtitle: 'Snap & Submit',
+      description: 'See a design you love? Take a photo of any shirt, hoodie, or garment. Our system accepts anything—street fashion, vintage finds, concert merch, you name it.',
+      icon: Upload,
+      color: 'from-red-500 to-orange-500',
+      tip: 'Pro tip: Better lighting = cleaner extraction'
     },
     {
       number: '02',
-      title: 'Design Your Vision',
-      description: 'Use our intuitive customizer to bring your ideas to life. Upload artwork, add text, choose placements, and see your design in real-time.',
-      icon: '🎨',
-      color: 'from-purple-500 to-purple-600',
-      features: ['Drag & drop editor', 'Real-time preview', 'Multiple decoration methods'],
+      title: 'The Extraction',
+      subtitle: 'AI Does the Dirty Work',
+      description: 'Our AI analyzes the image, isolates the design, removes the fabric, and recreates it at 300 DPI print quality. Strokes, shadows, gradients—every detail preserved.',
+      icon: Sparkles,
+      color: 'from-purple-500 to-pink-500',
+      tip: 'Sometimes it takes 2-3 tries for complex designs—we\'ll let you know if the AI needs another shot'
     },
     {
       number: '03',
-      title: 'Get Instant Pricing',
-      description: 'Our smart pricing engine calculates your cost on the fly. No hidden fees, no surprises - just transparent, fair pricing based on your customization.',
-      icon: '💰',
-      color: 'from-green-500 to-green-600',
-      features: ['Live price updates', 'Quantity discounts', 'No minimum order'],
-    },
-    {
-      number: '04',
-      title: 'Place Your Order',
-      description: 'Secure checkout with Stripe. Once confirmed, we generate production-ready files and send them straight to our trusted fulfillment partners.',
-      icon: '✨',
-      color: 'from-orange-500 to-orange-600',
-      features: ['Secure payment', 'Auto-generated files', 'Fast turnaround'],
-    },
-  ];
-
-  const decorationMethods = [
-    { name: 'Screen Printing', desc: 'Bold, vibrant colors for large quantities', icon: '🖨️' },
-    { name: 'DTG Printing', desc: 'Photo-quality prints with unlimited colors', icon: '🎯' },
-    { name: 'Embroidery', desc: 'Premium texture for a professional look', icon: '🧵' },
-    { name: 'Heat Transfer', desc: 'Perfect for complex designs and gradients', icon: '🔥' },
+      title: 'The Getaway',
+      subtitle: 'Print & Ship',
+      description: 'Adjust size, pick your blank, choose quantity. We print it on premium garments using DTG (Direct to Garment) and ship it to your door. No minimums, no questions asked.',
+      icon: Shirt,
+      color: 'from-blue-500 to-cyan-500',
+      tip: 'Orders ship within 3-5 business days'
+    }
   ];
 
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-32 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h1 className="text-5xl lg:text-7xl font-bold leading-tight mb-6">
-              How It Works
-            </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              From blank to branded in four simple steps. Creating custom apparel has never been easier.
-            </p>
-          </div>
+      <section className="relative bg-black text-white py-20 sm:py-32 overflow-hidden">
+        {/* Subtle grid pattern background */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
+            backgroundSize: '50px 50px'
+          }}></div>
+        </div>
 
-          {/* Step-by-step interactive section */}
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
-            {/* Left: Steps Navigation */}
-            <div className="space-y-6 lg:sticky lg:top-24">
-              {steps.map((step, index) => (
-                <button
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+          <div className="inline-block px-4 py-2 bg-red-600/20 border border-red-600 rounded-full text-red-400 text-sm font-medium mb-6">
+            CLASSIFIED: How The Heist Works
+          </div>
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6">
+            Steal any design.<br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-purple-400 to-blue-400">
+              Keep all the credit.
+            </span>
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+            Our AI-powered extraction technology lets you recreate any design you see in the wild. Here's how we pull it off.
+          </p>
+        </div>
+
+        {/* Decorative elements */}
+        <div className="absolute top-10 left-10 w-32 h-32 bg-red-600/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 right-10 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl"></div>
+      </section>
+
+      {/* Steps Section */}
+      <section className="py-20 sm:py-32">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="space-y-24">
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              return (
+                <div
                   key={index}
-                  onClick={() => setActiveStep(index)}
-                  className={`w-full text-left p-6 rounded-2xl transition-all duration-300 ${
-                    activeStep === index
-                      ? 'bg-black text-white shadow-2xl scale-105'
-                      : 'bg-gray-50 hover:bg-gray-100 text-gray-800'
-                  }`}
+                  className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-12 items-center`}
                 >
-                  <div className="flex items-start gap-4">
-                    <div className={`text-4xl ${activeStep === index ? 'animate-bounce' : ''}`}>
-                      {step.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className={`text-sm font-medium mb-2 ${
-                        activeStep === index ? 'text-gray-300' : 'text-gray-500'
-                      }`}>
-                        Step {step.number}
+                  {/* Icon Side */}
+                  <div className="flex-1 flex justify-center">
+                    <div className="relative">
+                      {/* Glowing background */}
+                      <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-20 blur-3xl rounded-full transform scale-150`}></div>
+
+                      {/* Icon container */}
+                      <div className={`relative w-48 h-48 sm:w-64 sm:h-64 rounded-2xl bg-gradient-to-br ${step.color} p-1`}>
+                        <div className="w-full h-full bg-white rounded-2xl flex items-center justify-center">
+                          <Icon className="w-24 h-24 sm:w-32 sm:h-32 text-gray-900" strokeWidth={1.5} />
+                        </div>
                       </div>
-                      <h3 className="text-2xl font-bold mb-2">{step.title}</h3>
-                      <p className={`text-sm leading-relaxed ${
-                        activeStep === index ? 'text-gray-300' : 'text-gray-600'
-                      }`}>
-                        {step.description}
+
+                      {/* Step number badge */}
+                      <div className="absolute -top-4 -right-4 w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-xl font-bold border-4 border-white shadow-lg">
+                        {step.number}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Content Side */}
+                  <div className="flex-1 max-w-xl">
+                    <div className={`inline-block px-3 py-1 bg-gradient-to-r ${step.color} bg-opacity-10 rounded-full text-sm font-semibold mb-4`}>
+                      {step.subtitle}
+                    </div>
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900">
+                      {step.title}
+                    </h2>
+                    <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                      {step.description}
+                    </p>
+                    <div className="bg-gray-50 border-l-4 border-gray-900 px-4 py-3 rounded">
+                      <p className="text-sm text-gray-700">
+                        <span className="font-semibold">💡 {step.tip}</span>
                       </p>
                     </div>
                   </div>
-                </button>
-              ))}
-            </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
-            {/* Right: Active Step Details */}
-            <div className="lg:sticky lg:top-24">
-              <div className={`bg-gradient-to-br ${steps[activeStep].color} rounded-3xl p-8 text-white shadow-2xl transition-all duration-500 transform`}>
-                <div className="text-8xl mb-6 animate-pulse">{steps[activeStep].icon}</div>
-                <div className="text-6xl font-bold mb-4 opacity-20">{steps[activeStep].number}</div>
-                <h2 className="text-4xl font-bold mb-6">{steps[activeStep].title}</h2>
-                <p className="text-lg mb-8 leading-relaxed opacity-90">
-                  {steps[activeStep].description}
+      {/* Legal Disclaimer Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="bg-white border-2 border-gray-900 rounded-lg p-8">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-2xl">
+                ⚠️
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-3 text-gray-900">Legal Fine Print (We're Not Actually Criminals)</h3>
+                <p className="text-sm text-gray-600 leading-relaxed mb-3">
+                  While we love the rebel aesthetic, we're legally obligated to remind you: <strong>respect intellectual property rights.</strong> This tool is designed for personal use, inspiration, and recreating your own designs—not for commercial reproduction of copyrighted or trademarked material.
                 </p>
-
-                <div className="space-y-3">
-                  {steps[activeStep].features.map((feature, idx) => (
-                    <div key={idx} className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <span className="text-lg">{feature}</span>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Our AI may alter brand names and logos due to copyright filters. If you're recreating someone else's work, make sure you have permission or that it falls under fair use. We're just the tech—you're responsible for how you use it.
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Decoration Methods Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-              Choose Your Decoration Method
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Different techniques for different needs. We'll help you pick the perfect method for your design.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {decorationMethods.map((method, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer group"
-              >
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                  {method.icon}
-                </div>
-                <h3 className="text-xl font-bold mb-2">{method.name}</h3>
-                <p className="text-gray-600 text-sm">{method.desc}</p>
-              </div>
-            ))}
-          </div>
+      {/* CTA Section */}
+      <section className="py-20 sm:py-32 bg-black text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
+            backgroundSize: '50px 50px'
+          }}></div>
         </div>
-      </section>
 
-      {/* Why Choose Us Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-                Why designers love working with us
-              </h2>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                We've built our platform from the ground up to make custom apparel creation seamless, transparent, and professional.
-              </p>
-
-              <div className="space-y-6">
-                {[
-                  {
-                    title: 'No Minimum Orders',
-                    desc: 'Order as few or as many as you need. Perfect for testing designs or small batches.',
-                    color: 'green'
-                  },
-                  {
-                    title: 'Real-Time Pricing',
-                    desc: 'See costs update instantly as you design. No waiting for quotes or surprises.',
-                    color: 'blue'
-                  },
-                  {
-                    title: 'Production-Ready Files',
-                    desc: 'We automatically generate all the files your printer needs. No manual work required.',
-                    color: 'purple'
-                  },
-                  {
-                    title: 'Fast Turnaround',
-                    desc: 'Most orders ship within 3-5 business days. Rush options available.',
-                    color: 'orange'
-                  },
-                ].map((item, idx) => (
-                  <div key={idx} className="flex gap-4">
-                    <div className={`w-12 h-12 bg-${item.color}-100 rounded-xl flex items-center justify-center flex-shrink-0`}>
-                      <svg className={`w-6 h-6 text-${item.color}-600`} fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">{item.title}</h3>
-                      <p className="text-gray-600">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl p-12 text-white shadow-2xl">
-                <div className="text-center">
-                  <div className="text-6xl mb-6">🚀</div>
-                  <h3 className="text-3xl font-bold mb-4">Ready to create?</h3>
-                  <p className="text-lg mb-8 opacity-90">
-                    Join thousands of creators bringing their designs to life
-                  </p>
-                  <div className="flex flex-col gap-4">
-                    <Link
-                      to="/products/classic-tee"
-                      className="px-8 py-4 bg-white text-purple-600 font-bold rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      Start Designing Now
-                    </Link>
-                    <Link
-                      to="/products"
-                      className="px-8 py-4 border-2 border-white text-white font-bold rounded-lg hover:bg-white/10 transition-colors"
-                    >
-                      Browse Products
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Timeline Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-              From Order to Delivery
-            </h2>
-            <p className="text-lg text-gray-600">
-              Here's what happens after you click "Place Order"
-            </p>
-          </div>
-
-          <div className="relative">
-            {/* Timeline line */}
-            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-300"></div>
-
-            <div className="space-y-12">
-              {[
-                { time: 'Instant', title: 'Order Confirmed', desc: 'Payment processed and production files generated automatically' },
-                { time: '1-2 days', title: 'In Production', desc: 'Your design is printed by our trusted fulfillment partners' },
-                { time: '2-3 days', title: 'Quality Check', desc: 'Each item is inspected before packaging' },
-                { time: '3-5 days', title: 'Shipped', desc: 'Tracking number sent to your email' },
-                { time: '5-7 days', title: 'Delivered', desc: 'Your custom apparel arrives at your door' },
-              ].map((item, idx) => (
-                <div key={idx} className="relative pl-20">
-                  <div className="absolute left-0 w-16 h-16 bg-black rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-                    {idx + 1}
-                  </div>
-                  <div className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow">
-                    <div className="text-sm font-medium text-purple-600 mb-1">{item.time}</div>
-                    <h3 className="text-2xl font-bold mb-2">{item.title}</h3>
-                    <p className="text-gray-600">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-              Common Questions
-            </h2>
-          </div>
-
-          <div className="space-y-4">
-            {[
-              { q: 'What file formats do you accept?', a: 'We accept PNG, JPG, SVG, and PDF files. For best results, use high-resolution images (300 DPI or higher).' },
-              { q: 'Can I order just one item?', a: 'Absolutely! There are no minimum order quantities. Order as few or as many as you need.' },
-              { q: 'How long does production take?', a: 'Most orders are produced and shipped within 3-5 business days. Rush options are available for faster delivery.' },
-              { q: 'What if I need help with my design?', a: 'Our design support team is here to help! Contact us and we\'ll assist with file preparation and design advice.' },
-            ].map((item, idx) => (
-              <details key={idx} className="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors group">
-                <summary className="text-xl font-bold cursor-pointer flex justify-between items-center">
-                  {item.q}
-                  <span className="text-2xl group-open:rotate-180 transition-transform">↓</span>
-                </summary>
-                <p className="text-gray-600 mt-4 leading-relaxed">{item.a}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-24 bg-black text-white">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-          <h2 className="text-4xl lg:text-6xl font-bold mb-6">
-            Ready to bring your ideas to life?
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+          <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold mb-6">
+            Ready to pull off<br/>your first heist?
           </h2>
-          <p className="text-xl text-gray-300 mb-10">
-            Start designing in minutes. No experience required.
+          <p className="text-lg sm:text-xl text-gray-300 mb-10">
+            Upload a design and see the magic happen in seconds.
           </p>
           <Link
             to="/products/classic-tee"
-            className="inline-block px-10 py-5 bg-white text-black text-lg font-bold rounded-lg hover:bg-gray-100 transition-colors"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black text-lg font-bold rounded-full hover:bg-gray-100 transition-all transform hover:scale-105"
           >
-            Start Your First Design
+            Start Your Heist
+            <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
+
+        <div className="absolute top-10 left-10 w-32 h-32 bg-red-600/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 right-10 w-40 h-40 bg-purple-600/20 rounded-full blur-3xl"></div>
       </section>
     </div>
   );

@@ -24,8 +24,12 @@ export default function Layout({ children }: LayoutProps) {
         <>
           <header className="bg-white sticky top-0 z-50 border-b border-gray-200">
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between relative">
-              <Link to="/" className="text-xl sm:text-2xl font-bold text-gray-900">
-                Stolen Tee
+              <Link to="/" className="flex items-center">
+                <img
+                  src="/assets/stolentee-logo.png"
+                  alt="Stolen Tee"
+                  className="h-8 sm:h-10 w-auto"
+                />
               </Link>
 
               {/* Desktop Navigation */}

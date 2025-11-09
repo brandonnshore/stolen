@@ -13,7 +13,49 @@ export default function ProductDetail() {
     if (!slug) return;
 
     // Load mock data immediately for instant display
-    const mockData = {
+    const mockData = slug === 'classic-hoodie' ? {
+      product: {
+        id: '2',
+        title: 'Classic Hoodie',
+        slug: 'classic-hoodie',
+        description: 'Premium heavyweight hoodie. Comfortable and perfect for custom designs.',
+        images: ['/assets/hoodie-black-front.png'],
+        status: 'active' as const,
+        variants: [
+          { id: '10', product_id: '2', color: 'Black', size: 'S', sku: 'HOODIE-BLK-S', base_price: 35.99, stock_level: 100 },
+          { id: '11', product_id: '2', color: 'Black', size: 'M', sku: 'HOODIE-BLK-M', base_price: 35.99, stock_level: 100 },
+          { id: '12', product_id: '2', color: 'Black', size: 'L', sku: 'HOODIE-BLK-L', base_price: 35.99, stock_level: 100 },
+          { id: '13', product_id: '2', color: 'Black', size: 'XL', sku: 'HOODIE-BLK-XL', base_price: 35.99, stock_level: 100 },
+          { id: '14', product_id: '2', color: 'Black', size: '2XL', sku: 'HOODIE-BLK-2XL', base_price: 35.99, stock_level: 100 },
+          { id: '15', product_id: '2', color: 'White', size: 'S', sku: 'HOODIE-WHT-S', base_price: 35.99, stock_level: 100 },
+          { id: '16', product_id: '2', color: 'White', size: 'M', sku: 'HOODIE-WHT-M', base_price: 35.99, stock_level: 100 },
+          { id: '17', product_id: '2', color: 'White', size: 'L', sku: 'HOODIE-WHT-L', base_price: 35.99, stock_level: 100 },
+          { id: '18', product_id: '2', color: 'White', size: 'XL', sku: 'HOODIE-WHT-XL', base_price: 35.99, stock_level: 100 },
+          { id: '19', product_id: '2', color: 'White', size: '2XL', sku: 'HOODIE-WHT-2XL', base_price: 35.99, stock_level: 100 }
+        ]
+      },
+      decorationMethods: [
+        {
+          id: '1',
+          name: 'dtg',
+          display_name: 'Direct to Garment',
+          description: 'Full-color digital printing',
+          pricing_rules: {
+            base_price: 10,
+            per_location: 6,
+            quantity_breaks: [
+              { min: 1, max: 5, multiplier: 1 },
+              { min: 6, max: 11, multiplier: 0.95 },
+              { min: 12, max: null, multiplier: 0.85 }
+            ]
+          },
+          file_requirements: {
+            min_dpi: 300,
+            accepted_formats: ['png', 'jpg', 'pdf']
+          }
+        }
+      ]
+    } : {
       product: {
         id: '1',
         title: 'Classic Cotton T-Shirt',
