@@ -33,9 +33,9 @@ export default function HowItWorks() {
   ];
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white dark:bg-black min-h-screen transition-colors duration-300">
       {/* Hero Section */}
-      <section className="relative bg-black text-white py-20 sm:py-32 overflow-hidden">
+      <section className="relative bg-black dark:bg-white text-white dark:text-black py-20 sm:py-32 overflow-hidden transition-colors duration-300">
         {/* Subtle grid pattern background */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
@@ -65,8 +65,8 @@ export default function HowItWorks() {
       </section>
 
       {/* Steps Section */}
-      <section className="py-20 sm:py-32">
-        <div className="max-w-6xl mx-auto px-6">
+      <section className="py-20 sm:py-32 bg-white dark:bg-black transition-colors duration-300">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="space-y-24">
             {steps.map((step, index) => {
               const Icon = step.icon;
@@ -142,7 +142,7 @@ export default function HowItWorks() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 sm:py-32 bg-black text-white relative overflow-hidden">
+      <section className="py-20 sm:py-32 bg-black dark:bg-white text-white dark:text-black relative overflow-hidden transition-colors duration-300">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
             backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
@@ -159,7 +159,7 @@ export default function HowItWorks() {
           </p>
           <Link
             to="/products/classic-tee"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black text-lg font-bold rounded-full hover:bg-gray-100 transition-all transform hover:scale-105"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-white dark:bg-black text-black dark:text-white text-lg font-bold rounded-full hover:bg-gray-100 dark:hover:bg-gray-900 border-2 border-transparent dark:border-gray-800 transition-all transform hover:scale-105"
           >
             Start Your Heist
             <ArrowRight className="w-5 h-5" />

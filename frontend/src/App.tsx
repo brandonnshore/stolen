@@ -1,9 +1,11 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute';
+// Dark mode support added
 
 // Eager load critical pages
 import Home from './pages/Home';
@@ -38,11 +40,12 @@ const PageLoader = () => (
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <Router>
-          <Layout>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
+      <ThemeProvider>
+        <AuthProvider>
+          <Router>
+            <Layout>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/:slug" element={<ProductDetail />} />
@@ -64,11 +67,12 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-              </Routes>
-            </Suspense>
-          </Layout>
-        </Router>
-      </AuthProvider>
+                </Routes>
+              </Suspense>
+            </Layout>
+          </Router>
+        </AuthProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

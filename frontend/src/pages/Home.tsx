@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Product } from '../types';
+// import TweetWall3D from '../components/TweetWall3D';
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [heistCount, setHeistCount] = useState(12847);
 
   useEffect(() => {
     // Hardcoded products - no API calls
@@ -36,100 +38,139 @@ export default function Home() {
 
     setProducts(products);
     setLoading(false);
+
+    // Animate heist counter
+    const interval = setInterval(() => {
+      setHeistCount(prev => prev + Math.floor(Math.random() * 3));
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const categories = ['T-Shirts', 'Hoodies', 'Sportswear', 'Hats & Bags', 'Women'];
   const productColors = ['#000000', '#1e3a8a', '#6b7280', '#ffffff', '#7c2d12'];
 
+  const trophyItems = [
+    { title: 'Coachella Find', designer: '@vintage_hunter', status: 'CLASSIFIED' },
+    { title: 'Supreme Drop', designer: '@streetwear_king', status: 'EXTRACTED' },
+    { title: 'Band Tee \'85', designer: '@retro_collector', status: 'STOLEN' },
+    { title: 'Skate Logo', designer: '@urban_style', status: 'CLASSIFIED' },
+    { title: 'Nike Vintage', designer: '@sneaker_head', status: 'EXTRACTED' },
+    { title: 'Concert Merch', designer: '@music_fan', status: 'STOLEN' },
+    { title: 'Japanese Street', designer: '@tokyo_vibes', status: 'CLASSIFIED' },
+    { title: 'Graffiti Art', designer: '@street_artist', status: 'EXTRACTED' },
+  ];
+
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white dark:bg-black min-h-screen transition-colors duration-300">
       {/* Hero Section */}
-      <section className="min-h-[calc(100vh-4rem)] lg:h-screen flex items-center py-12 lg:py-0">
-        <div className="w-full grid lg:grid-cols-2 gap-8 lg:gap-0">
-          {/* Left: Hero Text */}
-          <div className="flex items-center justify-center px-6 sm:px-12 lg:px-20 order-2 lg:order-1">
-            <div className="max-w-lg">
-              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold leading-tight mb-4 sm:mb-6">
-                Steal any design.<br/>Recreate it instantly.
-              </h1>
-              <p className="text-base sm:text-lg text-gray-600 leading-relaxed mb-6 sm:mb-8">
-                Upload a photo of any shirt. Our AI extracts the design and recreates it on premium blanks in seconds.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <Link
-                  to="/products/classic-tee"
-                  className="px-6 py-3.5 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors text-center"
-                >
-                  Upload & Extract
-                </Link>
-                <Link
-                  to="/products"
-                  className="px-6 py-3.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors text-center"
-                >
-                  See How It Works
-                </Link>
-              </div>
-
-              {/* Feature badges */}
-              <div className="mt-8 sm:mt-10 grid grid-cols-2 gap-3 sm:gap-4 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <span className="text-gray-600">AI-powered extraction</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <span className="text-gray-600">300 DPI print quality</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <span className="text-gray-600">No minimum orders</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <span className="text-gray-600">Premium blanks</span>
-                </div>
-              </div>
-            </div>
+      <section className="min-h-screen flex items-center justify-center overflow-hidden bg-white dark:bg-black py-12 lg:py-0">
+        <div className="text-center px-6 sm:px-12 max-w-4xl">
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold leading-tight mb-6 sm:mb-8 text-gray-900 dark:text-white">
+            <span className="glitch-hover inline-block">Seen it.</span><br/>
+            <span className="glitch-hover inline-block">Want it.</span><br/>
+            <span className="glitch-hover inline-block">Got it.</span>
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed mb-8 sm:mb-10 max-w-2xl mx-auto">
+            Upload a photo of any shirt. Our thieves extract the design and recreate it on premium blanks in seconds.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/products/classic-tee"
+              className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-base font-medium rounded-md hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-center"
+            >
+              Start Your Heist
+            </Link>
+            <Link
+              to="/how-it-works"
+              className="px-8 py-4 border-2 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-white text-base font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors text-center"
+            >
+              See How It Works
+            </Link>
           </div>
+        </div>
+      </section>
 
-          {/* Right: Product Image */}
-          <div className="relative h-64 sm:h-96 lg:h-screen overflow-hidden bg-white order-1 lg:order-2">
-            <div className="absolute inset-0 flex items-center justify-center lg:justify-start lg:-ml-10">
-              <img
-                src="/assets/pink-hoodie-model.jpeg"
-                alt="Product model"
-                className="h-full w-auto object-contain"
-              />
+      {/* Stats Dashboard */}
+      <section className="py-16 sm:py-20 bg-gray-50 dark:bg-black transition-colors duration-300">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white dark:bg-gray-950 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+              <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 mb-2">{heistCount.toLocaleString()}</div>
+              <div className="text-gray-600 dark:text-gray-300 text-sm uppercase tracking-wider font-medium">Designs Stolen</div>
+            </div>
+            <div className="bg-white dark:bg-gray-950 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+              <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-500 mb-2">99.2%</div>
+              <div className="text-gray-600 dark:text-gray-300 text-sm uppercase tracking-wider font-medium">Accuracy Rate</div>
+            </div>
+            <div className="bg-white dark:bg-gray-950 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+              <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500 mb-2">0</div>
+              <div className="text-gray-600 dark:text-gray-300 text-sm uppercase tracking-wider font-medium">Lawyers Contacted</div>
+              <div className="text-gray-400 dark:text-gray-600 text-xs mt-1">(so far)</div>
+            </div>
+            <div className="bg-white dark:bg-gray-950 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+              <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500 mb-2">24/7</div>
+              <div className="text-gray-600 dark:text-gray-300 text-sm uppercase tracking-wider font-medium">Active Heists</div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Trophy Case */}
+      <section className="py-16 sm:py-20 bg-white dark:bg-black transition-colors duration-300">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              Trophy Case
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
+              Recent heists pulled off by our community. Your design could be next.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {trophyItems.map((item, index) => (
+              <div
+                key={index}
+                className="polaroid-tilt bg-white dark:bg-gray-950 p-4 shadow-lg border dark:border-gray-800"
+              >
+                {/* Polaroid Image Area */}
+                <div className="aspect-square bg-gray-100 dark:bg-gray-900 mb-3 relative overflow-hidden">
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-600">
+                    <div className="text-center">
+                      <div className="text-6xl mb-2">👕</div>
+                      <div className="text-sm font-medium">{item.title}</div>
+                    </div>
+                  </div>
+
+                  {/* Stamp Overlay */}
+                  <div className="absolute top-3 right-3">
+                    <div className="stamp">
+                      {item.status}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Polaroid Caption */}
+                <div className="text-center">
+                  <div className="font-medium text-gray-900 dark:text-white text-sm mb-1">{item.title}</div>
+                  <div className="text-gray-500 dark:text-gray-400 text-xs">{item.designer}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Product Showcase Section */}
-      <section className="pt-12 sm:pt-16 pb-16 sm:pb-20 bg-white">
+      <section className="pt-12 sm:pt-16 pb-16 sm:pb-20 bg-white dark:bg-black transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-3 sm:mb-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-3 sm:mb-4 text-gray-900 dark:text-white">
               Premium blanks,<br className="hidden sm:block" /> perfected by AI
             </h2>
-            <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
               Upload any design. Our AI extracts it perfectly and prints it on these premium garments at 300 DPI quality.
             </p>
 
@@ -141,8 +182,8 @@ export default function Home() {
                   onClick={() => setSelectedCategory(category)}
                   className={`px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
                     selectedCategory === category
-                      ? 'bg-black text-white'
-                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                      ? 'bg-black dark:bg-white text-white dark:text-black'
+                      : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
                   }`}
                 >
                   {category}
@@ -152,8 +193,8 @@ export default function Home() {
                 onClick={() => setSelectedCategory('All')}
                 className={`px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
                   selectedCategory === 'All'
-                    ? 'bg-black text-white'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    ? 'bg-black dark:bg-white text-white dark:text-black'
+                    : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
                 }`}
               >
                 All products

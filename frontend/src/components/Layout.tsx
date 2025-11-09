@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Menu, X } from 'lucide-react';
+import { ShoppingCart, Menu, X, Moon, Sun } from 'lucide-react';
 import { useCartStore } from '../stores/cartStore';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { useState } from 'react';
 
 interface LayoutProps {
@@ -12,21 +13,22 @@ export default function Layout({ children }: LayoutProps) {
   const cartItemCount = useCartStore((state) => state.items.length);
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Hide header on product detail/customizer pages
   const hideHeader = (location.pathname.startsWith('/products/') && location.pathname !== '/products') || location.pathname === '/hoodie';
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-black transition-colors duration-300">
       {/* Header - Assembly style */}
       {!hideHeader && (
         <>
-          <header className="bg-white sticky top-0 z-50 border-b border-gray-200">
+          <header className="bg-white dark:bg-black sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between relative">
               <Link to="/" className="flex items-center">
                 <img
-                  src="/assets/stolentee-logo.png"
+                  src={isDark ? "/assets/stolentee-logo-white.png" : "/assets/stolentee-logo.png"}
                   alt="Stolen Tee"
                   className="h-8 sm:h-10 w-auto"
                 />
@@ -34,29 +36,36 @@ export default function Layout({ children }: LayoutProps) {
 
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-                <Link to="/products" className="text-sm text-gray-900 hover:text-gray-600 transition-colors">
+                <Link to="/products" className="text-sm text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
                   Products
                 </Link>
-                <Link to="/how-it-works" className="text-sm text-gray-900 hover:text-gray-600 transition-colors">
+                <Link to="/how-it-works" className="text-sm text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
                   How it works
                 </Link>
-                <Link to="/about" className="text-sm text-gray-900 hover:text-gray-600 transition-colors">
+                <Link to="/about" className="text-sm text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
                   Pricing & Service
                 </Link>
-                <Link to="/case-studies" className="text-sm text-gray-900 hover:text-gray-600 transition-colors">
+                <Link to="/case-studies" className="text-sm text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
                   Case Studies
                 </Link>
-                <Link to="/about" className="text-sm text-gray-900 hover:text-gray-600 transition-colors">
+                <Link to="/about" className="text-sm text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
                   Blog
                 </Link>
               </div>
 
               {/* Desktop Right Side */}
               <div className="hidden md:flex items-center gap-4">
-                <Link to="/cart" className="relative text-gray-900 hover:text-gray-600 transition-colors">
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+                  aria-label="Toggle dark mode"
+                >
+                  {isDark ? <Sun size={20} /> : <Moon size={20} />}
+                </button>
+                <Link to="/cart" className="relative text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
                   <ShoppingCart size={20} />
                   {cartItemCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute -top-2 -right-2 bg-black dark:bg-white text-white dark:text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {cartItemCount}
                     </span>
                   )}
@@ -64,21 +73,21 @@ export default function Layout({ children }: LayoutProps) {
                 {isAuthenticated ? (
                   <Link
                     to="/dashboard"
-                    className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center text-sm font-medium hover:bg-gray-700 transition-colors"
+                    className="w-8 h-8 rounded-full bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 flex items-center justify-center text-sm font-medium hover:bg-gray-700 dark:hover:bg-gray-300 transition-colors"
                   >
                     {user?.name?.charAt(0).toUpperCase() || 'U'}
                   </Link>
                 ) : (
                   <Link
                     to="/login"
-                    className="text-sm text-gray-900 hover:text-gray-600 transition-colors"
+                    className="text-sm text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
                   >
                     Login
                   </Link>
                 )}
                 <Link
                   to="/products"
-                  className="px-5 py-2.5 bg-black text-white text-sm font-medium rounded-full hover:bg-gray-800 transition-colors"
+                  className="px-5 py-2.5 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded-full hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
                 >
                   Start designing
                 </Link>
@@ -86,17 +95,24 @@ export default function Layout({ children }: LayoutProps) {
 
               {/* Mobile Right Side */}
               <div className="flex md:hidden items-center gap-3">
-                <Link to="/cart" className="relative text-gray-900 p-2">
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 text-gray-900 dark:text-gray-100"
+                  aria-label="Toggle dark mode"
+                >
+                  {isDark ? <Sun size={20} /> : <Moon size={20} />}
+                </button>
+                <Link to="/cart" className="relative text-gray-900 dark:text-gray-100 p-2">
                   <ShoppingCart size={22} />
                   {cartItemCount > 0 && (
-                    <span className="absolute top-0 right-0 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute top-0 right-0 bg-black dark:bg-white text-white dark:text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {cartItemCount}
                     </span>
                   )}
                 </Link>
                 <button
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="p-2 text-gray-900"
+                  className="p-2 text-gray-900 dark:text-gray-100"
                   aria-label="Toggle menu"
                 >
                   {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -109,49 +125,49 @@ export default function Layout({ children }: LayoutProps) {
           {mobileMenuOpen && (
             <div className="fixed inset-0 z-40 md:hidden">
               <div className="fixed inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
-              <div className="fixed top-16 right-0 bottom-0 w-64 bg-white shadow-xl">
+              <div className="fixed top-16 right-0 bottom-0 w-64 bg-white dark:bg-black shadow-xl border-l dark:border-gray-800">
                 <nav className="flex flex-col p-6 gap-6">
                   <Link
                     to="/products"
-                    className="text-base font-medium text-gray-900"
+                    className="text-base font-medium text-gray-900 dark:text-gray-100"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Products
                   </Link>
                   <Link
                     to="/how-it-works"
-                    className="text-base font-medium text-gray-900"
+                    className="text-base font-medium text-gray-900 dark:text-gray-100"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     How it works
                   </Link>
                   <Link
                     to="/about"
-                    className="text-base font-medium text-gray-900"
+                    className="text-base font-medium text-gray-900 dark:text-gray-100"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Pricing & Service
                   </Link>
                   <Link
                     to="/case-studies"
-                    className="text-base font-medium text-gray-900"
+                    className="text-base font-medium text-gray-900 dark:text-gray-100"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Case Studies
                   </Link>
                   <Link
                     to="/about"
-                    className="text-base font-medium text-gray-900"
+                    className="text-base font-medium text-gray-900 dark:text-gray-100"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Blog
                   </Link>
 
-                  <div className="border-t border-gray-200 pt-6 space-y-4">
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
                     {isAuthenticated ? (
                       <Link
                         to="/dashboard"
-                        className="block py-2 text-base font-medium text-gray-900"
+                        className="block py-2 text-base font-medium text-gray-900 dark:text-gray-100"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         Dashboard
@@ -159,7 +175,7 @@ export default function Layout({ children }: LayoutProps) {
                     ) : (
                       <Link
                         to="/login"
-                        className="block py-2 text-base font-medium text-gray-900"
+                        className="block py-2 text-base font-medium text-gray-900 dark:text-gray-100"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         Login
@@ -167,7 +183,7 @@ export default function Layout({ children }: LayoutProps) {
                     )}
                     <Link
                       to="/products"
-                      className="block w-full py-3 bg-black text-white text-center text-sm font-medium rounded-full hover:bg-gray-800 transition-colors"
+                      className="block w-full py-3 bg-black dark:bg-white text-white dark:text-black text-center text-sm font-medium rounded-full hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Start designing
@@ -188,9 +204,15 @@ export default function Layout({ children }: LayoutProps) {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 mt-auto">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <p className="text-gray-400 text-sm">
-              &copy; {new Date().getFullYear()} Stolen Tee. All rights reserved.
+              &copy; {new Date().getFullYear()} Stolen Tee. All designs <span className="line-through">legally</span> stolen.
+            </p>
+            <p className="text-gray-500 text-xs">
+              "legal" we're kidding — redefine print
+            </p>
+            <p className="text-gray-600 text-xs italic">
+              Built with questionable ethics
             </p>
           </div>
         </div>
