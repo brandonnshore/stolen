@@ -281,7 +281,76 @@ const TShirtCanvas = forwardRef(({
   // Cache for loaded artwork images by URL
   const artworkImageCache = useRef<Map<string, HTMLImageElement>>(new Map());
 
-  // Load all artworks with caching
+  // Function to auto-crop transparent areas from image
+  const autoCropImage = (sourceImage: HTMLImageElement): HTMLImageElement => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return sourceImage;
+
+    // Draw source image to canvas
+    canvas.width = sourceImage.width;
+    canvas.height = sourceImage.height;
+    ctx.drawImage(sourceImage, 0, 0);
+
+    // Get image data
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const pixels = imageData.data;
+
+    // Find bounds of non-transparent pixels
+    let minX = canvas.width;
+    let minY = canvas.height;
+    let maxX = 0;
+    let maxY = 0;
+
+    for (let y = 0; y < canvas.height; y++) {
+      for (let x = 0; x < canvas.width; x++) {
+        const alpha = pixels[(y * canvas.width + x) * 4 + 3];
+        if (alpha > 0) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+
+    // If no opaque pixels found, return original
+    if (minX > maxX || minY > maxY) {
+      return sourceImage;
+    }
+
+    // Add small padding (5px) around the design
+    const padding = 5;
+    minX = Math.max(0, minX - padding);
+    minY = Math.max(0, minY - padding);
+    maxX = Math.min(canvas.width - 1, maxX + padding);
+    maxY = Math.min(canvas.height - 1, maxY + padding);
+
+    // Calculate cropped dimensions
+    const croppedWidth = maxX - minX + 1;
+    const croppedHeight = maxY - minY + 1;
+
+    // Create cropped canvas
+    const croppedCanvas = document.createElement('canvas');
+    croppedCanvas.width = croppedWidth;
+    croppedCanvas.height = croppedHeight;
+    const croppedCtx = croppedCanvas.getContext('2d');
+    if (!croppedCtx) return sourceImage;
+
+    // Draw cropped region
+    croppedCtx.drawImage(
+      sourceImage,
+      minX, minY, croppedWidth, croppedHeight,
+      0, 0, croppedWidth, croppedHeight
+    );
+
+    // Convert to image
+    const croppedImage = new window.Image();
+    croppedImage.src = croppedCanvas.toDataURL('image/png');
+    return croppedImage;
+  };
+
+  // Load all artworks with caching and auto-cropping
   useEffect(() => {
     if (artworks.length === 0) {
       setArtworkImages([]);
@@ -304,8 +373,24 @@ const TShirtCanvas = forwardRef(({
           image.src = artwork.url;
           image.crossOrigin = 'anonymous';
           image.onload = () => {
-            artworkImageCache.current.set(artwork.url, image);
-            resolve(image);
+            // Auto-crop the image to remove transparent padding
+            const croppedImage = autoCropImage(image);
+
+            // Wait for cropped image to load
+            if (croppedImage.complete) {
+              artworkImageCache.current.set(artwork.url, croppedImage);
+              resolve(croppedImage);
+            } else {
+              croppedImage.onload = () => {
+                artworkImageCache.current.set(artwork.url, croppedImage);
+                resolve(croppedImage);
+              };
+              croppedImage.onerror = () => {
+                // Fallback to original if cropping fails
+                artworkImageCache.current.set(artwork.url, image);
+                resolve(image);
+              };
+            }
           };
           image.onerror = reject;
         });

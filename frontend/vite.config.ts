@@ -34,19 +34,19 @@ export default defineConfig({
     target: 'es2020',
   },
   server: {
-    port: 3000,
+    port: 5173,
     strictPort: true,
     host: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:3000',
         changeOrigin: true,
       },
     },
   },
   // Preview server configuration
   preview: {
-    port: 3000,
+    port: 5173,
     strictPort: true,
   },
 });

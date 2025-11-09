@@ -73,6 +73,19 @@ export const uploadAPI = {
     });
     return response.data.data.asset;
   },
+
+  uploadShirtPhoto: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await api.post('/uploads/shirt-photo', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 30000, // 30 seconds for shirt photo upload
+    });
+    return response.data.data;
+  },
 };
 
 // Auth API
@@ -131,6 +144,14 @@ export const designAPI = {
   delete: async (id: string) => {
     const response = await api.delete(`/designs/${id}`);
     return response.data.data;
+  },
+};
+
+// Job API
+export const jobAPI = {
+  getStatus: async (jobId: string) => {
+    const response = await api.get(`/jobs/${jobId}`);
+    return response.data.job;
   },
 };
 

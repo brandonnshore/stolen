@@ -1,7 +1,7 @@
 {
-  "name": "raspberry-frontend",
+  "name": "stolentee-frontend",
   "version": "1.0.0",
-  "description": "Frontend for Raspberry custom clothing ecommerce platform",
+  "description": "Frontend for Stolen Tee AI logo extraction platform",
   "private": true,
   "scripts": {
     "dev": "vite",

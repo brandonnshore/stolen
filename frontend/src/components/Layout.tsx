@@ -25,7 +25,7 @@ export default function Layout({ children }: LayoutProps) {
           <header className="bg-white sticky top-0 z-50 border-b border-gray-200">
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between relative">
               <Link to="/" className="text-xl sm:text-2xl font-bold text-gray-900">
-                Raspberry
+                Stolen Tee
               </Link>
 
               {/* Desktop Navigation */}
@@ -186,7 +186,7 @@ export default function Layout({ children }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center">
             <p className="text-gray-400 text-sm">
-              &copy; {new Date().getFullYear()} Raspberry. All rights reserved.
+              &copy; {new Date().getFullYear()} Stolen Tee. All rights reserved.
             </p>
           </div>
         </div>

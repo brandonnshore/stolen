@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Product, Variant } from '../types';
-import { uploadAPI, designAPI } from '../services/api';
+import { uploadAPI, designAPI, jobAPI } from '../services/api';
 import { useCartStore } from '../stores/cartStore';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Upload, ArrowDownToLine, Save } from 'lucide-react';
@@ -44,16 +44,19 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   const [quantity, setQuantity] = useState(1);
 
   // Customization state - separate for each view
-  const [view, setView] = useState<'front' | 'neck' | 'back'>('front');
+  const [view, setView] = useState<'front' | 'back'>('front');
 
   const [frontArtworks, setFrontArtworks] = useState<Array<{url: string, position: any, assetId?: string}>>([]);
-  const [neckArtwork, setNeckArtwork] = useState<{url: string, position: any, assetId?: string} | null>(null);
   const [backArtworks, setBackArtworks] = useState<Array<{url: string, position: any, assetId?: string}>>([]);
+  const [extractedLogo, setExtractedLogo] = useState<{url: string, position: any} | null>(null);
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [jobStatus, setJobStatus] = useState<'idle' | 'uploading' | 'processing' | 'done' | 'error'>('idle');
+  const [jobError, setJobError] = useState<string | null>(null);
+  const [jobProgress, setJobProgress] = useState<{message: string, percent: number}>({message: '', percent: 0});
 
   // Current view's artwork
   const getCurrentArtworks = () => {
     if (view === 'front') return frontArtworks;
-    if (view === 'neck') return neckArtwork ? [neckArtwork] : [];
     if (view === 'back') return backArtworks;
     return [];
   };
@@ -69,7 +72,7 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   const unitCost = calculateUnitCost(
     frontArtworks.length > 0,
     backArtworks.length > 0,
-    neckArtwork !== null,
+    false, // No neck artwork
     TSHIRT_BASE_PRICE
   );
 
@@ -123,6 +126,95 @@ export default function Customizer({ product, variants }: CustomizerProps) {
       }
     }
   }, [searchParams, getItem]);
+
+  // Poll for job status when processing
+  useEffect(() => {
+    if (!currentJobId || jobStatus !== 'processing') {
+      return;
+    }
+
+    let targetPercent = 15; // Start at 15% after upload
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const job = await jobAPI.getStatus(currentJobId);
+        console.log('Job status:', job);
+
+        // Calculate target progress based on step
+        if (job.status === 'running' && job.logs) {
+          const logs = job.logs.toLowerCase();
+
+          if (logs.includes('step 1') || logs.includes('gemini')) {
+            targetPercent = 35;
+          } else if (logs.includes('step 2') || logs.includes('background')) {
+            targetPercent = 60;
+          } else if (logs.includes('step 3') || logs.includes('dpi')) {
+            targetPercent = 80;
+          } else if (logs.includes('step 4') || logs.includes('verifying')) {
+            targetPercent = 95;
+          }
+        }
+
+        if (job.status === 'done') {
+          setJobStatus('done');
+          setJobProgress({ message: 'Complete!', percent: 100 });
+          clearInterval(pollInterval);
+
+          // Extract the transparent logo asset from the assets array
+          const transparentAsset = job.assets?.find((asset: any) => asset.kind === 'transparent');
+
+          if (transparentAsset) {
+            const logoUrl = getFullAssetUrl(transparentAsset.file_url);
+
+            // Add the extracted logo to the current view (front or back)
+            if (view === 'back') {
+              setBackArtworks([{
+                url: logoUrl,
+                position: null, // Will be positioned by user
+                assetId: transparentAsset.id
+              }]);
+            } else {
+              // Default to front view
+              setFrontArtworks([{
+                url: logoUrl,
+                position: null, // Will be positioned by user
+                assetId: transparentAsset.id
+              }]);
+            }
+            // Keep the user on their selected view
+          }
+        } else if (job.status === 'failed') {
+          setJobStatus('error');
+          setJobError(job.errorMessage || 'Extraction failed');
+          clearInterval(pollInterval);
+        }
+      } catch (error: any) {
+        console.error('Failed to poll job status:', error);
+        console.error('Error details:', error.response?.data || error.message);
+        setJobStatus('error');
+        setJobError(error.response?.data?.message || error.message || 'Failed to check extraction status');
+        clearInterval(pollInterval);
+      }
+    }, 2000); // Poll every 2 seconds
+
+    // Smooth progress animation - gradually increase to target
+    const animationInterval = setInterval(() => {
+      setJobProgress((prev) => {
+        if (prev.percent < targetPercent) {
+          // Increment by 1-2% every 100ms for smooth animation
+          const increment = Math.min(2, targetPercent - prev.percent);
+          return { message: 'Stealing your t-shirt', percent: prev.percent + increment };
+        }
+        return prev;
+      });
+    }, 100);
+
+    // Cleanup on unmount
+    return () => {
+      clearInterval(pollInterval);
+      clearInterval(animationInterval);
+    };
+  }, [currentJobId, jobStatus]);
 
   const loadDesign = async (designId: string) => {
     try {
@@ -246,88 +338,30 @@ export default function Customizer({ product, variants }: CustomizerProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Reset any previous errors
+    setJobError(null);
+
     try {
-      const { valid, dpi } = await validateImageDPI(file);
-      if (!valid && dpi) {
-        if (!promptForLowDPIUpload(dpi)) {
-          e.target.value = '';
-          return;
-        }
-      }
+      // Set status to uploading
+      setJobStatus('uploading');
+      setJobProgress({ message: 'Uploading your image...', percent: 5 });
 
-      const previewUrl = createBlobUrl(file);
+      // Upload shirt photo and start extraction job
+      const { asset, jobId, message } = await uploadAPI.uploadShirtPhoto(file);
 
-      // Add artwork to the appropriate view with temporary blob URL
-      const tempArtwork = { url: previewUrl, position: null, assetId: undefined };
+      console.log('Shirt photo uploaded:', { asset, jobId, message });
 
-      if (view === 'front') {
-        if (frontArtworks.length < MAX_ARTWORKS_PER_VIEW) {
-          const artworkIndex = frontArtworks.length;
-          setFrontArtworks([...frontArtworks, tempArtwork]);
-
-          uploadAPI.uploadFile(file).then((asset) => {
-            setFrontArtworks(prev => {
-              const updated = [...prev];
-              if (updated[artworkIndex]) {
-                updated[artworkIndex] = {
-                  url: getFullAssetUrl(asset.file_url),
-                  position: updated[artworkIndex].position,
-                  assetId: asset.id
-                };
-              }
-              return updated;
-            });
-          }).catch(err => console.error('Upload failed:', err));
-        } else {
-          alert(`Maximum ${MAX_ARTWORKS_PER_VIEW} artworks allowed on front view`);
-          e.target.value = '';
-          return;
-        }
-      } else if (view === 'neck') {
-        if (neckArtwork) {
-          alert('Only 1 artwork allowed on neck view. Remove existing artwork first.');
-          e.target.value = '';
-          return;
-        }
-        setNeckArtwork(tempArtwork);
-
-        uploadAPI.uploadFile(file).then((asset) => {
-          setNeckArtwork((prev) => ({
-            url: getFullAssetUrl(asset.file_url),
-            position: prev?.position || null,
-            assetId: asset.id
-          }));
-        }).catch(err => console.error('Upload failed:', err));
-      } else if (view === 'back') {
-        if (backArtworks.length < MAX_ARTWORKS_PER_VIEW) {
-          const artworkIndex = backArtworks.length;
-          setBackArtworks([...backArtworks, tempArtwork]);
-
-          uploadAPI.uploadFile(file).then((asset) => {
-            setBackArtworks(prev => {
-              const updated = [...prev];
-              if (updated[artworkIndex]) {
-                updated[artworkIndex] = {
-                  url: getFullAssetUrl(asset.file_url),
-                  position: updated[artworkIndex].position,
-                  assetId: asset.id
-                };
-              }
-              return updated;
-            });
-          }).catch(err => console.error('Upload failed:', err));
-        } else {
-          alert(`Maximum ${MAX_ARTWORKS_PER_VIEW} artworks allowed on back view`);
-          e.target.value = '';
-          return;
-        }
-      }
+      // Set the job ID and status to processing
+      setCurrentJobId(jobId);
+      setJobStatus('processing');
+      setJobProgress({ message: 'Starting extraction process...', percent: 15 });
 
       // Reset file input
       e.target.value = '';
-    } catch (error) {
-      console.error('File upload failed:', error);
-      alert('Failed to upload file');
+    } catch (error: any) {
+      console.error('Shirt photo upload failed:', error);
+      setJobStatus('error');
+      setJobError(error.response?.data?.message || 'Failed to upload shirt photo');
       e.target.value = '';
     }
   };
@@ -558,9 +592,9 @@ export default function Customizer({ product, variants }: CustomizerProps) {
             ← Back
           </Link>
 
-          {/* Raspberry Logo - Center (desktop only) */}
+          {/* Stolen Tee Logo - Center (desktop only) */}
           <Link to="/" className="hidden sm:block absolute left-1/2 -translate-x-1/2 text-lg font-bold hover:text-gray-600 transition-colors">
-            Raspberry
+            Stolen Tee
           </Link>
 
           {/* Save Design Button and Price - Right */}
@@ -592,11 +626,188 @@ export default function Customizer({ product, variants }: CustomizerProps) {
         </div>
       </div>
 
-      <div className="flex flex-col lg:grid lg:grid-cols-[1fr_400px] lg:h-[calc(100vh-40px)]">
-        {/* Left - Canvas Area */}
-        <div className="bg-white flex flex-col relative h-[60vh] lg:h-full overflow-hidden order-1">
+      <div className="flex h-[calc(100vh-60px)]">
+        {/* Left - Upload Section (1/4 width) */}
+        <div className="w-1/4 bg-gray-50 border-r border-gray-200 overflow-y-auto p-6">
+          <div className="max-w-md mx-auto">
+            <h2 className="text-xl font-bold mb-2">Upload Shirt Photo</h2>
+            <p className="text-gray-600 text-sm mb-4">Upload a photo of your shirt and we'll extract the design automatically</p>
+
+            {/* AI Disclaimer */}
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-xs text-blue-900">
+                This is done using AI, and sometimes it requires multiple tries to get your perfect, desired result.
+              </p>
+            </div>
+
+            {/* Upload Area */}
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors cursor-pointer bg-white">
+              <input
+                type="file"
+                accept="image/jpeg,image/png"
+                onChange={handleFileUpload}
+                className="hidden"
+                id="shirt-photo-upload"
+                disabled={jobStatus === 'uploading' || jobStatus === 'processing'}
+              />
+              <label htmlFor="shirt-photo-upload" className="cursor-pointer">
+                <Upload className="mx-auto mb-3 text-gray-400" size={36} />
+                <p className="text-sm font-medium text-gray-700 mb-1">
+                  Click to upload or drag and drop
+                </p>
+                <p className="text-xs text-gray-500">
+                  JPG or PNG up to 25MB
+                </p>
+              </label>
+            </div>
+
+            {/* Status Indicator - Progress Bar */}
+            {(jobStatus === 'uploading' || jobStatus === 'processing') && (
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="mb-3">
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-sm font-medium text-blue-900">
+                      Stealing your t-shirt
+                    </p>
+                    <p className="text-xs font-semibold text-blue-700">
+                      {jobProgress.percent}%
+                    </p>
+                  </div>
+                  {/* Progress Bar */}
+                  <div className="w-full bg-blue-200 rounded-full h-2.5 overflow-hidden">
+                    <div
+                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
+                      style={{ width: `${jobProgress.percent}%` }}
+                    ></div>
+                  </div>
+                </div>
+                <p className="text-xs text-blue-700">
+                  Your design is being extracted and optimized for printing...
+                </p>
+              </div>
+            )}
+
+            {/* Success Message */}
+            {jobStatus === 'done' && (
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm font-medium text-green-900">
+                  Logo extracted successfully! You can now position it on the shirt.
+                </p>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {jobStatus === 'error' && jobError && (
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm font-medium text-red-900">
+                  Error: {jobError}
+                </p>
+                <button
+                  onClick={() => {
+                    setJobStatus('idle');
+                    setJobError(null);
+                    setCurrentJobId(null);
+                  }}
+                  className="mt-2 text-xs text-red-700 underline hover:text-red-900"
+                >
+                  Try again
+                </button>
+              </div>
+            )}
+
+            {/* Garment Color */}
+            <div className="mt-8 border-t border-gray-200 pt-6">
+              <label className="block text-sm font-semibold mb-4">Garment Color</label>
+              <div className="grid grid-cols-2 gap-3">
+                {colors.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
+                      selectedColor === color
+                        ? 'border-black bg-gray-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-full border border-gray-300"
+                      style={{
+                        backgroundColor:
+                          color === 'White' ? '#FFFFFF' :
+                          color === 'Black' ? '#000000' :
+                          color === 'Navy' ? '#001f3f' :
+                          color.toLowerCase()
+                      }}
+                    ></div>
+                    <span className="text-sm font-medium">{color}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Size Selection */}
+            <div className="mt-6 border-t border-gray-200 pt-6">
+              <label className="block text-sm font-semibold mb-4">Size</label>
+              <div className="grid grid-cols-3 gap-3">
+                {sizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`px-4 py-3 border-2 rounded-lg text-sm font-medium transition-all ${
+                      selectedSize === size
+                        ? 'border-black bg-black text-white'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quantity */}
+            <div className="mt-6 border-t border-gray-200 pt-6">
+              <label className="block text-sm font-semibold mb-4">Quantity</label>
+              <input
+                type="number"
+                min="1"
+                value={quantity}
+                onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                className="w-full px-4 py-3 text-base border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
+              />
+            </div>
+
+            {/* Price Summary */}
+            <div className="mt-6 border-t border-gray-200 pt-6">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-gray-600">Unit Price</span>
+                <span className="text-lg font-semibold">${unitCost.toFixed(2)}</span>
+              </div>
+              {quantity >= 2 && (
+                <div className="flex justify-between items-center text-lg font-bold">
+                  <span>Total</span>
+                  <span>${(unitCost * quantity).toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Add to Cart Button */}
+            <div className="pt-6">
+              <button
+                onClick={handleAddToCart}
+                disabled={!selectedColor || !selectedSize}
+                className="w-full py-3.5 sm:py-3 bg-black text-white text-base sm:text-sm font-medium rounded-full hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                {editingCartItemId ? 'Update Cart' : 'Add to Cart'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right - Canvas Area (3/4 width) */}
+        <div className="w-3/4 bg-white flex flex-col relative overflow-hidden">
           {/* Interactive Canvas Preview */}
-          <div className={`absolute inset-0 flex items-center justify-center ${view === 'neck' ? 'pt-0 pb-0 px-0' : 'pt-2 pb-16 lg:pb-16 px-2 sm:px-6'}`}>
+          <div className="h-full flex items-center justify-center pt-2 pb-16 px-6">
             {product.slug === 'classic-hoodie' ? (
               <HoodieCanvas
                 ref={canvasRef}
@@ -607,8 +818,6 @@ export default function Customizer({ product, variants }: CustomizerProps) {
                     const updated = [...frontArtworks];
                     updated[index] = { ...updated[index], position: pos };
                     setFrontArtworks(updated);
-                  } else if (view === 'neck' && neckArtwork) {
-                    setNeckArtwork({ ...neckArtwork, position: pos });
                   } else if (view === 'back') {
                     const updated = [...backArtworks];
                     updated[index] = { ...updated[index], position: pos };
@@ -619,8 +828,6 @@ export default function Customizer({ product, variants }: CustomizerProps) {
                   if (view === 'front') {
                     const updated = frontArtworks.filter((_, i) => i !== index);
                     setFrontArtworks(updated);
-                  } else if (view === 'neck') {
-                    setNeckArtwork(null);
                   } else if (view === 'back') {
                     const updated = backArtworks.filter((_, i) => i !== index);
                     setBackArtworks(updated);
@@ -639,8 +846,6 @@ export default function Customizer({ product, variants }: CustomizerProps) {
                   const updated = [...frontArtworks];
                   updated[index] = { ...updated[index], position: pos };
                   setFrontArtworks(updated);
-                } else if (view === 'neck' && neckArtwork) {
-                  setNeckArtwork({ ...neckArtwork, position: pos });
                 } else if (view === 'back') {
                   const updated = [...backArtworks];
                   updated[index] = { ...updated[index], position: pos };
@@ -652,8 +857,6 @@ export default function Customizer({ product, variants }: CustomizerProps) {
                 if (view === 'front') {
                   const updated = frontArtworks.filter((_, i) => i !== index);
                   setFrontArtworks(updated);
-                } else if (view === 'neck') {
-                  setNeckArtwork(null);
                 } else if (view === 'back') {
                   const updated = backArtworks.filter((_, i) => i !== index);
                   setBackArtworks(updated);
@@ -685,358 +888,6 @@ export default function Customizer({ product, variants }: CustomizerProps) {
             >
               Back
             </button>
-            <button
-              onClick={() => setView('neck')}
-              className={`px-4 sm:px-5 py-2.5 sm:py-2 rounded-full text-sm font-medium transition-colors ${
-                view === 'neck'
-                  ? 'bg-black text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              Neck
-            </button>
-          </div>
-        </div>
-
-        {/* Right Sidebar */}
-        <div className="bg-white border-t lg:border-t-0 lg:border-l border-gray-200 overflow-y-auto order-2 max-h-[40vh] lg:max-h-none">
-          <div className="p-4 sm:p-5 space-y-1 pb-24 lg:pb-5">
-
-            {/* Garment Color Section */}
-            <div className="border-t border-gray-200 pt-5 pb-4">
-              <button
-                onClick={() => setColorSectionOpen(!colorSectionOpen)}
-                className="w-full flex items-center justify-between mb-4 group"
-              >
-                <h3 className="text-sm font-semibold">Garment Color</h3>
-                <div className="flex items-center gap-3">
-                  {selectedColor && (
-                    <span
-                      className="w-5 h-5 rounded-full border border-gray-300"
-                      style={{
-                        backgroundColor: selectedColor === 'White' ? '#FFFFFF' : selectedColor === 'Black' ? '#000000' : selectedColor.toLowerCase()
-                      }}
-                    ></span>
-                  )}
-                  <span className="text-gray-400 group-hover:text-gray-600">
-                    {colorSectionOpen ? '−' : '+'}
-                  </span>
-                </div>
-              </button>
-
-              {colorSectionOpen && (
-                <div className="space-y-4">
-                  <div className="text-xs text-gray-400 uppercase tracking-wider mb-3">Pre-developed</div>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {colors.map((color) => (
-                      <button
-                        key={color}
-                        onClick={() => setSelectedColor(color)}
-                        className={`flex items-center gap-2.5 p-2.5 rounded-md border transition-all ${
-                          selectedColor === color
-                            ? 'border-gray-900 bg-gray-50'
-                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        <div
-                          className="w-8 h-8 rounded-full border border-gray-300 flex-shrink-0"
-                          style={{
-                            backgroundColor:
-                              color === 'White' ? '#FFFFFF' :
-                              color === 'Black' ? '#000000' :
-                              color === 'Navy' ? '#001f3f' :
-                              color.toLowerCase()
-                          }}
-                        ></div>
-                        <span className="text-xs font-medium">{color}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Front Artwork Section */}
-            <div className="border-t border-gray-200 pt-5 pb-4">
-              <button
-                onClick={() => setFrontArtworkSectionOpen(!frontArtworkSectionOpen)}
-                className="w-full flex items-center justify-between mb-4 group"
-              >
-                <h3 className="text-sm font-semibold">Front Artwork</h3>
-                <div className="flex items-center gap-3">
-                  <span className="w-5 h-5 rounded-full bg-black text-white text-xs flex items-center justify-center">
-                    {frontArtworks.length}
-                  </span>
-                  <span className="text-gray-400 group-hover:text-gray-600">
-                    {frontArtworkSectionOpen ? '−' : '+'}
-                  </span>
-                </div>
-              </button>
-
-              {frontArtworkSectionOpen && (
-                <div className="space-y-4">
-                  {frontArtworks.length < 4 && (
-                    <div
-                      className="border-2 border-dashed border-gray-200 rounded-md p-6 text-center hover:border-gray-300 transition-colors cursor-pointer"
-                      onClick={() => setView('front')}
-                    >
-                      <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/svg+xml,application/pdf"
-                        onChange={(e) => {
-                          setView('front');
-                          handleFileUpload(e);
-                        }}
-                        className="hidden"
-                        id="front-artwork-upload"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <label htmlFor="front-artwork-upload" className="cursor-pointer">
-                        <Upload className="mx-auto mb-2 text-gray-300" size={28} />
-                        <p className="text-xs text-gray-600 font-medium">
-                          Upload front artwork (up to 4)
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">PNG, JPG, SVG or PDF</p>
-                      </label>
-                    </div>
-                  )}
-
-                  {/* Display uploaded front artworks */}
-                  {frontArtworks.map((artwork, index) => (
-                    <div key={index} className="border border-gray-200 rounded-md p-3 bg-gray-50">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-10 h-10 bg-white border border-gray-200 rounded flex items-center justify-center overflow-hidden">
-                            <img src={artwork.url} alt="Front Artwork" className="w-full h-full object-contain" />
-                          </div>
-                          <div>
-                            <p className="text-xs font-medium">Artwork {index + 1}</p>
-                            <p className="text-xs text-gray-500">Click front view to edit</p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setFrontArtworks(frontArtworks.filter((_, i) => i !== index));
-                          }}
-                          className="text-xs text-red-600 hover:text-red-700"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Back Artwork Section */}
-            <div className="border-t border-gray-200 pt-5 pb-4">
-              <button
-                onClick={() => setBackArtworkSectionOpen(!backArtworkSectionOpen)}
-                className="w-full flex items-center justify-between mb-4 group"
-              >
-                <h3 className="text-sm font-semibold">Back Artwork</h3>
-                <div className="flex items-center gap-3">
-                  <span className="w-5 h-5 rounded-full bg-black text-white text-xs flex items-center justify-center">
-                    {backArtworks.length}
-                  </span>
-                  <span className="text-gray-400 group-hover:text-gray-600">
-                    {backArtworkSectionOpen ? '−' : '+'}
-                  </span>
-                </div>
-              </button>
-
-              {backArtworkSectionOpen && (
-                <div className="space-y-4">
-                  {backArtworks.length < 4 && (
-                    <div
-                      className="border-2 border-dashed border-gray-200 rounded-md p-6 text-center hover:border-gray-300 transition-colors cursor-pointer"
-                      onClick={() => setView('back')}
-                    >
-                      <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/svg+xml,application/pdf"
-                        onChange={(e) => {
-                          setView('back');
-                          handleFileUpload(e);
-                        }}
-                        className="hidden"
-                        id="back-artwork-upload"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <label htmlFor="back-artwork-upload" className="cursor-pointer">
-                        <Upload className="mx-auto mb-2 text-gray-300" size={28} />
-                        <p className="text-xs text-gray-600 font-medium">
-                          Upload back artwork (up to 4)
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">PNG, JPG, SVG or PDF</p>
-                      </label>
-                    </div>
-                  )}
-
-                  {/* Display uploaded back artworks */}
-                  {backArtworks.map((artwork, index) => (
-                    <div key={index} className="border border-gray-200 rounded-md p-3 bg-gray-50">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-10 h-10 bg-white border border-gray-200 rounded flex items-center justify-center overflow-hidden">
-                            <img src={artwork.url} alt="Back Artwork" className="w-full h-full object-contain" />
-                          </div>
-                          <div>
-                            <p className="text-xs font-medium">Artwork {index + 1}</p>
-                            <p className="text-xs text-gray-500">Click back view to edit</p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setBackArtworks(backArtworks.filter((_, i) => i !== index));
-                          }}
-                          className="text-xs text-red-600 hover:text-red-700"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Neck Label Section */}
-            <div className="border-t border-gray-200 pt-5 pb-4">
-              <button
-                onClick={() => setNeckLabelSectionOpen(!neckLabelSectionOpen)}
-                className="w-full flex items-center justify-between mb-4 group"
-              >
-                <h3 className="text-sm font-semibold">Neck Label</h3>
-                <div className="flex items-center gap-3">
-                  <span className="w-5 h-5 rounded-full bg-black text-white text-xs flex items-center justify-center">
-                    {neckArtwork ? '1' : '0'}
-                  </span>
-                  <span className="text-gray-400 group-hover:text-gray-600">
-                    {neckLabelSectionOpen ? '−' : '+'}
-                  </span>
-                </div>
-              </button>
-
-              {neckLabelSectionOpen && (
-                <div className="space-y-4">
-                  {!neckArtwork && (
-                    <div
-                      className="border-2 border-dashed border-gray-200 rounded-md p-6 text-center hover:border-gray-300 transition-colors cursor-pointer"
-                      onClick={() => setView('neck')}
-                    >
-                      <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/svg+xml,application/pdf"
-                        onChange={(e) => {
-                          setView('neck');
-                          handleFileUpload(e);
-                        }}
-                        className="hidden"
-                        id="neck-label-upload"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <label htmlFor="neck-label-upload" className="cursor-pointer">
-                        <Upload className="mx-auto mb-2 text-gray-300" size={28} />
-                        <p className="text-xs text-gray-600 font-medium">
-                          Upload neck label
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">PNG, JPG, SVG or PDF</p>
-                      </label>
-                    </div>
-                  )}
-
-                  {/* Display uploaded neck label */}
-                  {neckArtwork && (
-                    <div className="border border-gray-200 rounded-md p-3 bg-gray-50">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-10 h-10 bg-white border border-gray-200 rounded flex items-center justify-center overflow-hidden">
-                            <img src={neckArtwork.url} alt="Neck Label" className="w-full h-full object-contain" />
-                          </div>
-                          <div>
-                            <p className="text-xs font-medium">Neck Label</p>
-                            <p className="text-xs text-gray-500">Click neck view to edit</p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => setNeckArtwork(null)}
-                          className="text-xs text-red-600 hover:text-red-700"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Size Selection */}
-            <div className="border-t border-gray-200 pt-5 pb-4">
-              <label className="block text-xs font-medium mb-3">Size</label>
-              <div className="grid grid-cols-3 gap-2">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`px-3 py-2 border rounded-md text-xs font-medium transition-all ${
-                      selectedSize === size
-                        ? 'border-black bg-black text-white'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Quantity, Price, Delivery */}
-            <div className="border-t border-gray-200 pt-5 pb-4">
-              <div className={`grid ${quantity >= 2 ? 'grid-cols-4' : 'grid-cols-3'} gap-3`}>
-                <div>
-                  <label className="block text-xs text-gray-500 mb-2">Quantity</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={quantity}
-                    onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:border-gray-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-500 mb-2">Unit cost</label>
-                  <div className="text-sm font-semibold">
-                    ${unitCost.toFixed(2)}
-                  </div>
-                </div>
-                {quantity >= 2 && (
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-2">Total cost</label>
-                    <div className="text-sm font-semibold">
-                      ${(unitCost * quantity).toFixed(2)}
-                    </div>
-                  </div>
-                )}
-                <div>
-                  <label className="block text-xs text-gray-500 mb-2">Delivery</label>
-                  <div className="text-xs font-semibold">4 Nov</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Confirm Button - Sticky on Mobile */}
-            <div className="pt-4 lg:relative fixed bottom-0 left-0 right-0 p-4 bg-white border-t lg:border-t-0 border-gray-200 lg:p-0 shadow-lg lg:shadow-none">
-              <button
-                onClick={handleAddToCart}
-                disabled={!selectedColor || !selectedSize}
-                className="w-full py-3.5 sm:py-3 bg-black text-white text-base sm:text-sm font-medium rounded-full hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-              >
-                {editingCartItemId ? 'Update Cart' : 'Add to Cart'}
-              </button>
-            </div>
           </div>
         </div>
       </div>
