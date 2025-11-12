@@ -12,8 +12,7 @@ import Toast from './Toast';
 import { trackCustomizationStarted, trackDesignSaved } from '../utils/analytics';
 import { TSHIRT_BASE_PRICE, calculateUnitCost } from '../constants/pricing';
 import { SIZES, MAX_ARTWORKS_PER_VIEW } from '../constants/products';
-import { getFullAssetUrl, createBlobUrl } from '../utils/urlHelpers';
-import { validateImageDPI, promptForLowDPIUpload } from '../utils/imageValidation';
+import { getFullAssetUrl } from '../utils/urlHelpers';
 
 interface CustomizerProps {
   product: Product;
@@ -52,7 +51,6 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   const [frontArtworks, setFrontArtworks] = useState<Array<{url: string, position: any, assetId?: string}>>([]);
   const [backArtworks, setBackArtworks] = useState<Array<{url: string, position: any, assetId?: string}>>([]);
   const [neckArtwork, setNeckArtwork] = useState<{url: string, position: any, assetId?: string} | null>(null);
-  const [extractedLogo, setExtractedLogo] = useState<{url: string, position: any} | null>(null);
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
   const [uploadTargetView, setUploadTargetView] = useState<'front' | 'back'>('front'); // Track where to place uploaded image
   const [jobStatus, setJobStatus] = useState<'idle' | 'uploading' | 'processing' | 'done' | 'error'>('idle');
@@ -61,7 +59,6 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   const [disclaimerIndex, setDisclaimerIndex] = useState(0);
 
   // Track uploaded and extracted artwork files for display
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [extractedArtworkUrl, setExtractedArtworkUrl] = useState<string | null>(null);
 
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -70,11 +67,6 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   // Toast notification state
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-
-  const [colorSectionOpen, setColorSectionOpen] = useState(true);
-  const [frontArtworkSectionOpen, setFrontArtworkSectionOpen] = useState(false);
-  const [backArtworkSectionOpen, setBackArtworkSectionOpen] = useState(false);
-  const [neckLabelSectionOpen, setNeckLabelSectionOpen] = useState(false);
 
   // Track customization started
   useEffect(() => {
@@ -604,21 +596,7 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   };
 
   // Auto-open appropriate section when view changes
-  useEffect(() => {
-    if (view === 'neck') {
-      setNeckLabelSectionOpen(true);
-      setFrontArtworkSectionOpen(false);
-      setBackArtworkSectionOpen(false);
-    } else if (view === 'front') {
-      setFrontArtworkSectionOpen(true);
-      setBackArtworkSectionOpen(false);
-      setNeckLabelSectionOpen(false);
-    } else if (view === 'back') {
-      setBackArtworkSectionOpen(true);
-      setFrontArtworkSectionOpen(false);
-      setNeckLabelSectionOpen(false);
-    }
-  }, [view]);
+  // Note: View switching functionality for front/back views
 
   return (
     <div className="min-h-screen bg-white">
