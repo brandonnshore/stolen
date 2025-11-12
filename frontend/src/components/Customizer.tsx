@@ -60,6 +60,10 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   const [jobProgress, setJobProgress] = useState<{message: string, percent: number}>({message: '', percent: 0});
   const [disclaimerIndex, setDisclaimerIndex] = useState(0);
 
+  // Track uploaded and extracted artwork files for display
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [extractedArtworkUrl, setExtractedArtworkUrl] = useState<string | null>(null);
+
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [savedDesignName, setSavedDesignName] = useState('');
 
@@ -193,20 +197,30 @@ export default function Customizer({ product, variants }: CustomizerProps) {
           if (transparentAsset) {
             const logoUrl = getFullAssetUrl(transparentAsset.file_url);
 
+            // Store the extracted artwork URL for display
+            setExtractedArtworkUrl(logoUrl);
+
+            const newArtwork = {
+              url: logoUrl,
+              position: null, // Will be positioned by user
+              assetId: transparentAsset.id
+            };
+
             // Add the extracted logo to the view that was selected at upload time
             if (uploadTargetView === 'back') {
-              setBackArtworks([{
-                url: logoUrl,
-                position: null, // Will be positioned by user
-                assetId: transparentAsset.id
-              }]);
+              // Check if we can add more artworks to this view
+              if (backArtworks.length >= MAX_ARTWORKS_PER_VIEW) {
+                setJobError(`Maximum ${MAX_ARTWORKS_PER_VIEW} artworks per view. Remove one first.`);
+              } else {
+                setBackArtworks(prev => [...prev, newArtwork]);
+              }
             } else {
               // Default to front view
-              setFrontArtworks([{
-                url: logoUrl,
-                position: null, // Will be positioned by user
-                assetId: transparentAsset.id
-              }]);
+              if (frontArtworks.length >= MAX_ARTWORKS_PER_VIEW) {
+                setJobError(`Maximum ${MAX_ARTWORKS_PER_VIEW} artworks per view. Remove one first.`);
+              } else {
+                setFrontArtworks(prev => [...prev, newArtwork]);
+              }
             }
             // Keep the user on their selected view
           }
@@ -381,6 +395,10 @@ export default function Customizer({ product, variants }: CustomizerProps) {
 
       console.log('Shirt photo uploaded:', { asset, jobId, message });
 
+      // Store the uploaded original image URL for display
+      const uploadedUrl = getFullAssetUrl(asset.file_url);
+      setUploadedImageUrl(uploadedUrl);
+
       // Set the job ID and status to processing
       setCurrentJobId(jobId);
       setJobStatus('processing');
@@ -396,9 +414,9 @@ export default function Customizer({ product, variants }: CustomizerProps) {
     }
   };
 
-  const handleDownloadDesign = () => {
+  const handleDownloadDesign = async () => {
     if (canvasRef.current && canvasRef.current.downloadImage) {
-      canvasRef.current.downloadImage();
+      await canvasRef.current.downloadImage();
     }
   };
 
@@ -737,6 +755,52 @@ export default function Customizer({ product, variants }: CustomizerProps) {
                 >
                   Try again
                 </button>
+              </div>
+            )}
+
+            {/* Artwork Files Display */}
+            {extractedArtworkUrl && (
+              <div className="mt-6">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Artwork File</h3>
+
+                {/* Extracted Artwork */}
+                <div className="bg-white border-2 border-green-300 rounded-lg p-3 hover:border-green-400 transition-colors">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded border border-gray-200 overflow-hidden" style={{
+                      backgroundImage: 'repeating-conic-gradient(#f0f0f0 0% 25%, transparent 0% 50%) 50% / 10px 10px'
+                    }}>
+                      <img
+                        src={extractedArtworkUrl}
+                        alt="Extracted artwork"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-sm font-medium text-gray-900">Print-Ready Artwork</p>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                          300 DPI
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">Transparent PNG · Ready for printing</p>
+                      <a
+                        href={extractedArtworkUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-xs font-medium text-blue-600 hover:text-blue-800"
+                      >
+                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        View Full Size
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-500 italic mt-2">
+                  💡 Click "View Full Size" to inspect the print file that will be sent to production
+                </p>
               </div>
             )}
 

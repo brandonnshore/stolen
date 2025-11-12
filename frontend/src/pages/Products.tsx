@@ -13,7 +13,7 @@ export default function Products() {
       {
         id: '2',
         title: 'Classic Hoodie',
-        slug: 'hoodie',
+        slug: 'classic-hoodie',
         description: 'Premium heavyweight hoodie',
         images: ['/assets/hoodie-black-front.png'],
         status: 'active' as const,
@@ -78,7 +78,7 @@ export default function Products() {
             {products.map((product) => (
               <Link
                 key={product.id}
-                to={product.slug === 'hoodie' ? '/hoodie' : `/products/${product.slug}`}
+                to={`/products/${product.slug}`}
                 className="group block"
               >
                 {/* Product Image */}

@@ -67,14 +67,76 @@ const HoodieCanvas = forwardRef<unknown, HoodieCanvasProps>(({
   const [hoodieDimensions, setHoodieDimensions] = useState<CanvasDimensions>({ width: 690, height: 805 });
 
   useImperativeHandle(ref, () => ({
-    downloadImage: () => {
+    downloadImage: async () => {
       if (!stageRef.current) return;
       setSelectedId(null);
-      const uri = stageRef.current.toDataURL({
+
+      const stage = stageRef.current;
+      const stageWidth = stage.width();
+      const stageHeight = stage.height();
+
+      // Create watermark layer
+      const watermarkLayer = new Konva.Layer();
+
+      // Load Stolen Tee logo
+      const logoImg = new window.Image();
+      logoImg.crossOrigin = 'anonymous';
+
+      await new Promise<void>((resolve) => {
+        logoImg.onload = () => {
+          // Logo dimensions (very small size)
+          const logoWidth = 40;
+          const logoHeight = (logoImg.height / logoImg.width) * logoWidth;
+
+          // Position: right at the bottom, 5px from edge
+          const logoX = (stageWidth - logoWidth) / 2;
+          const logoY = stageHeight - logoHeight - 20; // 5px + text height
+
+          // Add logo
+          const logo = new Konva.Image({
+            image: logoImg,
+            x: logoX,
+            y: logoY,
+            width: logoWidth,
+            height: logoHeight,
+            opacity: 1.0,
+          });
+          watermarkLayer.add(logo);
+
+          // Add stolentee.com text below logo
+          const text = new Konva.Text({
+            x: 0,
+            y: logoY + logoHeight + 3,
+            width: stageWidth,
+            text: 'stolentee.com',
+            fontSize: 8,
+            fontFamily: 'Arial, sans-serif',
+            fill: '#000000',
+            align: 'center',
+            opacity: 1.0,
+          });
+          watermarkLayer.add(text);
+
+          resolve();
+        };
+        logoImg.src = '/assets/stolentee-logo.png';
+      });
+
+      // Add watermark layer to stage
+      stage.add(watermarkLayer);
+      watermarkLayer.moveToTop();
+
+      // Export with watermark
+      const uri = stage.toDataURL({
         pixelRatio: 3,
         mimeType: 'image/png',
         quality: 1
       });
+
+      // Remove watermark layer
+      watermarkLayer.destroy();
+
+      // Download
       const link = document.createElement('a');
       link.download = 'hoodie-design.png';
       link.href = uri;

@@ -48,9 +48,6 @@ export default function Layout({ children }: LayoutProps) {
                 <Link to="/case-studies" className="text-sm text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
                   Case Studies
                 </Link>
-                <Link to="/about" className="text-sm text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
-                  Blog
-                </Link>
               </div>
 
               {/* Desktop Right Side */}
@@ -154,13 +151,6 @@ export default function Layout({ children }: LayoutProps) {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Case Studies
-                  </Link>
-                  <Link
-                    to="/about"
-                    className="text-base font-medium text-gray-900 dark:text-gray-100"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Blog
                   </Link>
 
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
