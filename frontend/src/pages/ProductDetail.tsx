@@ -67,12 +67,18 @@ export default function ProductDetail() {
           { id: '1', product_id: '1', color: 'White', size: 'S', sku: 'TEE-WHT-S', base_price: 12.99, stock_level: 100 },
           { id: '2', product_id: '1', color: 'White', size: 'M', sku: 'TEE-WHT-M', base_price: 12.99, stock_level: 100 },
           { id: '3', product_id: '1', color: 'White', size: 'L', sku: 'TEE-WHT-L', base_price: 12.99, stock_level: 100 },
-          { id: '4', product_id: '1', color: 'Black', size: 'S', sku: 'TEE-BLK-S', base_price: 12.99, stock_level: 100 },
-          { id: '5', product_id: '1', color: 'Black', size: 'M', sku: 'TEE-BLK-M', base_price: 12.99, stock_level: 100 },
-          { id: '6', product_id: '1', color: 'Black', size: 'L', sku: 'TEE-BLK-L', base_price: 12.99, stock_level: 100 },
-          { id: '7', product_id: '1', color: 'Navy', size: 'S', sku: 'TEE-NAV-S', base_price: 12.99, stock_level: 100 },
-          { id: '8', product_id: '1', color: 'Navy', size: 'M', sku: 'TEE-NAV-M', base_price: 12.99, stock_level: 100 },
-          { id: '9', product_id: '1', color: 'Navy', size: 'L', sku: 'TEE-NAV-L', base_price: 12.99, stock_level: 100 }
+          { id: '4', product_id: '1', color: 'White', size: 'XL', sku: 'TEE-WHT-XL', base_price: 13.99, stock_level: 100 },
+          { id: '5', product_id: '1', color: 'White', size: '2XL', sku: 'TEE-WHT-2XL', base_price: 26.99, stock_level: 100 },
+          { id: '6', product_id: '1', color: 'Black', size: 'S', sku: 'TEE-BLK-S', base_price: 12.99, stock_level: 100 },
+          { id: '7', product_id: '1', color: 'Black', size: 'M', sku: 'TEE-BLK-M', base_price: 12.99, stock_level: 100 },
+          { id: '8', product_id: '1', color: 'Black', size: 'L', sku: 'TEE-BLK-L', base_price: 12.99, stock_level: 100 },
+          { id: '9', product_id: '1', color: 'Black', size: 'XL', sku: 'TEE-BLK-XL', base_price: 13.99, stock_level: 100 },
+          { id: '10', product_id: '1', color: 'Black', size: '2XL', sku: 'TEE-BLK-2XL', base_price: 26.99, stock_level: 100 },
+          { id: '11', product_id: '1', color: 'Navy', size: 'S', sku: 'TEE-NAV-S', base_price: 12.99, stock_level: 100 },
+          { id: '12', product_id: '1', color: 'Navy', size: 'M', sku: 'TEE-NAV-M', base_price: 12.99, stock_level: 100 },
+          { id: '13', product_id: '1', color: 'Navy', size: 'L', sku: 'TEE-NAV-L', base_price: 12.99, stock_level: 100 },
+          { id: '14', product_id: '1', color: 'Navy', size: 'XL', sku: 'TEE-NAV-XL', base_price: 13.99, stock_level: 100 },
+          { id: '15', product_id: '1', color: 'Navy', size: '2XL', sku: 'TEE-NAV-2XL', base_price: 26.99, stock_level: 100 }
         ]
       },
       decorationMethods: [
