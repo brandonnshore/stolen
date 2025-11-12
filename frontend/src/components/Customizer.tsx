@@ -387,10 +387,6 @@ export default function Customizer({ product, variants }: CustomizerProps) {
 
       console.log('Shirt photo uploaded:', { asset, jobId, message });
 
-      // Store the uploaded original image URL for display
-      const uploadedUrl = getFullAssetUrl(asset.file_url);
-      setUploadedImageUrl(uploadedUrl);
-
       // Set the job ID and status to processing
       setCurrentJobId(jobId);
       setJobStatus('processing');
