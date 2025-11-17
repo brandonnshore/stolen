@@ -8,7 +8,7 @@ I've added **Google** and **Apple** sign-in buttons to your Login and Register p
 
 ### Step 1: Get Your Supabase Anon Key
 
-1. Go to https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc
+1. Go to https://supabase.com/dashboard/project/dntnjlodfcojzgovikic
 2. Click on **Settings** (gear icon in sidebar)
 3. Click on **API**
 4. Copy the `anon` `public` key
@@ -19,7 +19,7 @@ I've added **Google** and **Apple** sign-in buttons to your Login and Register p
 
 ### Step 2: Enable Google OAuth
 
-1. Go to https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/auth/providers
+1. Go to https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/auth/providers
 2. Find **Google** in the providers list
 3. Click **Enable**
 4. **Get Google OAuth Credentials:**
@@ -30,7 +30,7 @@ I've added **Google** and **Apple** sign-in buttons to your Login and Register p
    - Choose **Web application**
    - Add authorized redirect URI:
      ```
-     https://xezmvslgaclidlkpkkuc.supabase.co/auth/v1/callback
+     https://dntnjlodfcojzgovikic.supabase.co/auth/v1/callback
      ```
    - Copy the **Client ID** and **Client Secret**
 5. **Back in Supabase:**
@@ -39,7 +39,7 @@ I've added **Google** and **Apple** sign-in buttons to your Login and Register p
 
 ### Step 3: Enable Apple Sign In
 
-1. Still in https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/auth/providers
+1. Still in https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/auth/providers
 2. Find **Apple** in the providers list
 3. Click **Enable**
 4. **Get Apple OAuth Credentials:**
@@ -53,8 +53,8 @@ I've added **Google** and **Apple** sign-in buttons to your Login and Register p
    - Enable **Sign In with Apple**
    - Configure Web Domain and Return URLs:
      ```
-     Domain: xezmvslgaclidlkpkkuc.supabase.co
-     Return URL: https://xezmvslgaclidlkpkkuc.supabase.co/auth/v1/callback
+     Domain: dntnjlodfcojzgovikic.supabase.co
+     Return URL: https://dntnjlodfcojzgovikic.supabase.co/auth/v1/callback
      ```
    - Download the private key (.p8 file)
 5. **Back in Supabase:**
@@ -66,7 +66,7 @@ I've added **Google** and **Apple** sign-in buttons to your Login and Register p
 
 ### Step 4: Configure Redirect URLs in Supabase
 
-1. Go to https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/auth/url-configuration
+1. Go to https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/auth/url-configuration
 2. Add these redirect URLs (one per line):
    ```
    http://localhost:5173/auth/callback
@@ -134,7 +134,7 @@ When users click "Continue with Google" or "Continue with Apple":
 
 ### "Invalid redirect URI" error
 - Make sure you added the exact redirect URL in Google/Apple console
-- Format: `https://xezmvslgaclidlkpkkuc.supabase.co/auth/v1/callback`
+- Format: `https://dntnjlodfcojzgovikic.supabase.co/auth/v1/callback`
 
 ### "Failed to sign in" error
 - Check browser console for detailed error

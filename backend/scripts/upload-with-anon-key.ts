@@ -7,7 +7,7 @@ import * as path from 'path';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const supabaseUrl = 'https://xezmvslgaclidlkpkkuc.supabase.co';
+const supabaseUrl = 'https://dntnjlodfcojzgovikic.supabase.co';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -17,7 +17,7 @@ console.log('⚠️  This requires the bucket to already exist and be public!\n'
 if (!supabaseAnonKey || supabaseAnonKey.includes('your_')) {
   console.error('❌ SUPABASE_ANON_KEY must be set in .env file');
   console.error('\nTo get your anon key:');
-  console.error('1. Go to: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/settings/api');
+  console.error('1. Go to: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/settings/api');
   console.error('2. Copy the "anon" / "public" key');
   console.error('3. Add to .env: SUPABASE_ANON_KEY=eyJ...\n');
   process.exit(1);
@@ -194,7 +194,7 @@ async function main() {
     console.error('\n💡 Troubleshooting:');
     console.error('1. Make sure the bucket "product-images" exists in Supabase');
     console.error('2. Make sure the bucket is set to PUBLIC');
-    console.error('3. Go to: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/storage/buckets');
+    console.error('3. Go to: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/storage/buckets');
     process.exit(1);
   } finally {
     await pool.end();

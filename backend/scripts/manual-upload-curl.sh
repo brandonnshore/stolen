@@ -6,7 +6,7 @@
 set -e
 
 # Configuration
-SUPABASE_URL="https://xezmvslgaclidlkpkkuc.supabase.co"
+SUPABASE_URL="https://dntnjlodfcojzgovikic.supabase.co"
 BUCKET_NAME="product-images"
 ASSETS_DIR="../frontend/public/assets"
 
@@ -29,7 +29,7 @@ if [ -z "$SUPABASE_SERVICE_KEY" ]; then
     echo "  export SUPABASE_SERVICE_KEY='eyJ...your-key-here'"
     echo ""
     echo "To get your key:"
-    echo "1. Go to: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/settings/api"
+    echo "1. Go to: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/settings/api"
     echo "2. Copy the 'service_role' key"
     echo "3. Run the export command above"
     echo ""

@@ -18,7 +18,7 @@ echo -e "${BLUE}║  Product Images Upload to Supabase - Setup Wizard         �
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
 echo ""
 
-PROJECT_ID="xezmvslgaclidlkpkkuc"
+PROJECT_ID="dntnjlodfcojzgovikic"
 SUPABASE_URL="https://$PROJECT_ID.supabase.co"
 
 echo -e "${YELLOW}Step 1: Get Your Supabase Service Role Key${NC}"

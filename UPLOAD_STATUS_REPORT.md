@@ -106,7 +106,7 @@ This will:
 
 1. Get your service role key:
    ```bash
-   open https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/settings/api
+   open https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/settings/api
    ```
 
 2. Add to `.env`:
@@ -130,8 +130,8 @@ The script will automatically run these updates:
 ```sql
 UPDATE products
 SET images = ARRAY[
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png',
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-back.png'
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png',
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-back.png'
 ]
 WHERE slug = 'classic-hoodie';
 ```
@@ -140,12 +140,12 @@ WHERE slug = 'classic-hoodie';
 ```sql
 UPDATE products
 SET images = ARRAY[
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/black-front.png',
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/black-back.png',
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/black-neck.png',
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/navy-front.png',
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/navy-back.png',
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/navy-neck.png'
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/black-front.png',
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/black-back.png',
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/black-neck.png',
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/navy-front.png',
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/navy-back.png',
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/navy-neck.png'
 ]
 WHERE slug = 'classic-tee';
 ```
@@ -156,10 +156,10 @@ WHERE slug = 'classic-tee';
 
 | Resource | URL |
 |----------|-----|
-| Supabase Dashboard | https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc |
-| API Settings (Get Keys) | https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/settings/api |
-| Storage Buckets | https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/storage/buckets |
-| Database Editor | https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/editor |
+| Supabase Dashboard | https://supabase.com/dashboard/project/dntnjlodfcojzgovikic |
+| API Settings (Get Keys) | https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/settings/api |
+| Storage Buckets | https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/storage/buckets |
+| Database Editor | https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/editor |
 
 ---
 
@@ -169,7 +169,7 @@ After running the upload, verify with:
 
 ```bash
 # Test hoodie image
-curl -I https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png
+curl -I https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png
 
 # Expected: HTTP/2 200
 ```
@@ -193,13 +193,13 @@ psql postgresql://brandonshore@localhost:5432/stolentee \
 After upload, all images will be accessible at:
 
 ```
-https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/{filename}
+https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/{filename}
 ```
 
 Examples:
-- `https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png`
-- `https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/black-front.png`
-- `https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/stolentee-logo.png`
+- `https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png`
+- `https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/black-front.png`
+- `https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/stolentee-logo.png`
 
 ---
 

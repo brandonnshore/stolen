@@ -21,7 +21,7 @@ This will:
 
 ```bash
 # Open this URL in your browser:
-open https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/settings/api
+open https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/settings/api
 ```
 
 Copy the **service_role** key (the long JWT token)
@@ -38,7 +38,7 @@ SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...your-key-here
 
 ```bash
 # Open this URL:
-open https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/storage/buckets
+open https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/storage/buckets
 ```
 
 Create bucket:
@@ -75,7 +75,7 @@ cd /Users/brandonshore/stolen/stolen1/backend/scripts
 Check if images are accessible:
 
 ```bash
-curl -I https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png
+curl -I https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png
 ```
 
 Should return: `HTTP/2 200`
@@ -126,9 +126,9 @@ Should return: `HTTP/2 200`
 
 ## Quick Links
 
-- API Settings: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/settings/api
-- Storage: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/storage/buckets
-- Database: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/editor
+- API Settings: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/settings/api
+- Storage: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/storage/buckets
+- Database: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/editor
 
 ---
 
@@ -136,7 +136,7 @@ Should return: `HTTP/2 200`
 
 Your images will be at:
 ```
-https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/{filename}
+https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/{filename}
 ```
 
 The database will automatically be updated with these URLs.

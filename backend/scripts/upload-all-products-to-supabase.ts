@@ -14,7 +14,7 @@ const databaseUrl = process.env.DATABASE_URL;
 if (!supabaseUrl || !supabaseServiceKey) {
   console.error('❌ SUPABASE_URL and SUPABASE_SERVICE_KEY must be set in .env file');
   console.error('\nPlease add these to /Users/brandonshore/stolen/stolen1/backend/.env:');
-  console.error('SUPABASE_URL=https://xezmvslgaclidlkpkkuc.supabase.co');
+  console.error('SUPABASE_URL=https://dntnjlodfcojzgovikic.supabase.co');
   console.error('SUPABASE_SERVICE_KEY=your_service_role_key_here');
   process.exit(1);
 }

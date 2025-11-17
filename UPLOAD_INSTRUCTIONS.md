@@ -10,7 +10,7 @@
 
 ### Option A: Service Role Key (Recommended)
 
-1. Open: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/settings/api
+1. Open: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/settings/api
 
 2. Find the **"service_role"** key in the "Project API keys" section
    - Look for the key labeled `service_role` (SECRET)
@@ -23,7 +23,7 @@
 
 ### Option B: Anon Key (If bucket already exists)
 
-1. Open: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/settings/api
+1. Open: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/settings/api
 
 2. Find the **"anon"** / **"public"** key
    - This is safe to use in frontend code
@@ -38,7 +38,7 @@
 
 ### Option A: Via Dashboard (Easy)
 
-1. Go to: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/storage/buckets
+1. Go to: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/storage/buckets
 
 2. Click **"New bucket"**
 
@@ -82,7 +82,7 @@ The script will automatically:
 
 Test an image URL:
 ```bash
-curl -I https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png
+curl -I https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png
 ```
 
 Should return: `HTTP/2 200`
@@ -121,12 +121,12 @@ From `/Users/brandonshore/stolen/stolen1/frontend/public/assets/`:
 
 After upload, images will be at:
 ```
-https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/{filename}
+https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/{filename}
 ```
 
 Example:
 ```
-https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png
+https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png
 ```
 
 ## Database Updates
@@ -137,8 +137,8 @@ The script will update:
 ```sql
 UPDATE products
 SET images = ARRAY[
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png',
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-back.png'
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png',
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-back.png'
 ]
 WHERE slug = 'classic-hoodie';
 ```
@@ -147,12 +147,12 @@ WHERE slug = 'classic-hoodie';
 ```sql
 UPDATE products
 SET images = ARRAY[
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/black-front.png',
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/black-back.png',
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/black-neck.png',
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/navy-front.png',
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/navy-back.png',
-  'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/navy-neck.png'
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/black-front.png',
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/black-back.png',
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/black-neck.png',
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/navy-front.png',
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/navy-back.png',
+  'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/navy-neck.png'
 ]
 WHERE slug = 'classic-tee';
 ```
@@ -179,6 +179,6 @@ WHERE slug = 'classic-tee';
 
 ## Need Help?
 
-- **Supabase Dashboard**: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc
-- **Storage Settings**: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/storage/buckets
-- **API Settings**: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/settings/api
+- **Supabase Dashboard**: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic
+- **Storage Settings**: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/storage/buckets
+- **API Settings**: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/settings/api

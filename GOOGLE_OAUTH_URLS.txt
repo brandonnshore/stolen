@@ -7,4 +7,4 @@ Production Callback URL:
 https://demo1-frontend-xi.vercel.app/auth/callback
 
 Supabase Callback URL (if not already added):
-https://xezmvslgaclidlkpkkuc.supabase.co/auth/v1/callback
+https://dntnjlodfcojzgovikic.supabase.co/auth/v1/callback

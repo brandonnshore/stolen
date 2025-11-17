@@ -17,7 +17,7 @@ STEP-BY-STEP:
 
 6. Add variable #1:
    Name:  SUPABASE_URL
-   Value: https://xezmvslgaclidlkpkkuc.supabase.co
+   Value: https://dntnjlodfcojzgovikic.supabase.co
 
 7. Click "New Variable" button again
 

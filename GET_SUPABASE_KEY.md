@@ -2,7 +2,7 @@
 
 ## Option 1: Via Supabase Dashboard (RECOMMENDED)
 
-1. Go to: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/settings/api
+1. Go to: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/settings/api
 
 2. Scroll down to "Project API keys" section
 
@@ -19,7 +19,7 @@
 
 If you can't find the service role key, you can:
 
-1. Go to: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/storage/buckets
+1. Go to: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/storage/buckets
 
 2. Click "New bucket"
    - Name: `product-images`
@@ -37,9 +37,9 @@ If you can't find the service role key, you can:
 
 ## Quick Access Links
 
-- **API Settings**: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/settings/api
-- **Storage**: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/storage/buckets
-- **Database**: https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/editor
+- **API Settings**: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/settings/api
+- **Storage**: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/storage/buckets
+- **Database**: https://supabase.com/dashboard/project/dntnjlodfcojzgovikic/editor
 
 ## After Getting the Key
 

@@ -9,7 +9,7 @@ Value: pk_test_51S6MQDEDQ6axpLThLLd3vs0vMlnBCJJ5rJnTonlS2iaMWrBii8UXoosY3CLLoXqO
 
 Variable 2:
 Key: VITE_SUPABASE_URL
-Value: https://xezmvslgaclidlkpkkuc.supabase.co
+Value: https://dntnjlodfcojzgovikic.supabase.co
 
 Variable 3:
 Key: VITE_SUPABASE_ANON_KEY
