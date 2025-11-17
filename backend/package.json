@@ -9,6 +9,7 @@
     "start": "node dist/index.js",
     "migrate": "node -r ts-node/register migrations/run.ts",
     "migrate:create": "node -r ts-node/register migrations/create.ts",
+    "fix-images": "npx tsx scripts/fix-railway-images.ts",
     "worker": "node -r ts-node/register src/workers/extractionWorker.ts",
     "worker:dev": "nodemon src/workers/extractionWorker.ts",
     "test": "jest",
