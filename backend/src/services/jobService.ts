@@ -1,4 +1,5 @@
 import { Queue } from 'bullmq';
+import IORedis from 'ioredis';
 import pool from '../config/database';
 import geminiService from './geminiService';
 import backgroundRemovalService from './backgroundRemovalService';
@@ -39,7 +40,9 @@ class JobService {
     const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
 
     this.queue = new Queue('logo-extraction', {
-      connection: redisUrl,
+      connection: new IORedis(redisUrl, {
+        maxRetriesPerRequest: null,
+      }),
     });
 
     console.log('✅ Job queue initialized with Redis:', redisUrl.replace(/:[^:]*@/, ':***@'));

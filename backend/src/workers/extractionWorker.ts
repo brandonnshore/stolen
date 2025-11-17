@@ -1,4 +1,5 @@
 import { Worker } from 'bullmq';
+import IORedis from 'ioredis';
 import jobService from '../services/jobService';
 import geminiService from '../services/geminiService';
 import backgroundRemovalService from '../services/backgroundRemovalService';
@@ -34,7 +35,9 @@ const worker = new Worker(
     }
   },
   {
-    connection: redisUrl,
+    connection: new IORedis(redisUrl, {
+      maxRetriesPerRequest: null,
+    }),
     concurrency: 2, // Process up to 2 jobs concurrently
   }
 );
