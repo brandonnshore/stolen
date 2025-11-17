@@ -21,9 +21,9 @@ async function updateProductImages() {
       WHERE slug = 'classic-tee'
       RETURNING slug, title, images
     `, [JSON.stringify([
-      'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/black-front.png',
-      'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/black-back.png',
-      'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/black-neck.png'
+      'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/black-front.png',
+      'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/black-back.png',
+      'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/black-neck.png'
     ])]);
 
     if (teeResult.rowCount && teeResult.rowCount > 0) {
@@ -39,8 +39,8 @@ async function updateProductImages() {
       WHERE slug = 'classic-hoodie'
       RETURNING slug, title, images
     `, [JSON.stringify([
-      'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png',
-      'https://xezmvslgaclidlkpkkuc.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-back.png'
+      'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-front.png',
+      'https://dntnjlodfcojzgovikic.supabase.co/storage/v1/object/public/product-images/mockups/hoodie-black-back.png'
     ])]);
 
     if (hoodieResult.rowCount && hoodieResult.rowCount > 0) {
