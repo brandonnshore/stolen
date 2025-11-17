@@ -35,15 +35,14 @@ class JobService {
   private queue: Queue;
 
   constructor() {
-    // Initialize BullMQ queue with Redis connection
+    // Initialize BullMQ queue with Redis connection from environment
+    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+
     this.queue = new Queue('logo-extraction', {
-      connection: {
-        host: 'localhost',
-        port: 6379,
-      },
+      connection: redisUrl,
     });
 
-    console.log('✅ Job queue initialized');
+    console.log('✅ Job queue initialized with Redis:', redisUrl.replace(/:[^:]*@/, ':***@'));
   }
 
   /**

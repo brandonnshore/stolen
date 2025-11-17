@@ -18,6 +18,8 @@ console.log('🚀 Starting extraction worker...');
 })();
 
 // Create worker to process jobs
+const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+
 const worker = new Worker(
   'logo-extraction',
   async (job) => {
@@ -32,10 +34,7 @@ const worker = new Worker(
     }
   },
   {
-    connection: {
-      host: 'localhost',
-      port: 6379,
-    },
+    connection: redisUrl,
     concurrency: 2, // Process up to 2 jobs concurrently
   }
 );

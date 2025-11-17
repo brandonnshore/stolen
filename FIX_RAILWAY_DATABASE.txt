@@ -1,0 +1,26 @@
+🔧 HOW TO FIX RAILWAY TO USE SUPABASE DATABASE
+
+1. Go to Supabase Dashboard:
+   https://supabase.com/dashboard/project/xezmvslgaclidlkpkkuc/settings/database
+
+2. Copy the "Connection string" (looks like):
+   postgresql://postgres.[PROJECT]:[PASSWORD]@aws-0-us-west-1.pooler.supabase.com:6543/postgres
+
+3. Go to Railway Dashboard:
+   https://railway.app/
+
+4. Click on your backend service
+
+5. Click "Variables" tab
+
+6. Find DATABASE_URL
+
+7. Replace the current value with the Supabase connection string you copied in step 2
+
+8. Click "Deploy" or restart the service
+
+That's it! Your Railway backend will now use the Supabase database which already has the correct product images.
+
+✅ The images are already uploaded to Supabase Storage
+✅ The database already has the correct URLs
+You just need to connect Railway to the right database!
