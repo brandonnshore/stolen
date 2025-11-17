@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import { saveFile, validateFileType, validateFileSize } from '../services/uploadService';
 import { ApiError } from '../middleware/errorHandler';
+import jobService from '../services/jobService';
+import path from 'path';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -81,21 +83,28 @@ export const uploadShirtPhoto = async (req: Request, res: Response, next: NextFu
     // Save the uploaded shirt photo
     const asset = await saveFile(req.file, 'shirt_upload');
 
-    // TODO: Automatically start extraction job (disabled to avoid remove.bg API costs)
-    // const jobId = await jobService.createJob({
-    //   userId,
-    //   uploadAssetId: asset.id,
-    //   filePath,
-    // });
+    // Get the full file path for processing
+    const uploadsDir = process.env.LOCAL_STORAGE_PATH || './uploads';
+    const filePath = path.join(process.cwd(), uploadsDir, path.basename(asset.file_url));
 
-    console.log(`✅ Shirt photo uploaded for asset ${asset.id}`);
+    // Get user ID if authenticated
+    const userId = (req as any).user?.id;
+
+    // Automatically start extraction job
+    const jobId = await jobService.createJob({
+      userId,
+      uploadAssetId: asset.id,
+      filePath,
+    });
+
+    console.log(`✅ Shirt photo uploaded for asset ${asset.id}, job ${jobId} created`);
 
     res.status(201).json({
       success: true,
       data: {
         asset,
-        jobId: null,
-        message: 'Shirt photo uploaded successfully.',
+        jobId,
+        message: 'Shirt photo uploaded. Extraction started.',
       }
     });
   } catch (error) {
