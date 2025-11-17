@@ -46,8 +46,7 @@ app.use(helmet({
 // CORS configuration - allow both www and non-www versions
 const allowedOrigins = [
   env.FRONTEND_URL,
-  'https://raspberrymerch.com',
-  'https://www.raspberrymerch.com',
+  'https://demo1-frontend-xi.vercel.app', // StolenTee production website
   'http://localhost:5173',
   'http://localhost:3003'
 ];
