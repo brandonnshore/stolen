@@ -90,21 +90,21 @@ export const uploadShirtPhoto = async (req: Request, res: Response, next: NextFu
     // Get user ID if authenticated
     const userId = (req as any).user?.id;
 
-    // Automatically start extraction job
-    const jobId = await jobService.createJob({
-      userId,
-      uploadAssetId: asset.id,
-      filePath,
-    });
+    // TODO: Automatically start extraction job (disabled to avoid remove.bg API costs)
+    // const jobId = await jobService.createJob({
+    //   userId,
+    //   uploadAssetId: asset.id,
+    //   filePath,
+    // });
 
-    console.log(`✅ Shirt photo uploaded and job ${jobId} started for asset ${asset.id}`);
+    console.log(`✅ Shirt photo uploaded for asset ${asset.id}`);
 
     res.status(201).json({
       success: true,
       data: {
         asset,
-        jobId,
-        message: 'Shirt photo uploaded. Extraction started.',
+        jobId: null,
+        message: 'Shirt photo uploaded successfully.',
       }
     });
   } catch (error) {
