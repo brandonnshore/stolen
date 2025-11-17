@@ -142,8 +142,11 @@ class JobService {
         throw new Error(geminiResult.error || 'Gemini extraction failed');
       }
 
-      // Save white background image
-      const whiteBgPath = filePath.replace(/\.(jpg|jpeg|png)$/i, '_white_bg.png');
+      // Save white background image to temporary location
+      // Generate a temp filename based on upload asset ID
+      const uploadsDir = process.env.LOCAL_STORAGE_PATH || './uploads';
+      const whiteBgFilename = `${uploadAssetId}_white_bg.png`;
+      const whiteBgPath = path.join(uploadsDir, whiteBgFilename);
       fs.writeFileSync(whiteBgPath, geminiResult.imageBuffer);
 
       // Create asset record for white background image
@@ -164,7 +167,8 @@ class JobService {
 
       // Step 3: Process with Sharp to ensure 300 DPI and maximum quality
       await this.updateJobStatus(jobId, 'running', 'Step 3: Setting 300 DPI for print quality');
-      const transparentPath = filePath.replace(/\.(jpg|jpeg|png)$/i, '_transparent.png');
+      const transparentFilename = `${uploadAssetId}_transparent.png`;
+      const transparentPath = path.join(uploadsDir, transparentFilename);
 
       // Process with Sharp: ensure 300 DPI and high quality
       await sharp(removalResult.transparentBuffer)

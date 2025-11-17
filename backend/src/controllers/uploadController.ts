@@ -3,7 +3,6 @@ import multer from 'multer';
 import { saveFile, validateFileType, validateFileSize } from '../services/uploadService';
 import { ApiError } from '../middleware/errorHandler';
 import jobService from '../services/jobService';
-import path from 'path';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -83,18 +82,15 @@ export const uploadShirtPhoto = async (req: Request, res: Response, next: NextFu
     // Save the uploaded shirt photo
     const asset = await saveFile(req.file, 'shirt_upload');
 
-    // Get the full file path for processing
-    const uploadsDir = process.env.LOCAL_STORAGE_PATH || './uploads';
-    const filePath = path.join(process.cwd(), uploadsDir, path.basename(asset.file_url));
-
     // Get user ID if authenticated
     const userId = (req as any).user?.id;
 
     // Automatically start extraction job
+    // Note: Pass asset.file_url directly - job service will handle Supabase URLs
     const jobId = await jobService.createJob({
       userId,
       uploadAssetId: asset.id,
-      filePath,
+      filePath: asset.file_url, // Can be Supabase URL or local path
     });
 
     console.log(`✅ Shirt photo uploaded for asset ${asset.id}, job ${jobId} created`);

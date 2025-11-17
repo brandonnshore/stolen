@@ -3,7 +3,7 @@ STRIPE WEBHOOK URL
 
 Use this URL for your Stripe webhook endpoint:
 
-https://raspberry-backend-production.up.railway.app/api/webhooks/stripe
+https://stolentee-backend-production.up.railway.app/api/webhooks/stripe
 
 Events to select (minimum):
 - checkout.session.completed

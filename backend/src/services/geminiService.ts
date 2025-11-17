@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import pool from '../config/database';
 import fs from 'fs';
 import path from 'path';
+import axios from 'axios';
 
 interface GeminiExtractionResult {
   success: boolean;
@@ -65,8 +66,17 @@ class GeminiService {
     try {
       console.log(`🔄 Starting Gemini extraction for: ${imagePath}`);
 
-      // Read the image file
-      const imageBuffer = fs.readFileSync(imagePath);
+      // Read the image file (handle both local paths and Supabase URLs)
+      let imageBuffer: Buffer;
+      if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+        // Download from Supabase
+        console.log(`📥 Downloading image from Supabase: ${imagePath}`);
+        const response = await axios.get(imagePath, { responseType: 'arraybuffer' });
+        imageBuffer = Buffer.from(response.data);
+      } else {
+        // Read from local filesystem
+        imageBuffer = fs.readFileSync(imagePath);
+      }
       const base64Image = imageBuffer.toString('base64');
 
       // Determine MIME type based on file extension
