@@ -144,7 +144,13 @@ class JobService {
 
       // Save white background image to temporary location
       // Generate a temp filename based on upload asset ID
-      const uploadsDir = process.env.LOCAL_STORAGE_PATH || './uploads';
+      const uploadsDir = process.env.LOCAL_STORAGE_PATH || path.join(process.cwd(), 'uploads');
+
+      // Ensure uploads directory exists
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+
       const whiteBgFilename = `${uploadAssetId}_white_bg.png`;
       const whiteBgPath = path.join(uploadsDir, whiteBgFilename);
       fs.writeFileSync(whiteBgPath, geminiResult.imageBuffer);
@@ -167,6 +173,8 @@ class JobService {
 
       // Step 3: Process with Sharp to ensure 300 DPI and maximum quality
       await this.updateJobStatus(jobId, 'running', 'Step 3: Setting 300 DPI for print quality');
+
+      // Use the same uploadsDir (already created above)
       const transparentFilename = `${uploadAssetId}_transparent.png`;
       const transparentPath = path.join(uploadsDir, transparentFilename);
 
