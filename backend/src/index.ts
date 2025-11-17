@@ -46,7 +46,8 @@ app.use(helmet({
 // CORS configuration - allow both www and non-www versions
 const allowedOrigins = [
   env.FRONTEND_URL,
-  'https://demo1-frontend-xi.vercel.app', // StolenTee production website
+  'https://stolentee.com',
+  'https://www.stolentee.com',
   'http://localhost:5173',
   'http://localhost:3003'
 ];
