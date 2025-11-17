@@ -252,7 +252,7 @@ class JobService {
   }
 
   /**
-   * Helper: Create asset record
+   * Helper: Create asset record and upload file to Supabase
    */
   private async createAsset(params: {
     jobId: string;
@@ -263,6 +263,16 @@ class JobService {
     const { jobId, filePath, kind, userId } = params;
     const fileName = path.basename(filePath);
     const fileStats = fs.statSync(filePath);
+    const fileBuffer = fs.readFileSync(filePath);
+
+    // Upload to Supabase Storage
+    const { uploadToSupabase } = require('./supabaseStorage');
+    const mockFile = {
+      buffer: fileBuffer,
+      originalname: fileName,
+      mimetype: 'image/png',
+    };
+    const supabaseUrl = await uploadToSupabase(mockFile);
 
     const result = await pool.query(
       `INSERT INTO assets (
@@ -273,7 +283,7 @@ class JobService {
       [
         'job',
         userId || null,
-        `/uploads/${fileName}`,
+        supabaseUrl, // Use Supabase URL instead of local path
         path.extname(filePath).substring(1),
         fileStats.size,
         fileName,
