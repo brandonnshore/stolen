@@ -1,0 +1,34 @@
+🔧 HOW TO FIX RAILWAY - ADD SUPABASE CREDENTIALS
+
+The problem: Railway doesn't have Supabase credentials, so it can't connect to Supabase Storage.
+The solution: Add these environment variables to Railway.
+
+STEP-BY-STEP:
+
+1. Go to https://railway.app/
+
+2. Click on your "stolen" project (NOT raspberry!)
+
+3. Click on the backend service
+
+4. Click "Variables" tab
+
+5. Click "New Variable" button
+
+6. Add variable #1:
+   Name:  SUPABASE_URL
+   Value: https://xezmvslgaclidlkpkkuc.supabase.co
+
+7. Click "New Variable" button again
+
+8. Add variable #2:
+   Name:  SUPABASE_SERVICE_KEY
+   Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlem12c2xnYWNsaWRsa3Bra3VjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MDc1MTIyOCwiZXhwIjoyMDc2MzI3MjI4fQ.Ng9PfSDxB8f2Hdy6tHrdGXgK9MdrVPSxjKnD8fo6lbQ
+
+9. Railway will automatically redeploy
+
+10. Wait 2 minutes for deployment
+
+11. Your iOS app should now load images!
+
+That's it!
