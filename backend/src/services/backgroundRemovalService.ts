@@ -1,7 +1,6 @@
 import axios from 'axios';
 import FormData from 'form-data';
 import fs from 'fs';
-import pool from '../config/database';
 
 interface RemovalResult {
   success: boolean;
@@ -17,20 +16,17 @@ class BackgroundRemovalService {
   private creditsExhausted: boolean = false; // Track if credits are exhausted
 
   /**
-   * Initialize the service by fetching the Remove.bg API key from settings
+   * Initialize the service by fetching the Remove.bg API key from environment
    */
   async initialize(): Promise<void> {
     try {
-      const result = await pool.query(
-        "SELECT value FROM settings WHERE key = 'removebg_api_key'"
-      );
+      this.apiKey = process.env.REMOVEBG_API_KEY || '';
 
-      if (!result.rows[0]?.value?.api_key) {
-        throw new Error('Remove.bg API key not configured in settings');
+      if (!this.apiKey) {
+        console.warn('⚠️ Remove.bg API key not configured - background removal will be skipped');
+      } else {
+        console.log('✅ Remove.bg service initialized');
       }
-
-      this.apiKey = result.rows[0].value.api_key;
-      console.log('✅ Remove.bg service initialized');
     } catch (error) {
       console.error('❌ Failed to initialize Remove.bg service:', error);
       throw error;
