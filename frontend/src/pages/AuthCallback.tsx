@@ -2,16 +2,24 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { authAPI } from '../services/api';
 
+// Add top-level logging to verify component loads
+console.log('[OAuth] AuthCallback component loaded - TOP OF FILE');
+
 export default function AuthCallback() {
+  console.log('[OAuth] AuthCallback component rendered');
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
+    console.log('[OAuth] useEffect triggered, calling handleCallback');
     handleCallback();
   }, []);
 
   const handleCallback = async () => {
     try {
       console.log('[OAuth] Starting callback handler...');
+      console.log('[OAuth] Current URL:', window.location.href);
+      console.log('[OAuth] URL Hash:', window.location.hash);
+      console.log('[OAuth] URL Search:', window.location.search);
 
       // Get the session from Supabase
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();

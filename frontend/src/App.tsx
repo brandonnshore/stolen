@@ -10,6 +10,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 // Eager load critical pages
 import Home from './pages/Home';
 import Products from './pages/Products';
+import AuthCallback from './pages/AuthCallback'; // EAGER LOAD for OAuth debugging
 
 // Lazy load non-critical pages for better performance
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
@@ -23,7 +24,6 @@ const CaseStudies = lazy(() => import('./pages/CaseStudies'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
-const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 
 /**
  * Loading fallback component
