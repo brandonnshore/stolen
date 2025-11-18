@@ -1,10 +1,19 @@
-GOOGLE OAUTH REDIRECT URLS
-==========================
+GOOGLE OAUTH REDIRECT URLS FOR STOLEN
+======================================
 
-Add these URLs to your Google OAuth configuration:
+Add these EXACT URLs to your Google Cloud Console OAuth configuration:
 
-Production Callback URL:
-https://demo1-frontend-xi.vercel.app/auth/callback
+1. Supabase Callback URL (REQUIRED):
+   https://dntnjlodfcojzgovikic.supabase.co/auth/v1/callback
 
-Supabase Callback URL (if not already added):
-https://dntnjlodfcojzgovikic.supabase.co/auth/v1/callback
+2. Production Callback URL:
+   https://stolentee.com/auth/callback
+
+3. WWW Production Callback URL:
+   https://www.stolentee.com/auth/callback
+
+4. Local Development Callback URL:
+   http://localhost:5173/auth/callback
+
+5. Alternative Local Port:
+   http://localhost:3003/auth/callback
