@@ -32,7 +32,7 @@ export default function Products() {
           { id: '1', product_id: '1', color: 'White', size: 'M', sku: 'TEE-WHT-M', base_price: 12.99, stock_level: 100 }
         ]
       }
-    ].sort((a, b) => parseInt(a.id) - parseInt(b.id));
+    ].sort((a, b) => a.title.localeCompare(b.title));
 
     setProducts(mockProducts);
     setLoading(false);
@@ -41,8 +41,8 @@ export default function Products() {
     productAPI.getAll()
       .then(data => {
         if (data && data.length > 0) {
-          // Sort data by ID to match mock data order
-          const sortedData = [...data].sort((a, b) => parseInt(a.id) - parseInt(b.id));
+          // Sort data by title to match mock data order and ensure consistency
+          const sortedData = [...data].sort((a, b) => a.title.localeCompare(b.title));
           setProducts(sortedData);
         }
       })

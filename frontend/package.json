@@ -1,7 +1,7 @@
 {
   "name": "stolentee-frontend",
   "version": "1.0.0",
-  "description": "Frontend for Stolen Tee AI logo extraction platform",
+  "description": "Frontend for Stolen Tee - Start Your Heist",
   "private": true,
   "scripts": {
     "dev": "vite",
