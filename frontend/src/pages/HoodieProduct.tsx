@@ -382,7 +382,7 @@ export default function HoodieProduct() {
           <h1 className="text-sm font-bold">Classic Hoodie</h1>
 
           <Link to="/" className="absolute left-1/2 -translate-x-1/2 text-lg font-bold hover:text-gray-600 transition-colors">
-            Raspberry
+            StolenTee
           </Link>
 
           <div className="ml-auto flex items-center gap-4">
@@ -390,11 +390,10 @@ export default function HoodieProduct() {
               onClick={handleDownloadDesign}
               disabled={frontArtworks.length === 0 && backArtworks.length === 0 && !neckArtwork}
               title="Download Design"
-              className={`p-2 rounded-md transition-colors ${
-                (frontArtworks.length > 0 || backArtworks.length > 0 || neckArtwork)
+              className={`p-2 rounded-md transition-colors ${(frontArtworks.length > 0 || backArtworks.length > 0 || neckArtwork)
                   ? 'hover:bg-gray-100'
                   : 'opacity-30 cursor-not-allowed'
-              }`}
+                }`}
             >
               <ArrowDownToLine size={16} />
             </button>
@@ -449,25 +448,22 @@ export default function HoodieProduct() {
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-white rounded-full shadow-lg px-2 py-2 flex gap-1">
             <button
               onClick={() => setView('front')}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${
-                view === 'front' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'
-              }`}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${view === 'front' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
             >
               Front
             </button>
             <button
               onClick={() => setView('back')}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${
-                view === 'back' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'
-              }`}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${view === 'back' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
             >
               Back
             </button>
             <button
               onClick={() => setView('neck')}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${
-                view === 'neck' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'
-              }`}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${view === 'neck' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
             >
               Neck
             </button>
@@ -721,11 +717,10 @@ export default function HoodieProduct() {
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`px-3 py-2 border rounded-md text-xs font-medium transition-all ${
-                      selectedSize === size
+                    className={`px-3 py-2 border rounded-md text-xs font-medium transition-all ${selectedSize === size
                         ? 'border-black bg-black text-white'
                         : 'border-gray-300 hover:border-gray-400'
-                    }`}
+                      }`}
                   >
                     {size}
                   </button>

@@ -321,143 +321,143 @@ const HoodieCanvas = forwardRef<unknown, HoodieCanvasProps>(({
         }}
       >
         {artworkImages.length > 0 && selectedId && (
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-4 py-2 rounded-full z-10">
-          Drag to move • Corners to resize • Rotate to spin • Click away to finish
-        </div>
-      )}
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-4 py-2 rounded-full z-10">
+            Drag to move • Corners to resize • Rotate to spin • Click away to finish
+          </div>
+        )}
 
-      {artworkImages.length > 0 && !selectedId && (
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-gray-800/60 text-white text-xs px-4 py-2 rounded-full z-10">
-          Click artwork to edit position and size
-        </div>
-      )}
+        {artworkImages.length > 0 && !selectedId && (
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-gray-800/60 text-white text-xs px-4 py-2 rounded-full z-10">
+            Click artwork to edit position and size
+          </div>
+        )}
 
-      {/* @ts-expect-error React-Konva types don't properly support children */}
-      <Stage
-        ref={stageRef}
-        width={hoodieDimensions.width}
-        height={hoodieDimensions.height}
-        onMouseDown={checkDeselect}
-        onTouchStart={checkDeselect}
-      >
-        {/* @ts-expect-error React-Konva types don't properly support children */}
-        <Layer>
-          {hoodieImage && (
-            <KonvaImage
-              image={hoodieImage}
-              x={0}
-              y={view === 'back' ? -20 : 0}
-              width={hoodieDimensions.width}
-              height={hoodieDimensions.height}
-              onClick={() => setSelectedId(null)}
-              onTap={() => setSelectedId(null)}
-            />
-          )}
 
-          {artworkImages.map((artworkImg, index) => {
-            const artwork = artworks[index];
-            if (!artwork) return null;
+        <Stage
+          ref={stageRef}
+          width={hoodieDimensions.width}
+          height={hoodieDimensions.height}
+          onMouseDown={checkDeselect}
+          onTouchStart={checkDeselect}
+        >
 
-            const maxWidth = 250;
-            const maxHeight = 250;
-            const aspectRatio = artworkImg.width / artworkImg.height;
+          <Layer>
+            {hoodieImage && (
+              <KonvaImage
+                image={hoodieImage}
+                x={0}
+                y={view === 'back' ? -20 : 0}
+                width={hoodieDimensions.width}
+                height={hoodieDimensions.height}
+                onClick={() => setSelectedId(null)}
+                onTap={() => setSelectedId(null)}
+              />
+            )}
 
-            let width = maxWidth;
-            let height = maxWidth / aspectRatio;
+            {artworkImages.map((artworkImg, index) => {
+              const artwork = artworks[index];
+              if (!artwork) return null;
 
-            if (height > maxHeight) {
-              height = maxHeight;
-              width = maxHeight * aspectRatio;
-            }
+              const maxWidth = 250;
+              const maxHeight = 250;
+              const aspectRatio = artworkImg.width / artworkImg.height;
 
-            return (
-              <React.Fragment key={`artwork-${index}`}>
-                <KonvaImage
-                  ref={(el) => { imageRefs.current[index] = el; }}
-                  image={artworkImg}
-                  x={artwork.position?.x ?? 270 + index * 20}
-                  y={artwork.position?.y ?? 250 + index * 20}
-                  width={width}
-                  height={height}
-                  scaleX={artwork.position?.scaleX ?? 1}
-                  scaleY={artwork.position?.scaleY ?? 1}
-                  rotation={artwork.position?.rotation ?? 0}
-                  draggable
-                  dragBoundFunc={(pos) => {
-                    // Different bounds for back view (shifted right)
-                    const shirtBounds = view === 'back' ? {
-                      minX: 120,
-                      maxX: 510,
-                      minY: 100,
-                      maxY: 650
-                    } : {
-                      minX: 150,
-                      maxX: 540,
-                      minY: 100,
-                      maxY: 650
-                    };
+              let width = maxWidth;
+              let height = maxWidth / aspectRatio;
 
-                    // Get the actual bounding box of the image (includes rotation)
-                    const node = imageRefs.current[index];
-                    if (!node) return pos;
+              if (height > maxHeight) {
+                height = maxHeight;
+                width = maxHeight * aspectRatio;
+              }
 
-                    const box = node.getClientRect();
-                    const boxWidth = box.width;
-                    const boxHeight = box.height;
+              return (
+                <React.Fragment key={`artwork-${index}`}>
+                  <KonvaImage
+                    ref={(el) => { imageRefs.current[index] = el; }}
+                    image={artworkImg}
+                    x={artwork.position?.x ?? 270 + index * 20}
+                    y={artwork.position?.y ?? 250 + index * 20}
+                    width={width}
+                    height={height}
+                    scaleX={artwork.position?.scaleX ?? 1}
+                    scaleY={artwork.position?.scaleY ?? 1}
+                    rotation={artwork.position?.rotation ?? 0}
+                    draggable
+                    dragBoundFunc={(pos) => {
+                      // Different bounds for back view (shifted right)
+                      const shirtBounds = view === 'back' ? {
+                        minX: 120,
+                        maxX: 510,
+                        minY: 100,
+                        maxY: 650
+                      } : {
+                        minX: 150,
+                        maxX: 540,
+                        minY: 100,
+                        maxY: 650
+                      };
 
-                    // Constrain position to keep artwork within bounds
-                    let newX = pos.x;
-                    let newY = pos.y;
+                      // Get the actual bounding box of the image (includes rotation)
+                      const node = imageRefs.current[index];
+                      if (!node) return pos;
 
-                    // Calculate the offset from the node position to the bounding box
-                    const offsetX = box.x - node.x();
-                    const offsetY = box.y - node.y();
+                      const box = node.getClientRect();
+                      const boxWidth = box.width;
+                      const boxHeight = box.height;
 
-                    // Prevent artwork from going beyond edges
-                    if (newX + offsetX < shirtBounds.minX) {
-                      newX = shirtBounds.minX - offsetX;
-                    }
-                    if (newX + offsetX + boxWidth > shirtBounds.maxX) {
-                      newX = shirtBounds.maxX - boxWidth - offsetX;
-                    }
-                    if (newY + offsetY < shirtBounds.minY) {
-                      newY = shirtBounds.minY - offsetY;
-                    }
-                    if (newY + offsetY + boxHeight > shirtBounds.maxY) {
-                      newY = shirtBounds.maxY - boxHeight - offsetY;
-                    }
+                      // Constrain position to keep artwork within bounds
+                      let newX = pos.x;
+                      let newY = pos.y;
 
-                    return { x: newX, y: newY };
-                  }}
-                  onClick={() => setSelectedId(`artwork-${index}`)}
-                  onTap={() => setSelectedId(`artwork-${index}`)}
-                  onDragEnd={() => handleTransformEnd(index)}
-                  onTransformEnd={() => handleTransformEnd(index)}
-                />
-                {selectedId === `artwork-${index}` && (
-                  <Transformer
-                    ref={trRef}
-                    keepRatio={true}
-                    boundBoxFunc={(oldBox, newBox) => {
-                      if (newBox.width < 50 || newBox.height < 50) return oldBox;
-                      if (newBox.width > 400 || newBox.height > 400) return oldBox;
-                      return newBox;
+                      // Calculate the offset from the node position to the bounding box
+                      const offsetX = box.x - node.x();
+                      const offsetY = box.y - node.y();
+
+                      // Prevent artwork from going beyond edges
+                      if (newX + offsetX < shirtBounds.minX) {
+                        newX = shirtBounds.minX - offsetX;
+                      }
+                      if (newX + offsetX + boxWidth > shirtBounds.maxX) {
+                        newX = shirtBounds.maxX - boxWidth - offsetX;
+                      }
+                      if (newY + offsetY < shirtBounds.minY) {
+                        newY = shirtBounds.minY - offsetY;
+                      }
+                      if (newY + offsetY + boxHeight > shirtBounds.maxY) {
+                        newY = shirtBounds.maxY - boxHeight - offsetY;
+                      }
+
+                      return { x: newX, y: newY };
                     }}
-                    enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']}
-                    rotateEnabled={true}
-                    borderStroke="#000000"
-                    borderStrokeWidth={2}
-                    anchorSize={12}
-                    anchorStroke="#000000"
-                    anchorFill="#ffffff"
-                    anchorCornerRadius={6}
+                    onClick={() => setSelectedId(`artwork-${index}`)}
+                    onTap={() => setSelectedId(`artwork-${index}`)}
+                    onDragEnd={() => handleTransformEnd(index)}
+                    onTransformEnd={() => handleTransformEnd(index)}
                   />
-                )}
-              </React.Fragment>
-            );
-          })}
-        </Layer>
-      </Stage>
+                  {selectedId === `artwork-${index}` && (
+                    <Transformer
+                      ref={trRef}
+                      keepRatio={true}
+                      boundBoxFunc={(oldBox, newBox) => {
+                        if (newBox.width < 50 || newBox.height < 50) return oldBox;
+                        if (newBox.width > 400 || newBox.height > 400) return oldBox;
+                        return newBox;
+                      }}
+                      enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']}
+                      rotateEnabled={true}
+                      borderStroke="#000000"
+                      borderStrokeWidth={2}
+                      anchorSize={12}
+                      anchorStroke="#000000"
+                      anchorFill="#ffffff"
+                      anchorCornerRadius={6}
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </Layer>
+        </Stage>
       </div>
     </div>
   );

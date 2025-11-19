@@ -48,8 +48,8 @@ I've added **Google** and **Apple** sign-in buttons to your Login and Register p
    - Click the **+** button to create a new identifier
    - Select **Services ID** and click Continue
    - Configure your Services ID:
-     - Description: "Raspberry OAuth"
-     - Identifier: com.raspberry.oauth (or your bundle ID)
+     - Description: "StolenTee OAuth"
+     - Identifier: com.stolentee.oauth (or your bundle ID)
    - Enable **Sign In with Apple**
    - Configure Web Domain and Return URLs:
      ```

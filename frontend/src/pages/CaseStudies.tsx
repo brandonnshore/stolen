@@ -95,7 +95,7 @@ export default function CaseStudies() {
               Case Studies
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              See how leading brands, studios, and creators use Raspberry to bring their custom apparel vision to life.
+              See how leading brands, studios, and creators use StolenTee to bring their custom apparel vision to life.
             </p>
           </div>
         </div>
@@ -179,7 +179,7 @@ export default function CaseStudies() {
             Ready to create your own success story?
           </h2>
           <p className="text-xl text-gray-600 mb-10">
-            Join hundreds of brands and creators who trust Raspberry for their custom apparel needs.
+            Join hundreds of brands and creators who trust StolenTee for their custom apparel needs.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

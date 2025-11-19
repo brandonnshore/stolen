@@ -1,4 +1,4 @@
-// TypeScript type definitions for Raspberry data models
+// TypeScript type definitions for StolenTee data models
 
 export interface User {
   id: string;

@@ -1,6 +1,6 @@
-# Raspberry - Quick Start Guide
+# StolenTee - Quick Start Guide
 
-Get up and running with Raspberry in 5 minutes.
+Get up and running with StolenTee in 5 minutes.
 
 ## Prerequisites Checklist
 
@@ -25,7 +25,7 @@ npm install
 
 ```bash
 # Create database
-createdb raspberry
+createdb stolentee
 
 # Copy environment file
 cd backend
@@ -34,7 +34,7 @@ cp .env.example .env
 
 Edit `backend/.env` and set your database URL:
 ```env
-DATABASE_URL=postgresql://your_user:your_password@localhost:5432/raspberry
+DATABASE_URL=postgresql://your_user:your_password@localhost:5432/stolentee
 ```
 
 ### 3. Run Migrations
@@ -45,7 +45,7 @@ npm run migrate
 ```
 
 This creates all tables and adds seed data including:
-- Admin user (admin@raspberry.com / admin123)
+- Admin user (admin@stolentee.com / admin123)
 - Decoration methods (screen print, embroidery, DTG)
 - Sample product (Classic T-Shirt with 10 variants)
 
@@ -81,7 +81,7 @@ npm run dev
 ## Verify Installation
 
 1. Open http://localhost:3000
-2. You should see the Raspberry homepage
+2. You should see the StolenTee homepage
 3. Navigate to "Products" to see the sample t-shirt
 4. Check http://localhost:3001/health for API status
 
@@ -125,7 +125,7 @@ The project is now initialized with:
 pg_isready
 
 # Verify database exists
-psql -l | grep raspberry
+psql -l | grep stolentee
 ```
 
 ### Port Already in Use
@@ -140,15 +140,15 @@ lsof -ti:3000 | xargs kill -9
 ### Migration Errors
 ```bash
 # Drop and recreate database
-dropdb raspberry
-createdb raspberry
+dropdb stolentee
+createdb stolentee
 cd backend && npm run migrate
 ```
 
 ## Project Structure Overview
 
 ```
-raspberry/
+stolentee/
 ├── backend/           # Node.js + Express API
 │   ├── src/
 │   │   ├── controllers/  # Route handlers (TODO: Implement logic)
@@ -168,7 +168,7 @@ raspberry/
 
 ## Need Help?
 
-- Review full specification: `specs/raspberry-spec.md`
+- Review full specification: `specs/stolentee-spec.md`
 - Read complete documentation: `README.md`
 - Check API endpoints in backend route files
 
