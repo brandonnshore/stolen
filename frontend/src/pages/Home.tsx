@@ -192,8 +192,8 @@ export default function Home() {
                   key={category}
                   onClick={() => setSelectedCategory(category)}
                   className={`px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${selectedCategory === category
-                      ? 'bg-black dark:bg-white text-white dark:text-black'
-                      : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
+                    ? 'bg-black dark:bg-white text-white dark:text-black'
+                    : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
                     }`}
                 >
                   {category}
@@ -202,8 +202,8 @@ export default function Home() {
               <button
                 onClick={() => setSelectedCategory('All')}
                 className={`px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${selectedCategory === 'All'
-                    ? 'bg-black dark:bg-white text-white dark:text-black'
-                    : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
+                  ? 'bg-black dark:bg-white text-white dark:text-black'
+                  : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
                   }`}
               >
                 All products
@@ -280,7 +280,7 @@ export default function Home() {
         {/* Fixed "Trusted by" text on the left with background and fade */}
         <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20 flex items-center">
           <div className="bg-white px-4 sm:px-8 py-3 sm:py-4 relative z-10">
-            <h3 className="text-xl sm:text-2xl lg:text-4xl font-bold">Trusted by</h3>
+            <h3 className="text-xl sm:text-2xl lg:text-4xl font-bold">Stolen from</h3>
           </div>
           {/* Fade gradient extending to the right behind the text */}
           <div className="absolute left-0 top-0 bottom-0 w-48 sm:w-96 bg-gradient-to-r from-white via-white to-transparent pointer-events-none"></div>
