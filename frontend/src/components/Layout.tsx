@@ -3,7 +3,7 @@ import { ShoppingCart, Menu, X, Moon, Sun } from 'lucide-react';
 import { useCartStore } from '../stores/cartStore';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,20 +15,38 @@ export default function Layout({ children }: LayoutProps) {
   const { isAuthenticated, user } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Hide header on product detail/customizer pages
   const hideHeader = (location.pathname.startsWith('/products/') && location.pathname !== '/products') || location.pathname === '/hoodie';
+
+  // Check if we are on the homepage
+  const isHome = location.pathname === '/';
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-black transition-colors duration-300">
       {/* Header - Assembly style */}
       {!hideHeader && (
         <>
-          <header className="bg-white dark:bg-black sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+          <header
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isHome && !isScrolled
+              ? 'bg-transparent border-transparent'
+              : 'bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800'
+              }`}
+          >
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between relative">
               <Link to="/" className="flex items-center">
                 <img
-                  src={isDark ? "/assets/stolentee-logo-white.png" : "/assets/stolentee-logo.png"}
+                  src={isDark || (isHome && !isScrolled) ? "/assets/stolentee-logo-white.png" : "/assets/stolentee-logo.png"}
                   alt="Stolen Tee"
                   className="h-8 sm:h-10 w-auto"
                 />
@@ -36,16 +54,40 @@ export default function Layout({ children }: LayoutProps) {
 
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-                <Link to="/products" className="text-sm text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
+                <Link
+                  to="/products"
+                  className={`text-sm transition-colors ${isHome && !isScrolled
+                    ? 'text-white hover:text-gray-200'
+                    : 'text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400'
+                    }`}
+                >
                   Products
                 </Link>
-                <Link to="/how-it-works" className="text-sm text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
+                <Link
+                  to="/how-it-works"
+                  className={`text-sm transition-colors ${isHome && !isScrolled
+                    ? 'text-white hover:text-gray-200'
+                    : 'text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400'
+                    }`}
+                >
                   How it works
                 </Link>
-                <Link to="/about" className="text-sm text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
+                <Link
+                  to="/about"
+                  className={`text-sm transition-colors ${isHome && !isScrolled
+                    ? 'text-white hover:text-gray-200'
+                    : 'text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400'
+                    }`}
+                >
                   Pricing & Service
                 </Link>
-                <Link to="/case-studies" className="text-sm text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
+                <Link
+                  to="/case-studies"
+                  className={`text-sm transition-colors ${isHome && !isScrolled
+                    ? 'text-white hover:text-gray-200'
+                    : 'text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400'
+                    }`}
+                >
                   Case Studies
                 </Link>
               </div>
@@ -54,12 +96,21 @@ export default function Layout({ children }: LayoutProps) {
               <div className="hidden md:flex items-center gap-4">
                 <button
                   onClick={toggleTheme}
-                  className="p-2 text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+                  className={`p-2 transition-colors ${isHome && !isScrolled
+                    ? 'text-white hover:text-gray-200'
+                    : 'text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400'
+                    }`}
                   aria-label="Toggle dark mode"
                 >
-                  {isDark ? <Sun size={20} /> : <Moon size={20} />}
+                  {isDark || (isHome && !isScrolled) ? <Sun size={20} /> : <Moon size={20} />}
                 </button>
-                <Link to="/cart" className="relative text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
+                <Link
+                  to="/cart"
+                  className={`relative transition-colors ${isHome && !isScrolled
+                    ? 'text-white hover:text-gray-200'
+                    : 'text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400'
+                    }`}
+                >
                   <ShoppingCart size={20} />
                   {cartItemCount > 0 && (
                     <span className="absolute -top-2 -right-2 bg-black dark:bg-white text-white dark:text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -77,14 +128,20 @@ export default function Layout({ children }: LayoutProps) {
                 ) : (
                   <Link
                     to="/login"
-                    className="text-sm text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+                    className={`text-sm transition-colors ${isHome && !isScrolled
+                      ? 'text-white hover:text-gray-200'
+                      : 'text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400'
+                      }`}
                   >
                     Login
                   </Link>
                 )}
                 <Link
                   to="/products"
-                  className="px-5 py-2.5 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded-full hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+                  className={`px-5 py-2.5 text-sm font-medium rounded-full transition-colors ${isHome && !isScrolled
+                    ? 'bg-white text-black hover:bg-gray-100'
+                    : 'bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200'
+                    }`}
                 >
                   Start designing
                 </Link>
@@ -94,12 +151,17 @@ export default function Layout({ children }: LayoutProps) {
               <div className="flex md:hidden items-center gap-3">
                 <button
                   onClick={toggleTheme}
-                  className="p-2 text-gray-900 dark:text-gray-100"
+                  className={`p-2 ${isHome && !isScrolled ? 'text-white' : 'text-gray-900 dark:text-gray-100'
+                    }`}
                   aria-label="Toggle dark mode"
                 >
-                  {isDark ? <Sun size={20} /> : <Moon size={20} />}
+                  {isDark || (isHome && !isScrolled) ? <Sun size={20} /> : <Moon size={20} />}
                 </button>
-                <Link to="/cart" className="relative text-gray-900 dark:text-gray-100 p-2">
+                <Link
+                  to="/cart"
+                  className={`relative p-2 ${isHome && !isScrolled ? 'text-white' : 'text-gray-900 dark:text-gray-100'
+                    }`}
+                >
                   <ShoppingCart size={22} />
                   {cartItemCount > 0 && (
                     <span className="absolute top-0 right-0 bg-black dark:bg-white text-white dark:text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -109,7 +171,8 @@ export default function Layout({ children }: LayoutProps) {
                 </Link>
                 <button
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="p-2 text-gray-900 dark:text-gray-100"
+                  className={`p-2 ${isHome && !isScrolled ? 'text-white' : 'text-gray-900 dark:text-gray-100'
+                    }`}
                   aria-label="Toggle menu"
                 >
                   {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}

@@ -64,26 +64,37 @@ export default function Home() {
   return (
     <div className="bg-white dark:bg-black min-h-screen transition-colors duration-300">
       {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center overflow-hidden bg-white dark:bg-black py-12 lg:py-0">
-        <div className="text-center px-6 sm:px-12 max-w-4xl">
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold leading-tight mb-6 sm:mb-8 text-gray-900 dark:text-white">
-            <span className="glitch-hover inline-block">Seen it.</span><br/>
-            <span className="glitch-hover inline-block">Want it.</span><br/>
+      {/* Hero Section */}
+      <section className="h-screen flex items-center justify-center overflow-hidden relative">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/assets/hero-bg.jpg"
+            alt="Stolen Art"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/40"></div>
+        </div>
+
+        <div className="text-center px-6 sm:px-12 max-w-4xl relative z-10 pt-20">
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold leading-tight mb-6 sm:mb-8 text-white">
+            <span className="glitch-hover inline-block">Seen it.</span><br />
+            <span className="glitch-hover inline-block">Want it.</span><br />
             <span className="glitch-hover inline-block">Got it.</span>
           </h1>
-          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed mb-8 sm:mb-10 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-gray-200 leading-relaxed mb-8 sm:mb-10 max-w-2xl mx-auto">
             Upload a photo of any shirt. Our thieves extract the design and recreate it on premium blanks in seconds.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/products/classic-tee"
-              className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-base font-medium rounded-md hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors text-center"
+              className="px-8 py-4 bg-white text-black text-base font-medium rounded-md hover:bg-gray-100 transition-colors text-center"
             >
               Start Your Heist
             </Link>
             <Link
               to="/how-it-works"
-              className="px-8 py-4 border-2 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-white text-base font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors text-center"
+              className="px-8 py-4 border-2 border-white text-white text-base font-medium rounded-md hover:bg-white/10 transition-colors text-center"
             >
               See How It Works
             </Link>
@@ -180,22 +191,20 @@ export default function Home() {
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
-                    selectedCategory === category
+                  className={`px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${selectedCategory === category
                       ? 'bg-black dark:bg-white text-white dark:text-black'
                       : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
-                  }`}
+                    }`}
                 >
                   {category}
                 </button>
               ))}
               <button
                 onClick={() => setSelectedCategory('All')}
-                className={`px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
-                  selectedCategory === 'All'
+                className={`px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${selectedCategory === 'All'
                     ? 'bg-black dark:bg-white text-white dark:text-black'
                     : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
-                }`}
+                  }`}
               >
                 All products
               </button>
@@ -280,59 +289,59 @@ export default function Home() {
         {/* Scrolling logos container */}
         <div className="relative">
           <div className="flex animate-scroll">
-              {/* First set of logos */}
-              <div className="flex items-center gap-8 sm:gap-16 min-w-max pr-8 sm:pr-16">
-                <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">UNIVERSAL<br/>MUSIC GROUP</div>
-                <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800" style={{ letterSpacing: '0.2em' }}>DINAMO</div>
-                <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">believe.</div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-black rounded-full flex items-center justify-center">
-                    <div className="w-4 h-4 sm:w-6 sm:h-6 border-2 border-white rounded-full"></div>
-                  </div>
-                  <div className="text-sm sm:text-lg lg:text-xl font-medium text-gray-800">Index<br/>Ventures</div>
+            {/* First set of logos */}
+            <div className="flex items-center gap-8 sm:gap-16 min-w-max pr-8 sm:pr-16">
+              <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">UNIVERSAL<br />MUSIC GROUP</div>
+              <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800" style={{ letterSpacing: '0.2em' }}>DINAMO</div>
+              <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">believe.</div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-black rounded-full flex items-center justify-center">
+                  <div className="w-4 h-4 sm:w-6 sm:h-6 border-2 border-white rounded-full"></div>
                 </div>
+                <div className="text-sm sm:text-lg lg:text-xl font-medium text-gray-800">Index<br />Ventures</div>
               </div>
+            </div>
 
-              {/* Second set */}
-              <div className="flex items-center gap-8 sm:gap-16 min-w-max pr-8 sm:pr-16">
-                <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">UNIVERSAL<br/>MUSIC GROUP</div>
-                <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800" style={{ letterSpacing: '0.2em' }}>DINAMO</div>
-                <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">believe.</div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-black rounded-full flex items-center justify-center">
-                    <div className="w-4 h-4 sm:w-6 sm:h-6 border-2 border-white rounded-full"></div>
-                  </div>
-                  <div className="text-sm sm:text-lg lg:text-xl font-medium text-gray-800">Index<br/>Ventures</div>
+            {/* Second set */}
+            <div className="flex items-center gap-8 sm:gap-16 min-w-max pr-8 sm:pr-16">
+              <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">UNIVERSAL<br />MUSIC GROUP</div>
+              <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800" style={{ letterSpacing: '0.2em' }}>DINAMO</div>
+              <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">believe.</div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-black rounded-full flex items-center justify-center">
+                  <div className="w-4 h-4 sm:w-6 sm:h-6 border-2 border-white rounded-full"></div>
                 </div>
+                <div className="text-sm sm:text-lg lg:text-xl font-medium text-gray-800">Index<br />Ventures</div>
               </div>
+            </div>
 
-              {/* Third set */}
-              <div className="flex items-center gap-8 sm:gap-16 min-w-max pr-8 sm:pr-16">
-                <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">UNIVERSAL<br/>MUSIC GROUP</div>
-                <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800" style={{ letterSpacing: '0.2em' }}>DINAMO</div>
-                <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">believe.</div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-black rounded-full flex items-center justify-center">
-                    <div className="w-4 h-4 sm:w-6 sm:h-6 border-2 border-white rounded-full"></div>
-                  </div>
-                  <div className="text-sm sm:text-lg lg:text-xl font-medium text-gray-800">Index<br/>Ventures</div>
+            {/* Third set */}
+            <div className="flex items-center gap-8 sm:gap-16 min-w-max pr-8 sm:pr-16">
+              <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">UNIVERSAL<br />MUSIC GROUP</div>
+              <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800" style={{ letterSpacing: '0.2em' }}>DINAMO</div>
+              <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">believe.</div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-black rounded-full flex items-center justify-center">
+                  <div className="w-4 h-4 sm:w-6 sm:h-6 border-2 border-white rounded-full"></div>
                 </div>
+                <div className="text-sm sm:text-lg lg:text-xl font-medium text-gray-800">Index<br />Ventures</div>
               </div>
+            </div>
 
-              {/* Fourth set */}
-              <div className="flex items-center gap-8 sm:gap-16 min-w-max pr-8 sm:pr-16">
-                <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">UNIVERSAL<br/>MUSIC GROUP</div>
-                <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800" style={{ letterSpacing: '0.2em' }}>DINAMO</div>
-                <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">believe.</div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-black rounded-full flex items-center justify-center">
-                    <div className="w-4 h-4 sm:w-6 sm:h-6 border-2 border-white rounded-full"></div>
-                  </div>
-                  <div className="text-sm sm:text-lg lg:text-xl font-medium text-gray-800">Index<br/>Ventures</div>
+            {/* Fourth set */}
+            <div className="flex items-center gap-8 sm:gap-16 min-w-max pr-8 sm:pr-16">
+              <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">UNIVERSAL<br />MUSIC GROUP</div>
+              <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800" style={{ letterSpacing: '0.2em' }}>DINAMO</div>
+              <div className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-800">believe.</div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-black rounded-full flex items-center justify-center">
+                  <div className="w-4 h-4 sm:w-6 sm:h-6 border-2 border-white rounded-full"></div>
                 </div>
+                <div className="text-sm sm:text-lg lg:text-xl font-medium text-gray-800">Index<br />Ventures</div>
               </div>
             </div>
           </div>
+        </div>
       </section>
     </div>
   );

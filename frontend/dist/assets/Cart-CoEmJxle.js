@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:frontend/dist/assets/Cart-CPznOdxU.js
-import{e as i,u as h,j as e,X as p}from"./index-D4OuuKZ3.js";import{L as l}from"./react-vendor-Byl6S4M9.js";import"./auth-vendor-Cg5HAGal.js";/**
-========
-import{e as i,u as h,j as e,X as p}from"./index-YPO3Rsfb.js";import{L as l}from"./react-vendor-CM-9PcP6.js";import"./auth-vendor-COnHxGX6.js";/**
->>>>>>>> 60fefb5d12785fb287e8d56cb7f68d85f574f97b:frontend/dist/assets/Cart-Dlgq5drY.js
+import{e as i,u as h,j as e,X as p}from"./index-Cr3oTHv-.js";import{L as l}from"./react-vendor-Byl6S4M9.js";import"./auth-vendor-Cg5HAGal.js";/**
  * @license lucide-react v0.303.0 - ISC
  *
  * This source code is licensed under the ISC license.
