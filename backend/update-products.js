@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://brandonshore@localhost:5432/raspberry'
+  connectionString: process.env.DATABASE_URL || 'postgresql://brandonshore@localhost:5432/stolentee'
 });
 
 async function updateProducts() {

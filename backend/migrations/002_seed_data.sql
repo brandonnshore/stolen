@@ -1,10 +1,10 @@
--- Seed data for Raspberry MVP
+-- Seed data for StolenTee MVP
 -- Creates initial products, decoration methods, and admin user
 
 -- Insert default admin user (password: 'admin123' - CHANGE IN PRODUCTION)
 -- Password hash generated with bcrypt rounds=10
 INSERT INTO users (email, password_hash, name, role) VALUES
-('admin@raspberry.com', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Admin User', 'admin');
+('admin@stolentee.com', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Admin User', 'admin');
 
 -- Insert decoration methods
 INSERT INTO decoration_methods (name, display_name, description, pricing_rules, file_requirements) VALUES

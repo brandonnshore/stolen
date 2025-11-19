@@ -1,4 +1,4 @@
--- Initial Database Schema for Raspberry Ecommerce Platform
+-- Initial Database Schema for StolenTee Ecommerce Platform
 -- Creates all core tables for products, orders, customers, and assets
 
 -- Enable UUID extension

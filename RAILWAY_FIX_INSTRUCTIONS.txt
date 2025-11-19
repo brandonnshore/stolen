@@ -7,7 +7,7 @@ STEP-BY-STEP:
 
 1. Go to https://railway.app/
 
-2. Click on your "stolen" project (NOT raspberry!)
+2. Click on your "stolen" project
 
 3. Click on the backend service
 

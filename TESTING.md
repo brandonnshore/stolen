@@ -1,6 +1,6 @@
-# Raspberry - Local Testing Guide
+# StolenTee - Local Testing Guide
 
-This guide will walk you through testing the complete Raspberry application locally.
+This guide will walk you through testing the complete StolenTee application locally.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ Before testing, ensure you have:
 
 ```bash
 # Create database
-createdb raspberry
+createdb stolentee
 
 # Navigate to backend
 cd backend
@@ -24,7 +24,7 @@ cp .env.example .env
 
 Edit `backend/.env`:
 ```env
-DATABASE_URL=postgresql://YOUR_USERNAME@localhost:5432/raspberry
+DATABASE_URL=postgresql://YOUR_USERNAME@localhost:5432/stolentee
 JWT_SECRET=your-super-secret-jwt-key-for-testing
 STRIPE_SECRET_KEY=sk_test_51xxx  # Use Stripe test key
 USE_LOCAL_STORAGE=true
@@ -84,7 +84,7 @@ npm run dev
 
 Expected output:
 ```
-🚀 Raspberry API Server running on port 3001
+🚀 StolenTee API Server running on port 3001
 📍 Environment: development
 🔗 API URL: http://localhost:3001
 ✅ Database connected
@@ -109,7 +109,7 @@ Expected output:
 
 ### Test 1: View Homepage
 1. Open browser to http://localhost:3000
-2. You should see the Raspberry homepage with hero section
+2. You should see the StolenTee homepage with hero section
 3. Check that navigation works (Products, About links)
 
 ✅ **Expected**: Homepage loads with navigation
@@ -218,13 +218,13 @@ curl http://localhost:3001/health
 **Solution**:
 - Check backend server is running (Terminal 1)
 - Verify database connection in backend/.env
-- Check database has seed data: `psql raspberry -c "SELECT * FROM products;"`
+- Check database has seed data: `psql stolentee -c "SELECT * FROM products;"`
 
 ### Issue: "Database connection error"
 **Solution**:
 - Ensure PostgreSQL is running: `pg_isready`
 - Check DATABASE_URL in backend/.env
-- Verify database exists: `psql -l | grep raspberry`
+- Verify database exists: `psql -l | grep stolentee`
 
 ### Issue: "Stripe payment fails"
 **Solution**:
@@ -282,7 +282,7 @@ lsof -ti:3001 | xargs kill -9
    - Quantity breaks at 6, 12
 
 ### Admin Credentials
-- Email: admin@raspberry.com
+- Email: admin@stolentee.com
 - Password: admin123
 - (Currently no admin UI, but credentials work for API)
 
@@ -349,4 +349,4 @@ If you encounter issues:
 
 ---
 
-🎉 **Congratulations!** If all tests pass, your Raspberry application is working correctly and ready for further development or deployment.
+🎉 **Congratulations!** If all tests pass, your StolenTee application is working correctly and ready for further development or deployment.

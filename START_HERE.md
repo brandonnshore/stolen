@@ -1,6 +1,6 @@
-# 🚀 START HERE - Raspberry Local Setup
+# 🚀 START HERE - StolenTee Local Setup
 
-Welcome! This guide will get you from zero to a running Raspberry application in **10 minutes**.
+Welcome! This guide will get you from zero to a running StolenTee application in **10 minutes**.
 
 ## ✅ What's Been Built
 
@@ -30,7 +30,7 @@ npm install
 
 ```bash
 # Create database
-createdb raspberry
+createdb stolentee
 
 # Configure environment
 cd backend
@@ -39,7 +39,7 @@ cp .env.example .env
 
 Edit `backend/.env` - **Update this line**:
 ```env
-DATABASE_URL=postgresql://YOUR_USERNAME@localhost:5432/raspberry
+DATABASE_URL=postgresql://YOUR_USERNAME@localhost:5432/stolentee
 ```
 
 ```bash
@@ -66,7 +66,7 @@ npm run dev
 Open browser → http://localhost:3000
 
 You should see:
-- ✅ Raspberry homepage
+- ✅ StolenTee homepage
 - ✅ Click "Products" → See "Classic Cotton T-Shirt"
 - ✅ Click "Customize Now" → Full customizer interface
 
@@ -92,12 +92,12 @@ You should see:
 - **UI**: http://localhost:3000
 - **Pages**: Home, Products, Customizer, Cart, Checkout, Tracking
 
-### Database (`raspberry`)
+### Database (`stolentee`)
 **Seed data includes**:
 - 1 product (Classic T-Shirt)
 - 10 variants (2 colors × 5 sizes)
 - 3 decoration methods (Screen Print, Embroidery, DTG)
-- Admin user (admin@raspberry.com / admin123)
+- Admin user (admin@stolentee.com / admin123)
 
 ## 🎨 Key Features to Test
 
@@ -162,12 +162,12 @@ lsof -ti:3000 | xargs kill -9
 - **QUICKSTART.md** - Detailed setup instructions
 - **README.md** - Complete project documentation
 - **TESTING.md** - Comprehensive testing guide
-- **specs/raspberry-spec.md** - Original project specification
+- **specs/stolentee-spec.md** - Original project specification
 
 ## 🛠️ Project Structure
 
 ```
-raspberry/
+stolentee/
 ├── backend/              # Node.js API
 │   ├── src/
 │   │   ├── controllers/  # Request handlers
@@ -260,7 +260,7 @@ raspberry/
 
 ## 🎉 You're Ready!
 
-Your Raspberry application is fully functional and ready to test locally.
+Your StolenTee application is fully functional and ready to test locally.
 
 **Next Steps**:
 1. Start both servers (backend + frontend)

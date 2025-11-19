@@ -1,4 +1,4 @@
-# Raspberry - Custom Clothing Ecommerce Platform
+# StolenTee - Custom Clothing Ecommerce Platform
 
 A full-stack ecommerce platform for custom clothing with a live design customizer. Customers can select products, upload artwork or add text, choose decoration methods and placements, and see real-time price updates. The platform generates production-ready files and spec sheets for fulfillment partners.
 
@@ -32,7 +32,7 @@ A full-stack ecommerce platform for custom clothing with a live design customize
 ## Project Structure
 
 ```
-raspberry/
+stolentee/
 ├── backend/
 │   ├── src/
 │   │   ├── config/         # Database and app configuration
@@ -63,7 +63,7 @@ raspberry/
 │   └── vite.config.ts
 │
 ├── specs/
-│   └── raspberry-spec.md   # Full project specification
+│   └── stolentee-spec.md   # Full project specification
 │
 └── README.md
 ```
@@ -100,7 +100,7 @@ raspberry/
 
 1. **Create PostgreSQL database**
    ```bash
-   createdb raspberry
+   createdb stolentee
    ```
 
 2. **Configure environment variables**
@@ -160,7 +160,7 @@ Edit `.env` and update:
 ## Default Credentials
 
 After running migrations, you can log in to the admin panel with:
-- **Email**: admin@raspberry.com
+- **Email**: admin@stolentee.com
 - **Password**: admin123
 
 **⚠️ IMPORTANT**: Change this password in production!
@@ -270,7 +270,7 @@ npm run type-check   # TypeScript type checking
 ```env
 NODE_ENV=development
 PORT=3001
-DATABASE_URL=postgresql://user:password@localhost:5432/raspberry
+DATABASE_URL=postgresql://user:password@localhost:5432/stolentee
 JWT_SECRET=your-secret-key
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
