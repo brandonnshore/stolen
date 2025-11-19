@@ -3,7 +3,7 @@ import { Product, Variant } from '../types';
 import { uploadAPI, designAPI, jobAPI } from '../services/api';
 import { useCartStore } from '../stores/cartStore';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { Upload, ArrowDownToLine, Save } from 'lucide-react';
+import { ArrowDownToLine, Save, ArrowUp, Minus, Plus, Info } from 'lucide-react';
 import TShirtCanvas from './TShirtCanvas';
 import HoodieCanvas from './HoodieCanvas';
 import { useAuth } from '../contexts/AuthContext';
@@ -48,18 +48,18 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   // Customization state - separate for each view
   const [view, setView] = useState<'front' | 'back'>('front');
 
-  const [frontArtworks, setFrontArtworks] = useState<Array<{url: string, position: any, assetId?: string}>>([]);
-  const [backArtworks, setBackArtworks] = useState<Array<{url: string, position: any, assetId?: string}>>([]);
-  const [neckArtwork, setNeckArtwork] = useState<{url: string, position: any, assetId?: string} | null>(null);
+  const [frontArtworks, setFrontArtworks] = useState<Array<{ url: string, position: any, assetId?: string }>>([]);
+  const [backArtworks, setBackArtworks] = useState<Array<{ url: string, position: any, assetId?: string }>>([]);
+  const [neckArtwork, setNeckArtwork] = useState<{ url: string, position: any, assetId?: string } | null>(null);
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
   const [uploadTargetView, setUploadTargetView] = useState<'front' | 'back'>('front'); // Track where to place uploaded image
   const [jobStatus, setJobStatus] = useState<'idle' | 'uploading' | 'processing' | 'done' | 'error'>('idle');
   const [jobError, setJobError] = useState<string | null>(null);
-  const [jobProgress, setJobProgress] = useState<{message: string, percent: number}>({message: '', percent: 0});
+  const [jobProgress, setJobProgress] = useState<{ message: string, percent: number }>({ message: '', percent: 0 });
   const [disclaimerIndex, setDisclaimerIndex] = useState(0);
 
   // Track uploaded and extracted artwork files for display
-  const [extractedArtworkUrl, setExtractedArtworkUrl] = useState<string | null>(null);
+
 
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [savedDesignName, setSavedDesignName] = useState('');
@@ -189,8 +189,7 @@ export default function Customizer({ product, variants }: CustomizerProps) {
           if (transparentAsset) {
             const logoUrl = getFullAssetUrl(transparentAsset.file_url);
 
-            // Store the extracted artwork URL for display
-            setExtractedArtworkUrl(logoUrl);
+
 
             const newArtwork = {
               url: logoUrl,
@@ -595,282 +594,57 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   // Note: View switching functionality for front/back views
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Custom Compact Header for Customizer */}
+    <div className="min-h-screen bg-white pb-24 md:pb-0">
+      {/* Header */}
       <div className="border-b border-gray-200 bg-white sticky top-0 z-50">
-        <div className="relative px-3 sm:px-6 py-3 sm:py-1.5 flex items-center justify-between">
-          {/* Product Title - Left (hide on mobile, use as spacer) */}
-          <div className="hidden sm:block text-sm font-bold min-w-0">
+        <div className="relative px-4 py-3 flex items-center justify-between md:justify-center">
+          {/* Mobile: Back button */}
+          <Link to="/" className="md:hidden p-2 -ml-2 text-gray-600 hover:text-gray-900 rounded-full hover:bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+          </Link>
+
+          {/* Product Title */}
+          <div className="text-base font-bold text-center md:absolute md:left-6 md:text-sm">
             {product.title}
           </div>
 
-          {/* Mobile: Left back button */}
-          <Link to="/" className="sm:hidden text-sm font-medium text-gray-600 hover:text-gray-900">
-            ← Back
-          </Link>
-
-          {/* Stolen Tee Logo - Center (desktop only) */}
-          <Link to="/" className="hidden sm:block absolute left-1/2 -translate-x-1/2 text-lg font-bold hover:text-gray-600 transition-colors">
+          {/* Desktop Logo */}
+          <Link to="/" className="hidden md:block absolute left-1/2 -translate-x-1/2 text-lg font-bold hover:text-gray-600 transition-colors">
             Stolen Tee
           </Link>
 
-          {/* Save Design Button and Price - Right */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center gap-3 absolute right-6">
             <button
               onClick={handleDownloadDesign}
               disabled={!currentArtwork}
               title="Download Design"
-              className={`hidden sm:flex p-2 rounded-md transition-colors ${
-                currentArtwork
-                  ? 'text-gray-700 hover:bg-gray-100'
-                  : 'text-gray-300 cursor-not-allowed'
-              }`}
+              className={`p-2 rounded-md transition-colors ${currentArtwork ? 'text-gray-700 hover:bg-gray-100' : 'text-gray-300 cursor-not-allowed'
+                }`}
             >
               <ArrowDownToLine size={18} />
             </button>
             <button
               onClick={handleSaveDesign}
-              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-1.5 text-xs font-medium rounded-md transition-colors bg-black text-white hover:bg-gray-800"
+              className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium rounded-md transition-colors bg-black text-white hover:bg-gray-800"
             >
               <Save size={14} />
-              <span className="hidden sm:inline">{loadedDesignId ? 'Update' : 'Save'}</span>
-              <span className="sm:hidden">{loadedDesignId ? 'Update' : 'Save'}</span>
+              <span>{loadedDesignId ? 'Update' : 'Save'}</span>
             </button>
-            <div className="hidden md:block text-sm font-normal whitespace-nowrap">
+            <div className="text-sm font-normal whitespace-nowrap">
               from ${TSHIRT_BASE_PRICE.toFixed(2)}
             </div>
           </div>
+
+          {/* Mobile: Spacer */}
+          <div className="md:hidden w-10"></div>
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-60px)]">
-        {/* Left - Upload Section (1/4 width) */}
-        <div className="w-1/4 bg-gray-50 border-r border-gray-200 overflow-y-auto p-6">
-          <div className="max-w-md mx-auto">
-            <h2 className="text-xl font-bold mb-2">Upload Shirt Photo</h2>
-            <p className="text-gray-600 text-sm mb-4">Upload a photo of your shirt and we'll extract the design automatically</p>
-
-            {/* AI Disclaimer */}
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-xs text-blue-900">
-                This is done using AI, and sometimes it requires multiple tries to get your perfect, desired result.
-              </p>
-            </div>
-
-            {/* Upload Area */}
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors cursor-pointer bg-white">
-              <input
-                type="file"
-                accept="image/jpeg,image/png"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="shirt-photo-upload"
-                disabled={jobStatus === 'uploading' || jobStatus === 'processing'}
-              />
-              <label htmlFor="shirt-photo-upload" className="cursor-pointer">
-                <Upload className="mx-auto mb-3 text-gray-400" size={36} />
-                <p className="text-sm font-medium text-gray-700 mb-1">
-                  Click to upload or drag and drop
-                </p>
-                <p className="text-xs text-gray-500">
-                  JPG or PNG up to 25MB
-                </p>
-              </label>
-            </div>
-
-            {/* Status Indicator - Progress Bar */}
-            {(jobStatus === 'uploading' || jobStatus === 'processing') && (
-              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="mb-3">
-                  <div className="flex justify-between items-center mb-2">
-                    <p className="text-sm font-medium text-blue-900">
-                      Stealing your t-shirt
-                    </p>
-                    <p className="text-xs font-semibold text-blue-700">
-                      {jobProgress.percent}%
-                    </p>
-                  </div>
-                  {/* Progress Bar */}
-                  <div className="w-full bg-blue-200 rounded-full h-2.5 overflow-hidden">
-                    <div
-                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
-                      style={{ width: `${jobProgress.percent}%` }}
-                    ></div>
-                  </div>
-                </div>
-                <p className="text-xs text-blue-700 transition-opacity duration-300">
-                  {DISCLAIMER_MESSAGES[disclaimerIndex]}
-                </p>
-              </div>
-            )}
-
-            {/* Success Message */}
-            {jobStatus === 'done' && (
-              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm font-medium text-green-900">
-                  Logo extracted successfully! You can now position it on the shirt.
-                </p>
-              </div>
-            )}
-
-            {/* Error Message */}
-            {jobStatus === 'error' && jobError && (
-              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm font-medium text-red-900">
-                  Error: {jobError}
-                </p>
-                <button
-                  onClick={() => {
-                    setJobStatus('idle');
-                    setJobError(null);
-                    setCurrentJobId(null);
-                  }}
-                  className="mt-2 text-xs text-red-700 underline hover:text-red-900"
-                >
-                  Try again
-                </button>
-              </div>
-            )}
-
-            {/* Artwork Files Display */}
-            {extractedArtworkUrl && (
-              <div className="mt-6">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Artwork File</h3>
-
-                {/* Extracted Artwork */}
-                <div className="bg-white border-2 border-green-300 rounded-lg p-3 hover:border-green-400 transition-colors">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded border border-gray-200 overflow-hidden" style={{
-                      backgroundImage: 'repeating-conic-gradient(#f0f0f0 0% 25%, transparent 0% 50%) 50% / 10px 10px'
-                    }}>
-                      <img
-                        src={extractedArtworkUrl}
-                        alt="Extracted artwork"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="text-sm font-medium text-gray-900">Print-Ready Artwork</p>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                          300 DPI
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-500 mb-2">Transparent PNG · Ready for printing</p>
-                      <a
-                        href={extractedArtworkUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center text-xs font-medium text-blue-600 hover:text-blue-800"
-                      >
-                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                        View Full Size
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-xs text-gray-500 italic mt-2">
-                  💡 Click "View Full Size" to inspect the print file that will be sent to production
-                </p>
-              </div>
-            )}
-
-            {/* Garment Color */}
-            <div className="mt-8 border-t border-gray-200 pt-6">
-              <label className="block text-sm font-semibold mb-4">Garment Color</label>
-              <div className="grid grid-cols-2 gap-3">
-                {colors.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
-                      selectedColor === color
-                        ? 'border-black bg-gray-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div
-                      className="w-8 h-8 rounded-full border border-gray-300"
-                      style={{
-                        backgroundColor:
-                          color === 'White' ? '#FFFFFF' :
-                          color === 'Black' ? '#000000' :
-                          color === 'Navy' ? '#001f3f' :
-                          color.toLowerCase()
-                      }}
-                    ></div>
-                    <span className="text-sm font-medium">{color}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Size Selection */}
-            <div className="mt-6 border-t border-gray-200 pt-6">
-              <label className="block text-sm font-semibold mb-4">Size</label>
-              <div className="grid grid-cols-3 gap-3">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`px-4 py-3 border-2 rounded-lg text-sm font-medium transition-all ${
-                      selectedSize === size
-                        ? 'border-black bg-black text-white'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Quantity */}
-            <div className="mt-6 border-t border-gray-200 pt-6">
-              <label className="block text-sm font-semibold mb-4">Quantity</label>
-              <input
-                type="number"
-                min="1"
-                value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                className="w-full px-4 py-3 text-base border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
-              />
-            </div>
-
-            {/* Price Summary */}
-            <div className="mt-6 border-t border-gray-200 pt-6">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-gray-600">Unit Price</span>
-                <span className="text-lg font-semibold">${unitCost.toFixed(2)}</span>
-              </div>
-              {quantity >= 2 && (
-                <div className="flex justify-between items-center text-lg font-bold">
-                  <span>Total</span>
-                  <span>${(unitCost * quantity).toFixed(2)}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Add to Cart Button */}
-            <div className="pt-6">
-              <button
-                onClick={handleAddToCart}
-                disabled={!selectedColor || !selectedSize}
-                className="w-full py-3.5 sm:py-3 bg-black text-white text-base sm:text-sm font-medium rounded-full hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-              >
-                {editingCartItemId ? 'Update Cart' : 'Add to Cart'}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Right - Canvas Area (3/4 width) */}
-        <div className="w-3/4 bg-white flex flex-col relative overflow-hidden">
-          {/* Interactive Canvas Preview */}
-          <div className="h-full flex items-center justify-center pt-2 pb-16 px-6">
+      <div className="flex flex-col md:flex-row h-auto md:h-[calc(100vh-60px)]">
+        {/* Canvas Area */}
+        <div className="w-full md:w-3/4 bg-gray-50 md:bg-white flex flex-col relative overflow-hidden order-1 md:order-2 h-[60vh] md:h-auto shrink-0">
+          <div className="h-full flex items-center justify-center pt-4 pb-12 px-4">
             {product.slug === 'classic-hoodie' ? (
               <HoodieCanvas
                 ref={canvasRef}
@@ -904,53 +678,203 @@ export default function Customizer({ product, variants }: CustomizerProps) {
                 artworks={getCurrentArtworks()}
                 view={view}
                 onArtworkPositionChange={(pos, index) => {
-                // Save position to current view's artwork at specific index
-                if (view === 'front') {
-                  const updated = [...frontArtworks];
-                  updated[index] = { ...updated[index], position: pos };
-                  setFrontArtworks(updated);
-                } else if (view === 'back') {
-                  const updated = [...backArtworks];
-                  updated[index] = { ...updated[index], position: pos };
-                  setBackArtworks(updated);
-                }
-              }}
-              onArtworkDelete={(index) => {
-                // Delete artwork from current view
-                if (view === 'front') {
-                  const updated = frontArtworks.filter((_, i) => i !== index);
-                  setFrontArtworks(updated);
-                } else if (view === 'back') {
-                  const updated = backArtworks.filter((_, i) => i !== index);
-                  setBackArtworks(updated);
-                }
-              }}
-            />
+                  // Save position to current view's artwork at specific index
+                  if (view === 'front') {
+                    const updated = [...frontArtworks];
+                    updated[index] = { ...updated[index], position: pos };
+                    setFrontArtworks(updated);
+                  } else if (view === 'back') {
+                    const updated = [...backArtworks];
+                    updated[index] = { ...updated[index], position: pos };
+                    setBackArtworks(updated);
+                  }
+                }}
+                onArtworkDelete={(index) => {
+                  // Delete artwork from current view
+                  if (view === 'front') {
+                    const updated = frontArtworks.filter((_, i) => i !== index);
+                    setFrontArtworks(updated);
+                  } else if (view === 'back') {
+                    const updated = backArtworks.filter((_, i) => i !== index);
+                    setBackArtworks(updated);
+                  }
+                }}
+              />
             )}
           </div>
 
-          {/* View Switcher - Minimal */}
-          <div className="absolute bottom-4 lg:bottom-8 left-1/2 -translate-x-1/2 bg-white rounded-full shadow-lg px-1.5 sm:px-2 py-1.5 sm:py-2 flex gap-1">
+          {/* View Switcher */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 p-1 flex gap-1 z-10">
             <button
               onClick={() => setView('front')}
-              className={`px-4 sm:px-5 py-2.5 sm:py-2 rounded-full text-sm font-medium transition-colors ${
-                view === 'front'
-                  ? 'bg-black text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
+              className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${view === 'front' ? 'bg-black text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'
+                }`}
             >
               Front
             </button>
             <button
               onClick={() => setView('back')}
-              className={`px-4 sm:px-5 py-2.5 sm:py-2 rounded-full text-sm font-medium transition-colors ${
-                view === 'back'
-                  ? 'bg-black text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
+              className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${view === 'back' ? 'bg-black text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'
+                }`}
             >
               Back
             </button>
+          </div>
+        </div>
+
+        {/* Controls Area */}
+        <div className="w-full md:w-1/4 bg-white border-r border-gray-200 overflow-y-auto order-2 md:order-1">
+          <div className="p-6 space-y-8 pb-32 md:pb-6">
+
+            {/* Upload Section */}
+            <div>
+              <h2 className="text-lg font-bold mb-2">Upload & Extract Design</h2>
+              <p className="text-gray-500 text-sm mb-4">Upload a photo and we'll extract the design using AI</p>
+
+              <div className="mb-4 p-3 bg-blue-50 rounded-lg flex gap-2 items-start">
+                <div className="text-blue-500 mt-0.5"><Info size={16} /></div>
+                <p className="text-xs text-blue-600 font-medium">
+                  AI extraction may require multiple tries for best results
+                </p>
+              </div>
+
+              <div className="border-2 border-dashed border-blue-300 bg-blue-50/30 rounded-xl p-8 text-center hover:bg-blue-50 transition-colors cursor-pointer relative group">
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  onChange={handleFileUpload}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  disabled={jobStatus === 'uploading' || jobStatus === 'processing'}
+                />
+                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3 text-white shadow-lg shadow-blue-200">
+                  <ArrowUp size={24} />
+                </div>
+                <p className="text-base font-bold text-gray-900">Tap to Upload Photo</p>
+                <p className="text-xs text-gray-500 mt-1">JPG or PNG up to 25MB</p>
+              </div>
+
+              {/* Status Indicators */}
+              {(jobStatus === 'uploading' || jobStatus === 'processing') && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-sm font-medium text-blue-900">Stealing your t-shirt</p>
+                    <p className="text-xs font-semibold text-blue-700">{jobProgress.percent}%</p>
+                  </div>
+                  <div className="w-full bg-blue-200 rounded-full h-2.5 overflow-hidden">
+                    <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out" style={{ width: `${jobProgress.percent}%` }}></div>
+                  </div>
+                  <p className="text-xs text-blue-700 mt-2">{DISCLAIMER_MESSAGES[disclaimerIndex]}</p>
+                </div>
+              )}
+
+              {jobStatus === 'error' && jobError && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm font-medium text-red-900">Error: {jobError}</p>
+                  <button onClick={() => { setJobStatus('idle'); setJobError(null); setCurrentJobId(null); }} className="mt-2 text-xs text-red-700 underline">Try again</button>
+                </div>
+              )}
+            </div>
+
+            {/* Color Selector */}
+            <div>
+              <h3 className="text-lg font-bold mb-4">T-Shirt Color</h3>
+              <div className="flex gap-6">
+                {colors.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className="flex flex-col items-center gap-2 group"
+                  >
+                    <div
+                      className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all ${selectedColor === color ? 'border-blue-500 scale-110' : 'border-gray-200'
+                        }`}
+                    >
+                      <div
+                        className="w-10 h-10 rounded-full border border-gray-100 shadow-sm"
+                        style={{
+                          backgroundColor: color === 'White' ? '#FFFFFF' : color === 'Black' ? '#000000' : color === 'Navy' ? '#001f3f' : color.toLowerCase()
+                        }}
+                      />
+                    </div>
+                    <span className={`text-xs font-medium ${selectedColor === color ? 'text-black' : 'text-gray-500'}`}>
+                      {color}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Size Selector */}
+            <div>
+              <h3 className="text-lg font-bold mb-4">Size</h3>
+              <div className="grid grid-cols-4 gap-3">
+                {sizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`py-3 rounded-lg text-sm font-medium transition-all ${selectedSize === size
+                      ? 'bg-black text-white shadow-md'
+                      : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300'
+                      }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quantity */}
+            <div className="bg-gray-50 rounded-xl p-4 flex items-center justify-between">
+              <span className="font-bold text-gray-900">Quantity</span>
+              <div className="flex items-center gap-6">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center hover:bg-gray-300 transition-colors"
+                >
+                  <Minus size={16} />
+                </button>
+                <span className="font-bold text-lg w-4 text-center">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Price */}
+            <div className="flex justify-between items-center px-2 py-2 border-t border-gray-100">
+              <span className="text-gray-500">Unit Price</span>
+              <span className="text-xl font-bold">${unitCost.toFixed(2)}</span>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-3 pt-2">
+              <button
+                onClick={handleAddToCart}
+                disabled={!selectedColor || !selectedSize}
+                className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-gray-200 hover:bg-gray-900 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {editingCartItemId ? 'Update Cart' : 'Add to Cart'}
+              </button>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={handleDownloadDesign}
+                  disabled={!currentArtwork}
+                  className="py-3 rounded-xl border border-gray-200 font-medium flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ArrowDownToLine size={18} /> Download
+                </button>
+                <button
+                  onClick={handleSaveDesign}
+                  className="py-3 rounded-xl border border-gray-200 font-medium flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
+                >
+                  <Save size={18} /> Save
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
