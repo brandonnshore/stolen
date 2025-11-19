@@ -333,6 +333,7 @@ const HoodieCanvas = forwardRef<unknown, HoodieCanvasProps>(({
         )}
 
 
+        {/* @ts-ignore React-Konva types don't properly support children in some envs */}
         <Stage
           ref={stageRef}
           width={hoodieDimensions.width}
@@ -340,7 +341,7 @@ const HoodieCanvas = forwardRef<unknown, HoodieCanvasProps>(({
           onMouseDown={checkDeselect}
           onTouchStart={checkDeselect}
         >
-
+          {/* @ts-ignore React-Konva types don't properly support children in some envs */}
           <Layer>
             {hoodieImage && (
               <KonvaImage
