@@ -250,7 +250,7 @@ export default function Layout({ children }: LayoutProps) {
       )}
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className={`flex-1 ${!isHome && !hideHeader ? 'pt-16' : ''}`}>
         {children}
       </main>
 
