@@ -121,7 +121,9 @@ if (require.main === module) {
     })
         .catch((error) => {
         console.error('❌ Migration process failed:', error);
-        process.exit(1);
+        console.error('⚠️  Server will start anyway - check logs for migration errors');
+        // Don't exit with error code - let the server start
+        process.exit(0);
     });
 }
 exports.default = runMigrations;

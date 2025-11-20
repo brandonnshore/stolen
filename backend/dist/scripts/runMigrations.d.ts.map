@@ -1,1 +1,1 @@
-{"version":3,"file":"runMigrations.d.ts","sourceRoot":"","sources":["../../src/scripts/runMigrations.ts"],"names":[],"mappings":";AACA;;;;;;;GAOG;AAyFH;;GAEG;AACH,iBAAe,aAAa,IAAI,OAAO,CAAC,IAAI,CAAC,CAwC5C;AAeD,eAAe,aAAa,CAAC"}
+{"version":3,"file":"runMigrations.d.ts","sourceRoot":"","sources":["../../src/scripts/runMigrations.ts"],"names":[],"mappings":";AACA;;;;;;;GAOG;AAyFH;;GAEG;AACH,iBAAe,aAAa,IAAI,OAAO,CAAC,IAAI,CAAC,CAwC5C;AAiBD,eAAe,aAAa,CAAC"}
