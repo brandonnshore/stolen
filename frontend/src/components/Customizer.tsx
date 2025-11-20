@@ -57,6 +57,8 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   const [jobError, setJobError] = useState<string | null>(null);
   const [jobProgress, setJobProgress] = useState<{ message: string, percent: number }>({ message: '', percent: 0 });
   const [disclaimerIndex, setDisclaimerIndex] = useState(0);
+  const [originalUploadUrl, setOriginalUploadUrl] = useState<string | null>(null); // Track original uploaded photo
+  const [extractedLogoUrl, setExtractedLogoUrl] = useState<string | null>(null); // Track extracted logo
 
   // Track uploaded and extracted artwork files for display
 
@@ -189,7 +191,8 @@ export default function Customizer({ product, variants }: CustomizerProps) {
           if (transparentAsset) {
             const logoUrl = getFullAssetUrl(transparentAsset.file_url);
 
-
+            // Save the extracted logo URL for trophy case display
+            setExtractedLogoUrl(logoUrl);
 
             const newArtwork = {
               url: logoUrl,
@@ -385,6 +388,9 @@ export default function Customizer({ product, variants }: CustomizerProps) {
       const { asset, jobId, message } = await uploadAPI.uploadShirtPhoto(file);
 
       console.log('Shirt photo uploaded:', { asset, jobId, message });
+
+      // Save the original uploaded photo URL for trophy case display
+      setOriginalUploadUrl(getFullAssetUrl(asset.file_url));
 
       // Set the job ID and status to processing
       setCurrentJobId(jobId);
@@ -774,40 +780,62 @@ export default function Customizer({ product, variants }: CustomizerProps) {
                 </div>
               )}
 
-              {/* Extracted Artwork Preview */}
-              {jobStatus === 'done' && currentJobId && (
-                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm font-medium text-green-900 mb-3">Extraction Complete!</p>
-                  <p className="text-xs text-green-700 mb-3">Your extracted logo (click to open in new tab):</p>
-                  <div className="flex gap-3">
-                    {/* Show the extracted transparent artwork */}
-                    {(() => {
-                      const targetArtworks = uploadTargetView === 'back' ? backArtworks : frontArtworks;
-                      const latestArtwork = targetArtworks[targetArtworks.length - 1];
-                      if (latestArtwork) {
-                        return (
-                          <a
-                            href={latestArtwork.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block w-24 h-24 border-2 border-green-300 rounded-lg overflow-hidden bg-white hover:border-green-500 transition-all hover:scale-105"
-                          >
-                            <img
-                              src={latestArtwork.url}
-                              alt="Extracted artwork"
-                              className="w-full h-full object-contain"
-                            />
-                          </a>
-                        );
-                      }
-                      return null;
-                    })()}
+              {/* Trophy Case - Before & After Comparison */}
+              {jobStatus === 'done' && currentJobId && originalUploadUrl && extractedLogoUrl && (
+                <div className="mt-4 p-4 bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl shadow-lg">
+                  <p className="text-base font-bold text-gray-900 mb-4 text-center">🏆 Trophy Case</p>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* ORIGINAL - Uploaded Photo */}
+                    <div className="relative">
+                      <a
+                        href={originalUploadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block aspect-square border-2 border-gray-300 rounded-lg overflow-hidden bg-white hover:border-yellow-500 transition-all hover:scale-105 shadow-md"
+                      >
+                        <img
+                          src={originalUploadUrl}
+                          alt="Original shirt photo"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded shadow-md transform rotate-12">
+                          ORIGINAL
+                        </div>
+                      </a>
+                    </div>
+
+                    {/* STOLEN - Extracted Logo */}
+                    <div className="relative">
+                      <a
+                        href={extractedLogoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block aspect-square border-2 border-gray-300 rounded-lg overflow-hidden bg-gray-50 hover:border-yellow-500 transition-all hover:scale-105 shadow-md"
+                      >
+                        <img
+                          src={extractedLogoUrl}
+                          alt="Extracted logo"
+                          className="w-full h-full object-contain p-4"
+                        />
+                        <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow-md transform -rotate-12">
+                          STOLEN
+                        </div>
+                      </a>
+                    </div>
                   </div>
+
                   <button
-                    onClick={() => { setJobStatus('idle'); setJobError(null); setCurrentJobId(null); }}
-                    className="mt-3 text-xs text-green-700 underline"
+                    onClick={() => {
+                      setJobStatus('idle');
+                      setJobError(null);
+                      setCurrentJobId(null);
+                      setOriginalUploadUrl(null);
+                      setExtractedLogoUrl(null);
+                    }}
+                    className="mt-4 w-full text-sm text-yellow-700 font-medium underline hover:text-yellow-900"
                   >
-                    Upload another image
+                    Steal another t-shirt
                   </button>
                 </div>
               )}
