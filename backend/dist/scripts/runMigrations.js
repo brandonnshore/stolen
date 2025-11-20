@@ -108,9 +108,7 @@ async function runMigrations() {
         console.error('\n❌ Migration failed:', error);
         throw error;
     }
-    finally {
-        await database_1.default.end();
-    }
+    // Note: Don't close pool here - the main app will use it
 }
 // Run migrations if this script is executed directly
 if (require.main === module) {
