@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon src/index.ts",
     "build": "tsc && cp -r public dist/ && cp -r migrations dist/",
-    "start": "node dist/scripts/runMigrations.js && node dist/index.js & node dist/workers/extractionWorker.js",
+    "start": "node dist/scripts/runMigrations.js && node dist/index.js",
     "migrate": "npx tsx src/scripts/runMigrations.ts",
     "migrate:create": "node -r ts-node/register migrations/create.ts",
     "fix-images": "npx tsx scripts/fix-railway-images.ts",
