@@ -773,6 +773,44 @@ export default function Customizer({ product, variants }: CustomizerProps) {
                   <button onClick={() => { setJobStatus('idle'); setJobError(null); setCurrentJobId(null); }} className="mt-2 text-xs text-red-700 underline">Try again</button>
                 </div>
               )}
+
+              {/* Extracted Artwork Preview */}
+              {jobStatus === 'done' && currentJobId && (
+                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm font-medium text-green-900 mb-3">Extraction Complete!</p>
+                  <p className="text-xs text-green-700 mb-3">Your extracted logo (click to open in new tab):</p>
+                  <div className="flex gap-3">
+                    {/* Show the extracted transparent artwork */}
+                    {(() => {
+                      const targetArtworks = uploadTargetView === 'back' ? backArtworks : frontArtworks;
+                      const latestArtwork = targetArtworks[targetArtworks.length - 1];
+                      if (latestArtwork) {
+                        return (
+                          <a
+                            href={latestArtwork.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block w-24 h-24 border-2 border-green-300 rounded-lg overflow-hidden bg-white hover:border-green-500 transition-all hover:scale-105"
+                          >
+                            <img
+                              src={latestArtwork.url}
+                              alt="Extracted artwork"
+                              className="w-full h-full object-contain"
+                            />
+                          </a>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                  <button
+                    onClick={() => { setJobStatus('idle'); setJobError(null); setCurrentJobId(null); }}
+                    className="mt-3 text-xs text-green-700 underline"
+                  >
+                    Upload another image
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Color Selector */}
