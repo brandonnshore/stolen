@@ -157,8 +157,29 @@ export default function Customizer({ product, variants }: CustomizerProps) {
     }
 
     let targetPercent = 15; // Start at 15% after upload
+    let pollInterval: NodeJS.Timeout | null = null;
+    let animationInterval: NodeJS.Timeout | null = null;
+    let isActive = true; // Track if this effect is still active
 
-    const pollInterval = setInterval(async () => {
+    // Cleanup function that ensures intervals are cleared
+    const cleanup = () => {
+      isActive = false;
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+      if (animationInterval) {
+        clearInterval(animationInterval);
+        animationInterval = null;
+      }
+    };
+
+    pollInterval = setInterval(async () => {
+      if (!isActive) {
+        cleanup();
+        return;
+      }
+
       try {
         const job = await jobAPI.getStatus(currentJobId);
         console.log('Job status:', job);
@@ -181,7 +202,7 @@ export default function Customizer({ product, variants }: CustomizerProps) {
         if (job.status === 'done') {
           setJobStatus('done');
           setJobProgress({ message: 'Complete!', percent: 100 });
-          clearInterval(pollInterval);
+          cleanup(); // Stop polling immediately
 
           // Extract the transparent logo asset from the assets array
           const transparentAsset = job.assets?.find((asset: any) => asset.kind === 'transparent');
@@ -218,19 +239,24 @@ export default function Customizer({ product, variants }: CustomizerProps) {
         } else if (job.status === 'failed') {
           setJobStatus('error');
           setJobError(job.errorMessage || 'Extraction failed');
-          clearInterval(pollInterval);
+          cleanup(); // Stop polling immediately
         }
       } catch (error: any) {
         console.error('Failed to poll job status:', error);
         console.error('Error details:', error.response?.data || error.message);
         setJobStatus('error');
         setJobError(error.response?.data?.message || error.message || 'Failed to check extraction status');
-        clearInterval(pollInterval);
+        cleanup(); // Stop polling immediately
       }
     }, 2000); // Poll every 2 seconds
 
     // Smooth progress animation - gradually increase to target
-    const animationInterval = setInterval(() => {
+    animationInterval = setInterval(() => {
+      if (!isActive) {
+        cleanup();
+        return;
+      }
+
       setJobProgress((prev) => {
         if (prev.percent < targetPercent) {
           // Increment by 1-2% every 100ms for smooth animation
@@ -241,11 +267,8 @@ export default function Customizer({ product, variants }: CustomizerProps) {
       });
     }, 100);
 
-    // Cleanup on unmount
-    return () => {
-      clearInterval(pollInterval);
-      clearInterval(animationInterval);
-    };
+    // Cleanup on unmount or when dependencies change
+    return cleanup;
   }, [currentJobId, jobStatus]);
 
   const loadDesign = async (designId: string) => {
