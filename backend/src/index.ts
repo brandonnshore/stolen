@@ -9,6 +9,7 @@ import path from 'path';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 import { closePool } from './config/database';
+import { initSentry, sentryRequestHandler, sentryTracingHandler, sentryErrorHandler } from './config/sentry';
 
 // Import routes
 import authRoutes from './routes/auth';
@@ -20,6 +21,7 @@ import webhookRoutes from './routes/webhooks';
 import adminRoutes from './routes/admin';
 import designRoutes from './routes/designs';
 import jobRoutes from './routes/jobRoutes';
+import healthRoutes from './routes/health';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -30,27 +32,69 @@ import { initializeStorage } from './services/supabaseStorage';
 
 const app: Application = express();
 
+// Initialize Sentry - must be done before other middleware
+initSentry(app);
+
 // Trust proxy - Railway uses a reverse proxy (one hop)
 app.set('trust proxy', 1);
 
-// Security middleware - configure helmet to allow cross-origin images
+// Sentry request handler - must be the first middleware
+app.use(sentryRequestHandler());
+
+// Sentry tracing handler - captures transactions
+app.use(sentryTracingHandler());
+
+// Security middleware - Enhanced Helmet configuration with comprehensive security headers
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
   contentSecurityPolicy: {
     directives: {
-      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-      "img-src": ["'self'", "data:", "http://localhost:3001", "http://localhost:3002"],
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "https://dntnjlodfcojzgovikic.supabase.co",
+        ...(env.NODE_ENV === 'development' ? ["http://localhost:3001", "http://localhost:3002"] : [])
+      ],
+      connectSrc: [
+        "'self'",
+        "https://dntnjlodfcojzgovikic.supabase.co",
+        ...(env.NODE_ENV === 'development' ? ["http://localhost:3001", "http://localhost:3002"] : [])
+      ],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
     },
   },
+  // Additional security headers
+  frameguard: { action: 'deny' },
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  },
+  noSniff: true,
+  referrerPolicy: { policy: 'no-referrer' },
 }));
 
+// Add custom Permissions-Policy header for feature control
+app.use((_req: Request, res: Response, next) => {
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=(self)');
+  next();
+});
+
 // CORS configuration - allow both www and non-www versions
+// Only include localhost in development to prevent security issues in production
 const allowedOrigins = [
   env.FRONTEND_URL,
   'https://stolentee.com',
   'https://www.stolentee.com',
-  'http://localhost:5173',
-  'http://localhost:3003'
+  ...(env.NODE_ENV === 'development' ? [
+    'http://localhost:5173',
+    'http://localhost:3003'
+  ] : [])
 ];
 
 app.use(cors({
@@ -107,8 +151,24 @@ const uploadLimiter = rateLimit({
   legacyHeaders: false, // Disable `X-RateLimit-*` headers
 });
 
+// Strict rate limiter for authentication endpoints to prevent brute force attacks
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts per 15 min
+  message: 'Too many login attempts. Please try again later.',
+  skipSuccessfulRequests: true, // Only count failed attempts
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Apply strict limiter to upload endpoint ONLY
 app.use('/api/uploads/shirt-photo', uploadLimiter);
+
+// Apply strict rate limiting to authentication endpoints
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/signup', authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/forgot-password', authLimiter);
 
 // Stripe webhook needs raw body for signature verification - must be before JSON parsing
 app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }));
@@ -236,6 +296,24 @@ app.get('/health/detailed', async (_req: Request, res: Response) => {
   }
 });
 
+// Cache headers middleware for API responses
+// Add caching for GET requests to read-heavy endpoints
+app.use('/api/products', (req: Request, res: Response, next) => {
+  if (req.method === 'GET') {
+    // Cache product data for 1 hour (products rarely change)
+    res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=7200');
+  }
+  next();
+});
+
+app.use('/api/price', (req: Request, res: Response, next) => {
+  if (req.method === 'GET') {
+    // Cache pricing calculations for 5 minutes
+    res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+  }
+  next();
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -247,7 +325,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/designs', designRoutes);
 app.use('/api/jobs', jobRoutes);
 
-// Error handling
+// Error handling - Sentry error handler must come before custom error handlers
+app.use(sentryErrorHandler());
 app.use(notFound);
 app.use(errorHandler);
 

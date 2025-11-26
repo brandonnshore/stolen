@@ -14,6 +14,21 @@ if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
 
+// Sanitize filename to prevent path traversal and injection attacks
+const sanitizeFilename = (filename: string): string => {
+  return filename
+    .replace(/\.\./g, '')  // Remove parent directory references
+    .replace(/[^a-zA-Z0-9._-]/g, '_')  // Only allow safe characters
+    .substring(0, 100);  // Limit length
+};
+
+// Validate file extension against whitelist
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.svg', '.pdf'];
+const validateExtension = (filename: string): boolean => {
+  const ext = path.extname(filename).toLowerCase();
+  return ALLOWED_EXTENSIONS.includes(ext);
+};
+
 export const saveFile = async (
   file: Express.Multer.File,
   ownerType: string,

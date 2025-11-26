@@ -64,6 +64,18 @@ VERCEL_ENV_VARS.txt
 !frontend/dist/index.html
 test-upload.html
 
+# Temporary/scratch files that should never be committed
+URGENT_*.txt
+TEMP_*.txt
+TODO_*.txt
+SCRATCH_*.txt
+NOTES_*.txt
+.vercel-redeploy*
+*.tmp
+*.temp
+test*.png
+test*.jpg
+
 # Compiled output (should be built on deployment)
 frontend/dist/
 backend/dist/

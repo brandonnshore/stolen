@@ -111,7 +111,9 @@ export default function HoodieProduct() {
 
     if (view === 'front') {
       if (frontArtworks.length >= MAX_ARTWORKS_PER_VIEW) {
-        alert(`Maximum ${MAX_ARTWORKS_PER_VIEW} artworks allowed on front view`);
+        toast.error(`Maximum ${MAX_ARTWORKS_PER_VIEW} artworks allowed on front view`, {
+          duration: 3000,
+        });
         return;
       }
       const artworkIndex = frontArtworks.length;
@@ -132,7 +134,9 @@ export default function HoodieProduct() {
       }).catch(err => console.error('Upload failed:', err));
     } else if (view === 'neck') {
       if (neckArtwork) {
-        alert('Only 1 artwork allowed on neck view');
+        toast.error('Only 1 artwork allowed on neck view', {
+          duration: 3000,
+        });
         return;
       }
       setNeckArtwork(tempArtwork);
@@ -146,7 +150,9 @@ export default function HoodieProduct() {
       }).catch(err => console.error('Upload failed:', err));
     } else if (view === 'back') {
       if (backArtworks.length >= MAX_ARTWORKS_PER_VIEW) {
-        alert(`Maximum ${MAX_ARTWORKS_PER_VIEW} artworks allowed on back view`);
+        toast.error(`Maximum ${MAX_ARTWORKS_PER_VIEW} artworks allowed on back view`, {
+          duration: 3000,
+        });
         return;
       }
       const artworkIndex = backArtworks.length;
@@ -170,7 +176,9 @@ export default function HoodieProduct() {
 
   const handleAddToCart = () => {
     if (!selectedSize) {
-      alert('Please select a size');
+      toast.error('Please select a size to continue', {
+        duration: 3000,
+      });
       return;
     }
 
@@ -224,7 +232,9 @@ export default function HoodieProduct() {
         setTimeout(() => setShowToast(false), 3000);
       } catch (error) {
         console.error('Error updating design:', error);
-        alert('Failed to update design');
+        toast.error('Failed to update design. Please try again.', {
+          duration: 4000,
+        });
       }
       return;
     }

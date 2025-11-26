@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { designAPI } from '../services/api';
 import { getFullAssetUrl } from '../utils/urlHelpers';
@@ -45,8 +46,13 @@ export default function Dashboard() {
     try {
       await designAPI.delete(id);
       setDesigns(designs.filter(d => d.id !== id));
+      toast.success('Design deleted successfully', {
+        duration: 3000,
+      });
     } catch (err) {
-      alert('Failed to delete design');
+      toast.error('Failed to delete design. Please try again.', {
+        duration: 4000,
+      });
       console.error('Error deleting design:', err);
     }
   };
