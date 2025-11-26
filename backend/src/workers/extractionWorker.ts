@@ -36,11 +36,9 @@ const worker = new Worker(
   },
   {
     connection: new IORedis(redisUrl, {
-      maxRetriesPerRequest: 3, // Limit Redis connection retries (safer than null)
+      maxRetriesPerRequest: null,
     }),
     concurrency: 2, // Process up to 2 jobs concurrently
-    maxStalledCount: 2, // Retry stalled jobs max 2 times before failing
-    stalledInterval: 30000, // Check for stalled jobs every 30 seconds
   }
 );
 
