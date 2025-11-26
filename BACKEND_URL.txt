@@ -1,6 +1,0 @@
-BACKEND URL FOR VERCEL
-======================
-
-Copy this URL and paste it as the value for VITE_API_URL in Vercel:
-
-https://stolentee-backend-production.up.railway.app

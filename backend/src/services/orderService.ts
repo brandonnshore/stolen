@@ -2,6 +2,13 @@ import pool from '../config/database';
 import { Order, OrderItem, Customer } from '../models/types';
 import { ApiError } from '../middleware/errorHandler';
 
+/**
+ * Create a new order with transaction support
+ * Creates or retrieves customer, generates order number, creates order items, and logs status history
+ * @param orderData - Order data including customer info, items, and shipping details
+ * @returns Newly created order object
+ * @throws {Error} If transaction fails, all changes are rolled back
+ */
 export const createOrder = async (orderData: any): Promise<Order> => {
   const client = await pool.connect();
 
@@ -95,6 +102,11 @@ export const createOrder = async (orderData: any): Promise<Order> => {
   }
 };
 
+/**
+ * Get order by ID
+ * @param orderId - Order UUID
+ * @returns Order object or null if not found
+ */
 export const getOrderById = async (orderId: string): Promise<Order | null> => {
   const result = await pool.query(
     'SELECT * FROM orders WHERE id = $1',
@@ -108,6 +120,11 @@ export const getOrderById = async (orderId: string): Promise<Order | null> => {
   return result.rows[0];
 };
 
+/**
+ * Get order by order number
+ * @param orderNumber - Order number (e.g., "RB-1732635600000-ABC12")
+ * @returns Order object or null if not found
+ */
 export const getOrderByNumber = async (orderNumber: string): Promise<Order | null> => {
   const result = await pool.query(
     'SELECT * FROM orders WHERE order_number = $1',
@@ -121,6 +138,11 @@ export const getOrderByNumber = async (orderNumber: string): Promise<Order | nul
   return result.rows[0];
 };
 
+/**
+ * Get all items for an order
+ * @param orderId - Order UUID
+ * @returns Array of order items with customization details
+ */
 export const getOrderItems = async (orderId: string): Promise<OrderItem[]> => {
   const result = await pool.query(
     'SELECT * FROM order_items WHERE order_id = $1',
@@ -130,6 +152,14 @@ export const getOrderItems = async (orderId: string): Promise<OrderItem[]> => {
   return result.rows;
 };
 
+/**
+ * Update order payment status
+ * @param orderId - Order UUID
+ * @param status - Payment status (e.g., 'succeeded', 'failed', 'pending')
+ * @param paymentIntentId - Optional Stripe payment intent ID
+ * @returns Updated order object
+ * @throws {ApiError} 404 if order not found
+ */
 export const updateOrderPaymentStatus = async (
   orderId: string,
   status: string,
@@ -163,6 +193,14 @@ export const updateOrderPaymentStatus = async (
   return result.rows[0];
 };
 
+/**
+ * Update order production status
+ * @param orderId - Order UUID
+ * @param status - Production status (e.g., 'processing', 'shipped', 'delivered')
+ * @param trackingNumber - Optional shipping tracking number
+ * @returns Updated order object
+ * @throws {ApiError} 404 if order not found
+ */
 export const updateOrderProductionStatus = async (
   orderId: string,
   status: string,
@@ -203,6 +241,11 @@ export const updateOrderProductionStatus = async (
   return result.rows[0];
 };
 
+/**
+ * Get all orders with optional filters
+ * @param filters - Optional filters object (payment_status, production_status)
+ * @returns Array of orders sorted by creation date (newest first)
+ */
 export const getAllOrders = async (filters?: any): Promise<Order[]> => {
   let query = 'SELECT * FROM orders';
   const conditions = [];

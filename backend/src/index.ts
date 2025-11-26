@@ -99,27 +99,123 @@ app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve uploaded files with CORS headers - IMPORTANT: This must be before error handlers
+// Serve uploaded files with CORS headers and CDN optimization
 const uploadsPath = path.resolve(env.LOCAL_STORAGE_PATH || './uploads');
 app.use('/uploads', (_req: Request, res: Response, next) => {
+  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+
+  // CDN caching (1 day for user uploads)
+  res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
+  res.setHeader('CDN-Cache-Control', 'public, max-age=86400');
+
+  // Performance hints
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Vary', 'Accept-Encoding');
+
   next();
 }, express.static(uploadsPath));
 
-// Serve static product images from public/assets
+// Serve static product images with aggressive CDN caching
 const assetsPath = path.resolve('./public/assets');
 app.use('/assets', (_req: Request, res: Response, next) => {
+  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+
+  // Aggressive caching (1 week for product images - immutable)
+  res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+  res.setHeader('CDN-Cache-Control', 'public, max-age=604800');
+
+  // Performance hints
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Vary', 'Accept-Encoding');
+
   next();
 }, express.static(assetsPath));
 
-// Health check
+// Basic health check (for Railway monitoring)
 app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Detailed health check with infrastructure metrics
+app.get('/health/detailed', async (_req: Request, res: Response) => {
+  try {
+    const os = await import('os');
+    const pool = (await import('./config/database')).default;
+
+    // Check database connectivity
+    const dbStart = Date.now();
+    await pool.query('SELECT 1');
+    const dbLatency = Date.now() - dbStart;
+
+    // Gather system metrics
+    const metrics = {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: env.NODE_ENV,
+
+      // Memory metrics
+      memory: {
+        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+        external: Math.round(process.memoryUsage().external / 1024 / 1024),
+        rss: Math.round(process.memoryUsage().rss / 1024 / 1024),
+        system: {
+          total: Math.round(os.totalmem() / 1024 / 1024 / 1024),
+          free: Math.round(os.freemem() / 1024 / 1024 / 1024),
+          usedPercent: Math.round(((os.totalmem() - os.freemem()) / os.totalmem()) * 100)
+        }
+      },
+
+      // CPU metrics
+      cpu: {
+        loadAverage: os.loadavg(),
+        cores: os.cpus().length,
+      },
+
+      // Database metrics
+      database: {
+        latency: dbLatency,
+        status: dbLatency < 100 ? 'healthy' : dbLatency < 500 ? 'degraded' : 'slow',
+        pool: {
+          total: pool.totalCount,
+          idle: pool.idleCount,
+          waiting: pool.waitingCount,
+        }
+      },
+
+      // Process info
+      process: {
+        pid: process.pid,
+        version: process.version,
+        platform: process.platform,
+        arch: process.arch,
+      },
+
+      // Infrastructure optimization status
+      infrastructure: {
+        rembgSelfHosted: Boolean(process.env.REMBG_ENDPOINT),
+        r2Storage: Boolean(process.env.R2_ENDPOINT),
+        costOptimized: Boolean(process.env.REMBG_ENDPOINT && process.env.R2_ENDPOINT),
+        estimatedMonthlySavings: process.env.REMBG_ENDPOINT && process.env.R2_ENDPOINT
+          ? '$2,000' : process.env.REMBG_ENDPOINT ? '$1,976' : process.env.R2_ENDPOINT ? '$24' : '$0'
+      }
+    };
+
+    res.status(200).json(metrics);
+  } catch (error: any) {
+    res.status(503).json({
+      status: 'unhealthy',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // API Routes

@@ -2,6 +2,11 @@ import pool from '../config/database';
 import { Product, Variant } from '../models/types';
 import { ApiError } from '../middleware/errorHandler';
 
+/**
+ * Get all products by status
+ * @param status - Product status filter (default: 'active')
+ * @returns Array of products
+ */
 export const getAllProducts = async (status: string = 'active'): Promise<Product[]> => {
   const result = await pool.query(
     'SELECT * FROM products WHERE status = $1 ORDER BY created_at DESC',
@@ -10,6 +15,11 @@ export const getAllProducts = async (status: string = 'active'): Promise<Product
   return result.rows;
 };
 
+/**
+ * Get product by slug
+ * @param slug - Product slug (URL-friendly identifier)
+ * @returns Product object or null if not found
+ */
 export const getProductBySlug = async (slug: string): Promise<Product | null> => {
   const result = await pool.query(
     'SELECT * FROM products WHERE slug = $1 AND status = $2',
@@ -23,6 +33,11 @@ export const getProductBySlug = async (slug: string): Promise<Product | null> =>
   return result.rows[0];
 };
 
+/**
+ * Get product by ID
+ * @param id - Product ID
+ * @returns Product object or null if not found
+ */
 export const getProductById = async (id: string): Promise<Product | null> => {
   const result = await pool.query(
     'SELECT * FROM products WHERE id = $1',
@@ -36,6 +51,11 @@ export const getProductById = async (id: string): Promise<Product | null> => {
   return result.rows[0];
 };
 
+/**
+ * Get all variants for a product
+ * @param productId - Product ID
+ * @returns Array of product variants (color/size combinations)
+ */
 export const getVariantsByProductId = async (productId: string): Promise<Variant[]> => {
   const result = await pool.query(
     'SELECT * FROM variants WHERE product_id = $1 ORDER BY color, size',
@@ -44,6 +64,11 @@ export const getVariantsByProductId = async (productId: string): Promise<Variant
   return result.rows;
 };
 
+/**
+ * Get variant by ID
+ * @param id - Variant ID
+ * @returns Variant object or null if not found
+ */
 export const getVariantById = async (id: string): Promise<Variant | null> => {
   const result = await pool.query(
     'SELECT * FROM variants WHERE id = $1',
@@ -57,6 +82,11 @@ export const getVariantById = async (id: string): Promise<Variant | null> => {
   return result.rows[0];
 };
 
+/**
+ * Create a new product
+ * @param productData - Product data object
+ * @returns Newly created product
+ */
 export const createProduct = async (productData: any): Promise<Product> => {
   const { title, slug, description, images, materials, weight, country_of_origin } = productData;
 
@@ -70,6 +100,13 @@ export const createProduct = async (productData: any): Promise<Product> => {
   return result.rows[0];
 };
 
+/**
+ * Update existing product
+ * @param id - Product ID
+ * @param productData - Product data to update
+ * @returns Updated product object
+ * @throws {ApiError} 404 if product not found
+ */
 export const updateProduct = async (id: string, productData: Record<string, unknown>): Promise<Product> => {
   const fields: string[] = [];
   const values: unknown[] = [];
@@ -100,6 +137,12 @@ export const updateProduct = async (id: string, productData: Record<string, unkn
   return result.rows[0];
 };
 
+/**
+ * Delete (archive) a product
+ * Sets product status to 'archived' instead of hard delete
+ * @param id - Product ID
+ * @throws {ApiError} 404 if product not found
+ */
 export const deleteProduct = async (id: string): Promise<void> => {
   const result = await pool.query(
     `UPDATE products SET status = 'archived' WHERE id = $1 RETURNING *`,

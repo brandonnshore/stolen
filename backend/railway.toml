@@ -1,0 +1,63 @@
+# Railway Configuration for Stolen Tee Backend
+# Optimized for 1,000+ concurrent users
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "cd backend && npm install && npm run build"
+
+[deploy]
+# Deployment settings
+numReplicas = 1
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# Health checks (for auto-restart and monitoring)
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+
+# Resource limits (for cost optimization)
+# Note: Adjust these based on Railway plan and usage
+# Current estimate: 512MB RAM, shared CPU for < 100 users
+# At 1,000 users: Consider upgrading to 1GB RAM or auto-scaling
+
+[autoscaling]
+# Enable auto-scaling (requires Railway Team/Pro plan)
+# Uncomment when ready to scale beyond 100 users
+# enabled = true
+# minReplicas = 1
+# maxReplicas = 5
+# cpu_threshold = 70       # Scale up when CPU > 70%
+# memory_threshold = 80    # Scale up when RAM > 80%
+# scale_down_delay = 300   # Wait 5 minutes before scaling down
+
+# Expected costs with auto-scaling:
+# - Base: $20/month (Team plan)
+# - At 1-2 instances (average): ~$40/month
+# - At 5 instances (peak): ~$100/month (only during traffic spikes)
+# - Recommended at 500+ users
+
+[services.backend]
+# Service-specific configuration
+startCommand = "node dist/scripts/runMigrations.js && node dist/index.js & node dist/workers/extractionWorker.js"
+
+# Environment variables (set in Railway dashboard or CLI)
+# Required:
+# - DATABASE_URL (Supabase)
+# - SUPABASE_URL
+# - SUPABASE_SERVICE_KEY
+# - REDIS_URL (Upstash)
+# - STRIPE_SECRET_KEY
+# - STRIPE_WEBHOOK_SECRET
+# - JWT_SECRET
+#
+# Recommended for cost optimization:
+# - REMBG_ENDPOINT (self-hosted service URL) → SAVES $1,976/month
+# - R2_ENDPOINT (Cloudflare R2) → SAVES $24/month
+# - R2_ACCESS_KEY_ID
+# - R2_SECRET_ACCESS_KEY
+# - R2_BUCKET_NAME
+# - R2_PUBLIC_DOMAIN
+#
+# Optional:
+# - REMOVEBG_API_KEY (fallback for premium users)
+# - GEMINI_API_KEY

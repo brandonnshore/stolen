@@ -5,6 +5,14 @@ import { User } from '../models/types';
 import { ApiError } from '../middleware/errorHandler';
 import { env } from '../config/env';
 
+/**
+ * Register a new user account
+ * @param email - User's email address
+ * @param password - User's password (will be hashed)
+ * @param name - User's full name
+ * @returns Newly created user object
+ * @throws {ApiError} 400 if user already exists
+ */
 export const registerUser = async (email: string, password: string, name: string): Promise<User> => {
   // Check if user exists
   const existingUser = await pool.query(
@@ -30,6 +38,13 @@ export const registerUser = async (email: string, password: string, name: string
   return result.rows[0];
 };
 
+/**
+ * Authenticate user with email and password
+ * @param email - User's email address
+ * @param password - User's password
+ * @returns Object containing user data and JWT token
+ * @throws {ApiError} 401 if credentials are invalid
+ */
 export const loginUser = async (email: string, password: string): Promise<{ user: User; token: string }> => {
   // Get user
   const result = await pool.query(
@@ -62,6 +77,11 @@ export const loginUser = async (email: string, password: string): Promise<{ user
   return { user, token };
 };
 
+/**
+ * Get user by ID
+ * @param id - User's UUID
+ * @returns User object or null if not found
+ */
 export const getUserById = async (id: string): Promise<User | null> => {
   const result = await pool.query(
     'SELECT id, email, name, role, created_at, updated_at FROM users WHERE id = $1',
@@ -75,6 +95,14 @@ export const getUserById = async (id: string): Promise<User | null> => {
   return result.rows[0];
 };
 
+/**
+ * Sync OAuth user from Supabase to backend database
+ * Creates new user if doesn't exist, or returns existing user
+ * @param email - User's email from OAuth provider
+ * @param name - User's name from OAuth provider
+ * @param supabaseId - Supabase user ID
+ * @returns Object containing user data and JWT token
+ */
 export const syncOAuthUser = async (email: string, name: string, supabaseId: string): Promise<{ user: User; token: string }> => {
   // Check if user exists
   const existingUser = await pool.query(

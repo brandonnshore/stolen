@@ -164,6 +164,7 @@ export default function Dashboard() {
                       src={design.thumbnail_url.startsWith('http') ? design.thumbnail_url : `http://localhost:3001${design.thumbnail_url}`}
                       alt={design.name}
                       className="relative w-full h-full object-contain bg-white"
+                      loading="lazy"
                       onLoad={() => {
                         // Thumbnail loaded successfully
                       }}

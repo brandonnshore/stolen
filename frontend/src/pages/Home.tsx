@@ -72,6 +72,7 @@ export default function Home() {
             src="/assets/hero-bg.jpg"
             alt="Stolen Art"
             className="w-full h-full object-cover"
+            loading="eager"
           />
           <div className="absolute inset-0 bg-black/40"></div>
         </div>
@@ -233,6 +234,7 @@ export default function Home() {
                           alt={product.title}
                           className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-500"
                           style={{ imageRendering: 'auto' }}
+                          loading="lazy"
                           onError={(e) => {
                             e.currentTarget.src = '/assets/blank-tshirt.png';
                           }}
@@ -243,6 +245,7 @@ export default function Home() {
                           alt={product.title}
                           className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-500"
                           style={{ imageRendering: 'auto' }}
+                          loading="lazy"
                         />
                       )}
                     </div>

@@ -1,4 +1,0 @@
-Force Vercel redeploy after fixing VITE_SUPABASE_ANON_KEY environment variable
-Timestamp: 2025-11-18T05:47:00Z
-
-Fixed issue: Invalid apikey header due to line break in Supabase anon key
