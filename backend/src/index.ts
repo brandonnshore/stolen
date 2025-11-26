@@ -215,12 +215,10 @@ app.use('/assets', (_req: Request, res: Response, next) => {
   next();
 }, express.static(assetsPath));
 
-// Basic health check (for Railway monitoring)
-app.get('/health', (_req: Request, res: Response) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+// Mount health check routes (must be before other routes for quick response)
+app.use('/health', healthRoutes);
 
-// Detailed health check with infrastructure metrics
+// Legacy health check for backward compatibility
 app.get('/health/detailed', async (_req: Request, res: Response) => {
   try {
     const os = await import('os');
