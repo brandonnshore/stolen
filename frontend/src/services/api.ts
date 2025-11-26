@@ -60,6 +60,9 @@ export const orderAPI = {
   },
 };
 
+// Track in-flight uploads to prevent duplicates
+const inFlightUploads = new Map<string, Promise<any>>();
+
 // Upload API
 export const uploadAPI = {
   uploadFile: async (file: File) => {
@@ -75,16 +78,40 @@ export const uploadAPI = {
   },
 
   uploadShirtPhoto: async (file: File) => {
+    // Generate unique key for this file
+    const uploadKey = `${file.name}-${file.size}-${file.lastModified}`;
+
+    // If this exact file is already uploading, return the existing promise
+    if (inFlightUploads.has(uploadKey)) {
+      console.log('Upload already in progress, returning existing promise');
+      return inFlightUploads.get(uploadKey)!;
+    }
+
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await api.post('/uploads/shirt-photo', formData, {
+    // Create upload promise
+    const uploadPromise = api.post('/uploads/shirt-photo', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
       timeout: 30000, // 30 seconds for shirt photo upload
+    })
+    .then(response => {
+      // Remove from in-flight map after completion
+      inFlightUploads.delete(uploadKey);
+      return response.data.data;
+    })
+    .catch(error => {
+      // Remove from in-flight map after error
+      inFlightUploads.delete(uploadKey);
+      throw error;
     });
-    return response.data.data;
+
+    // Track this upload
+    inFlightUploads.set(uploadKey, uploadPromise);
+
+    return uploadPromise;
   },
 };
 
