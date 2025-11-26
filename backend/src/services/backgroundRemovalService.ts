@@ -1,6 +1,7 @@
 import axios from 'axios';
 import FormData from 'form-data';
 import fs from 'fs';
+import { logger } from '../utils/logger';
 
 interface RemovalResult {
   success: boolean;

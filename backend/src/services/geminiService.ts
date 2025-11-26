@@ -3,6 +3,7 @@ import pool from '../config/database';
 import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
+import { logger } from '../utils/logger';
 
 interface GeminiExtractionResult {
   success: boolean;
@@ -39,9 +40,9 @@ class GeminiService {
       this.prompt = promptResult.rows[0]?.value?.prompt || this.getDefaultPrompt();
 
       this.genAI = new GoogleGenerativeAI(apiKey);
-      console.log('✅ Gemini service initialized');
+      logger.info('Gemini service initialized');
     } catch (error) {
-      console.error('❌ Failed to initialize Gemini service:', error);
+      logger.error('Failed to initialize Gemini service', {}, error as Error);
       throw error;
     }
   }
@@ -64,13 +65,13 @@ class GeminiService {
     }
 
     try {
-      console.log(`🔄 Starting Gemini extraction for: ${imagePath}`);
+      logger.info('Starting Gemini extraction', { imagePath });
 
       // Read the image file (handle both local paths and Supabase URLs)
       let imageBuffer: Buffer;
       if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
         // Download from Supabase
-        console.log(`📥 Downloading image from Supabase: ${imagePath}`);
+        logger.info('Downloading image from Supabase', { imagePath });
         const response = await axios.get(imagePath, { responseType: 'arraybuffer' });
         imageBuffer = Buffer.from(response.data);
       } else {
@@ -134,7 +135,7 @@ class GeminiService {
         if (part.inlineData && part.inlineData.mimeType?.startsWith('image/')) {
           // Convert base64 image data to buffer
           generatedImageBuffer = Buffer.from(part.inlineData.data, 'base64');
-          console.log('✅ Nano Banana image extraction completed');
+          logger.info('Nano Banana image extraction completed');
           break;
         }
       }
@@ -142,7 +143,7 @@ class GeminiService {
       if (!generatedImageBuffer) {
         // Fallback: if no image in response, log the text and use original
         const text = response.text ? response.text() : 'No text response';
-        console.log('⚠️ No image in Nano Banana response, using original. Response:', text.substring(0, 200));
+        logger.warn('No image in Nano Banana response, using original', { responsePreview: text.substring(0, 200) });
         generatedImageBuffer = imageBuffer;
       }
 
@@ -153,7 +154,7 @@ class GeminiService {
       };
 
     } catch (error: any) {
-      console.error('❌ Gemini extraction failed:', error);
+      logger.error('Gemini extraction failed', {}, error);
       return {
         success: false,
         error: error.message || 'Unknown error during extraction'

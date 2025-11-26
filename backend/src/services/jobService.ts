@@ -6,6 +6,7 @@ import backgroundRemovalService from './backgroundRemovalService';
 import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
+import { logger } from '../utils/logger';
 
 interface CreateJobParams {
   userId?: string;
@@ -45,7 +46,7 @@ class JobService {
       }),
     });
 
-    console.log('✅ Job queue initialized with Redis:', redisUrl.replace(/:[^:]*@/, ':***@'));
+    logger.info('Job queue initialized with Redis', { redisUrl: redisUrl.replace(/:[^:]*@/, ':***@') });
   }
 
   /**
@@ -91,10 +92,10 @@ class JobService {
         }
       );
 
-      console.log(`✅ Job created: ${jobId}`);
+      logger.info('Job created', { jobId });
       return jobId;
     } catch (error: any) {
-      console.error('❌ Failed to create job:', error);
+      logger.error('Failed to create job', {}, error);
       throw new Error(`Failed to create extraction job: ${error.message}`);
     }
   }
@@ -127,7 +128,7 @@ class JobService {
         completedAt: row.completed_at,
       };
     } catch (error) {
-      console.error('❌ Failed to get job status:', error);
+      logger.error('Failed to get job status', { jobId }, error as Error);
       return null;
     }
   }
@@ -198,7 +199,7 @@ class JobService {
         })
         .toFile(transparentPath);
 
-      console.log('✅ Image saved at 300 DPI for print quality');
+      logger.info('Image saved at 300 DPI for print quality', { jobId });
 
       // Create asset record for transparent image
       const transparentAsset = await this.createAsset({
@@ -235,9 +236,9 @@ class JobService {
         ]
       );
 
-      console.log(`✅ Job completed: ${jobId}`);
+      logger.info('Job completed', { jobId });
     } catch (error: any) {
-      console.error(`❌ Job failed: ${jobId}`, error);
+      logger.error('Job failed', { jobId }, error);
 
       // Don't retry if it's a known unrecoverable error
       if (error.message?.startsWith('CREDITS_EXHAUSTED') ||
