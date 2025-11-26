@@ -80,6 +80,18 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
+// Strict rate limiter for expensive upload operations
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour window
+  max: 10, // Max 10 uploads per hour per IP
+  message: 'Too many uploads. Please wait before uploading again.',
+  standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
+  legacyHeaders: false, // Disable `X-RateLimit-*` headers
+});
+
+// Apply strict limiter to upload endpoint ONLY
+app.use('/api/uploads/shirt-photo', uploadLimiter);
+
 // Stripe webhook needs raw body for signature verification - must be before JSON parsing
 app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }));
 
