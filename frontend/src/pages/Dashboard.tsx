@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { designAPI } from '../services/api';
 import { getFullAssetUrl } from '../utils/urlHelpers';
+import ConfirmDialog from '../components/ConfirmDialog';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 interface SavedDesign {
   id: string;
@@ -21,6 +23,10 @@ export default function Dashboard() {
   const [designs, setDesigns] = useState<SavedDesign[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; designId: string | null }>({
+    isOpen: false,
+    designId: null,
+  });
 
   useEffect(() => {
     loadDesigns();
@@ -38,16 +44,18 @@ export default function Dashboard() {
     }
   };
 
-  const handleDeleteDesign = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this design?')) {
-      return;
-    }
+  const handleDeleteDesign = async () => {
+    if (!deleteConfirm.designId) return;
+
+    const id = deleteConfirm.designId;
+    setDeleteConfirm({ isOpen: false, designId: null });
 
     try {
       await designAPI.delete(id);
       setDesigns(designs.filter(d => d.id !== id));
       toast.success('Design deleted successfully', {
         duration: 3000,
+        icon: '🗑️',
       });
     } catch (err) {
       toast.error('Failed to delete design. Please try again.', {
@@ -57,9 +65,19 @@ export default function Dashboard() {
     }
   };
 
+  const openDeleteConfirm = (id: string) => {
+    setDeleteConfirm({ isOpen: true, designId: id });
+  };
+
   const handleLogout = () => {
     logout();
-    navigate('/');
+    toast.success('Logged out successfully', {
+      duration: 2000,
+      icon: '👋',
+    });
+    setTimeout(() => {
+      navigate('/');
+    }, 500);
   };
 
   return (
@@ -108,10 +126,7 @@ export default function Dashboard() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading your designs...</p>
-          </div>
+          <SkeletonLoader />
         ) : error ? (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
             {error}
@@ -196,7 +211,7 @@ export default function Dashboard() {
                       Edit
                     </Link>
                     <button
-                      onClick={() => handleDeleteDesign(design.id)}
+                      onClick={() => openDeleteConfirm(design.id)}
                       className="px-3 py-2 border border-gray-300 text-sm rounded hover:bg-gray-50"
                     >
                       Delete
@@ -208,6 +223,18 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        title="Delete Design?"
+        message="Are you sure you want to delete this design? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={handleDeleteDesign}
+        onCancel={() => setDeleteConfirm({ isOpen: false, designId: null })}
+      />
     </div>
   );
 }

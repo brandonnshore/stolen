@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import toast from 'react-hot-toast';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -18,6 +19,90 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Network error recovery and retry logic
+api.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const config = error.config;
+
+    // Check if we're offline
+    if (!navigator.onLine) {
+      toast.error('You are offline. Please check your internet connection.', {
+        duration: 5000,
+        icon: '📡',
+      });
+      return Promise.reject(error);
+    }
+
+    // Check for network timeout
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+      toast.error('Request timed out. Please try again.', {
+        duration: 4000,
+        icon: '⏱️',
+      });
+      return Promise.reject(error);
+    }
+
+    // Retry logic for network errors (but not for 4xx/5xx responses)
+    if (!error.response && config && !(config as any)._retry) {
+      (config as any)._retry = true;
+      (config as any)._retryCount = ((config as any)._retryCount || 0) + 1;
+
+      // Retry up to 2 times with exponential backoff
+      if ((config as any)._retryCount <= 2) {
+        const delay = Math.pow(2, (config as any)._retryCount) * 1000; // 2s, 4s
+        await new Promise((resolve) => setTimeout(resolve, delay));
+
+        toast.loading('Retrying...', {
+          duration: 1000,
+          icon: '🔄',
+        });
+
+        return api(config);
+      } else {
+        toast.error('Network error. Please check your connection and try again.', {
+          duration: 5000,
+          icon: '❌',
+        });
+      }
+    }
+
+    // Handle 401 Unauthorized - logout user
+    if (error.response?.status === 401) {
+      localStorage.removeItem('auth_token');
+      // Only show toast if not on login/register pages
+      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
+        toast.error('Session expired. Please log in again.', {
+          duration: 4000,
+          icon: '🔒',
+        });
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1000);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+// Detect online/offline status
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => {
+    toast.success('Back online!', {
+      duration: 3000,
+      icon: '✅',
+    });
+  });
+
+  window.addEventListener('offline', () => {
+    toast.error('You are now offline', {
+      duration: 5000,
+      icon: '📡',
+    });
+  });
+}
 
 // Product API
 export const productAPI = {

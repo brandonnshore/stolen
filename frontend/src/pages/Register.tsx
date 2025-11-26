@@ -10,13 +10,58 @@ export default function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Real-time validation errors
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+
   const { register, loginWithGoogle, loginWithApple } = useAuth();
   const navigate = useNavigate();
+
+  const validateEmail = (value: string) => {
+    if (!value) {
+      setEmailError('');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setEmailError('Please enter a valid email address');
+    } else {
+      setEmailError('');
+    }
+  };
+
+  const validatePassword = (value: string) => {
+    if (!value) {
+      setPasswordError('');
+      return;
+    }
+    if (value.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+    } else if (value.length < 8) {
+      setPasswordError('Password is weak. Consider using 8+ characters');
+    } else {
+      setPasswordError('');
+    }
+  };
+
+  const validateConfirmPassword = (value: string) => {
+    if (!value) {
+      setConfirmPasswordError('');
+      return;
+    }
+    if (value !== password) {
+      setConfirmPasswordError('Passwords do not match');
+    } else {
+      setConfirmPasswordError('');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
+    // Final validation
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -136,9 +181,18 @@ export default function Register() {
                 autoComplete="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-black focus:border-black"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  validateEmail(e.target.value);
+                }}
+                onBlur={(e) => validateEmail(e.target.value)}
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-black focus:border-black ${
+                  emailError ? 'border-red-300' : 'border-gray-300'
+                }`}
               />
+              {emailError && (
+                <p className="mt-1 text-sm text-red-600">{emailError}</p>
+              )}
             </div>
 
             <div>
@@ -152,9 +206,22 @@ export default function Register() {
                 autoComplete="new-password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-black focus:border-black"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  validatePassword(e.target.value);
+                  if (confirmPassword) validateConfirmPassword(confirmPassword);
+                }}
+                onBlur={(e) => validatePassword(e.target.value)}
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-black focus:border-black ${
+                  passwordError ? 'border-red-300' : 'border-gray-300'
+                }`}
               />
+              {passwordError && (
+                <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+              )}
+              {password && !passwordError && password.length >= 8 && (
+                <p className="mt-1 text-sm text-green-600">Strong password!</p>
+              )}
             </div>
 
             <div>
@@ -168,9 +235,21 @@ export default function Register() {
                 autoComplete="new-password"
                 required
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-black focus:border-black"
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  validateConfirmPassword(e.target.value);
+                }}
+                onBlur={(e) => validateConfirmPassword(e.target.value)}
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-black focus:border-black ${
+                  confirmPasswordError ? 'border-red-300' : 'border-gray-300'
+                }`}
               />
+              {confirmPasswordError && (
+                <p className="mt-1 text-sm text-red-600">{confirmPasswordError}</p>
+              )}
+              {confirmPassword && !confirmPasswordError && confirmPassword === password && (
+                <p className="mt-1 text-sm text-green-600">Passwords match!</p>
+              )}
             </div>
           </div>
 

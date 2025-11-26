@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Product, Variant } from '../types';
 import { uploadAPI, designAPI, jobAPI } from '../services/api';
 import { useCartStore } from '../stores/cartStore';
@@ -60,6 +60,9 @@ export default function Customizer({ product, variants }: CustomizerProps) {
 
   // Track uploaded and extracted artwork files for display
 
+  // Auto-save state
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [savedDesignName, setSavedDesignName] = useState('');
@@ -97,18 +100,26 @@ export default function Customizer({ product, variants }: CustomizerProps) {
 
   const currentArtwork = getCurrentArtworks()[0] || null;
 
-  const unitCost = calculateUnitCost(
+  // Memoize expensive unitCost calculation
+  const unitCost = useMemo(() => calculateUnitCost(
     frontArtworks.length > 0,
     backArtworks.length > 0,
     false, // No neck artwork
     TSHIRT_BASE_PRICE
-  );
+  ), [frontArtworks.length, backArtworks.length]);
 
-  const dbColors = [...new Set(variants.map((v) => v.color))];
-  const colors = dbColors.includes('Navy') ? dbColors : [...dbColors, 'Navy'];
-  const sizes = [...new Set(variants.map((v) => v.size))].sort((a, b) => {
-    return SIZES.indexOf(a as any) - SIZES.indexOf(b as any);
-  });
+  // Memoize color list computation
+  const colors = useMemo(() => {
+    const dbColors = [...new Set(variants.map((v) => v.color))];
+    return dbColors.includes('Navy') ? dbColors : [...dbColors, 'Navy'];
+  }, [variants]);
+
+  // Memoize sizes computation
+  const sizes = useMemo(() => {
+    return [...new Set(variants.map((v) => v.size))].sort((a, b) => {
+      return SIZES.indexOf(a as any) - SIZES.indexOf(b as any);
+    });
+  }, [variants]);
 
   // Update selected variant when color/size changes
   useEffect(() => {
@@ -289,6 +300,143 @@ export default function Customizer({ product, variants }: CustomizerProps) {
     return cleanup;
   }, [currentJobId, jobStatus]);
 
+  // AUTO-SAVE: Save design state to localStorage every 30 seconds
+  useEffect(() => {
+    const hasDesignContent = frontArtworks.length > 0 || backArtworks.length > 0 || neckArtwork !== null;
+
+    if (!hasDesignContent) {
+      return; // Don't save empty designs
+    }
+
+    const autoSaveInterval = setInterval(() => {
+      setIsSaving(true);
+
+      const designDraft = {
+        frontArtworks,
+        backArtworks,
+        neckArtwork,
+        selectedColor,
+        selectedSize,
+        productSlug: product.slug,
+        timestamp: Date.now(),
+      };
+
+      localStorage.setItem('design-draft', JSON.stringify(designDraft));
+      setLastSaved(new Date());
+
+      setTimeout(() => setIsSaving(false), 500);
+    }, 30000); // Auto-save every 30 seconds
+
+    return () => clearInterval(autoSaveInterval);
+  }, [frontArtworks, backArtworks, neckArtwork, selectedColor, selectedSize, product.slug]);
+
+  // RESTORE: Check for design draft on mount
+  useEffect(() => {
+    const draftJson = localStorage.getItem('design-draft');
+    if (!draftJson) return;
+
+    try {
+      const draft = JSON.parse(draftJson);
+
+      // Only restore if it's for the same product and recent (< 24 hours)
+      const age = Date.now() - draft.timestamp;
+      const isRecent = age < 24 * 60 * 60 * 1000; // 24 hours
+      const isSameProduct = draft.productSlug === product.slug;
+
+      if (isRecent && isSameProduct && !loadedDesignId) {
+        // Show toast asking to restore
+        const shouldRestore = confirm(
+          `Found unsaved design from ${new Date(draft.timestamp).toLocaleString()}. Restore it?`
+        );
+
+        if (shouldRestore) {
+          if (draft.frontArtworks) setFrontArtworks(draft.frontArtworks);
+          if (draft.backArtworks) setBackArtworks(draft.backArtworks);
+          if (draft.neckArtwork) setNeckArtwork(draft.neckArtwork);
+          if (draft.selectedColor) setSelectedColor(draft.selectedColor);
+          if (draft.selectedSize) setSelectedSize(draft.selectedSize);
+
+          setToastMessage('Design restored successfully!');
+          setShowToast(true);
+        } else {
+          localStorage.removeItem('design-draft');
+        }
+      } else if (!isRecent) {
+        // Clean up old drafts
+        localStorage.removeItem('design-draft');
+      }
+    } catch (error) {
+      console.error('Error restoring design draft:', error);
+      localStorage.removeItem('design-draft');
+    }
+  }, [product.slug]); // Only run once per product
+
+  // UPLOAD RECOVERY: Save job state to localStorage
+  useEffect(() => {
+    if (currentJobId && (jobStatus === 'uploading' || jobStatus === 'processing')) {
+      const uploadState = {
+        jobId: currentJobId,
+        view: uploadTargetView,
+        status: jobStatus,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem('pendingUpload', JSON.stringify(uploadState));
+    } else if (jobStatus === 'done' || jobStatus === 'error') {
+      localStorage.removeItem('pendingUpload');
+    }
+  }, [currentJobId, jobStatus, uploadTargetView]);
+
+  // RESTORE UPLOAD: Check for interrupted upload on mount
+  useEffect(() => {
+    const pendingUploadJson = localStorage.getItem('pendingUpload');
+    if (!pendingUploadJson) return;
+
+    try {
+      const pendingUpload = JSON.parse(pendingUploadJson);
+
+      // Only resume if upload was recent (< 10 minutes)
+      const age = Date.now() - pendingUpload.timestamp;
+      const isRecent = age < 10 * 60 * 1000; // 10 minutes
+
+      if (isRecent && pendingUpload.jobId) {
+        setToastMessage('Resuming previous upload...');
+        setShowToast(true);
+
+        setCurrentJobId(pendingUpload.jobId);
+        setUploadTargetView(pendingUpload.view || 'front');
+        setJobStatus('processing');
+        setJobProgress({ message: 'Resuming extraction...', percent: 15 });
+      } else {
+        // Clean up old pending uploads
+        localStorage.removeItem('pendingUpload');
+      }
+    } catch (error) {
+      console.error('Error resuming upload:', error);
+      localStorage.removeItem('pendingUpload');
+    }
+  }, []); // Run only once on mount
+
+  // BEFOREUNLOAD: Warn user before leaving if they have unsaved work
+  useEffect(() => {
+    const hasUnsavedWork = frontArtworks.length > 0 || backArtworks.length > 0 || neckArtwork !== null;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedWork && !loadedDesignId) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved design work. Are you sure you want to leave?';
+        return e.returnValue;
+      }
+    };
+
+    if (hasUnsavedWork) {
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [frontArtworks, backArtworks, neckArtwork, loadedDesignId]);
+
   const loadDesign = async (designId: string) => {
     try {
       const design = await designAPI.getById(designId);
@@ -446,6 +594,9 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   const handleDownloadDesign = async () => {
     if (canvasRef.current && canvasRef.current.downloadImage) {
       await canvasRef.current.downloadImage();
+      setToastMessage('Download started!');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
     }
   };
 
@@ -673,6 +824,19 @@ export default function Customizer({ product, variants }: CustomizerProps) {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3 absolute right-6">
+            {/* Auto-save indicator */}
+            {(isSaving || lastSaved) && (
+              <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                {isSaving ? (
+                  <>
+                    <div className="animate-spin rounded-full h-3 w-3 border-b border-gray-500"></div>
+                    <span>Saving...</span>
+                  </>
+                ) : lastSaved ? (
+                  <span>Saved {new Date(lastSaved).toLocaleTimeString()}</span>
+                ) : null}
+              </div>
+            )}
             <button
               onClick={handleDownloadDesign}
               disabled={!currentArtwork}
@@ -854,6 +1018,7 @@ export default function Customizer({ product, variants }: CustomizerProps) {
                               src={latestArtwork.url}
                               alt="Extracted artwork"
                               className="w-full h-full object-contain"
+                              loading="lazy"
                             />
                           </a>
                         );
