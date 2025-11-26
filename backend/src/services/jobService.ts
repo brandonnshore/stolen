@@ -80,6 +80,14 @@ class JobService {
             type: 'exponential',
             delay: 5000, // Start with 5 second delay
           },
+          removeOnComplete: {
+            age: 86400, // Keep completed jobs for 24 hours (1 day)
+            count: 100  // Keep max 100 most recent completed jobs
+          },
+          removeOnFail: {
+            age: 604800, // Keep failed jobs for 7 days (for debugging)
+            count: 500   // Keep max 500 most recent failed jobs
+          }
         }
       );
 
@@ -231,13 +239,27 @@ class JobService {
     } catch (error: any) {
       console.error(`❌ Job failed: ${jobId}`, error);
 
-      // Mark job as error
+      // Don't retry if it's a known unrecoverable error
+      if (error.message?.startsWith('CREDITS_EXHAUSTED') ||
+          error.message?.startsWith('AUTH_FAILED')) {
+        // Mark job as failed without throwing (prevents BullMQ retry)
+        await pool.query(
+          `UPDATE jobs
+           SET status = $1, error_message = $2, completed_at = NOW()
+           WHERE id = $3`,
+          ['error', error.message, jobId]
+        );
+        return; // Exit without throwing (prevents BullMQ retry)
+      }
+
+      // Mark job as error and throw to trigger BullMQ retry for other errors
       await pool.query(
         `UPDATE jobs
          SET status = $1, error_message = $2, completed_at = NOW()
          WHERE id = $3`,
         ['error', error.message, jobId]
       );
+      throw error; // Throw to trigger BullMQ retry for recoverable errors
     }
   }
 
