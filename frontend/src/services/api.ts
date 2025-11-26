@@ -83,32 +83,30 @@ export const uploadAPI = {
 
     // If this exact file is already uploading, return the existing promise
     if (inFlightUploads.has(uploadKey)) {
-      console.log('Upload already in progress, returning existing promise');
+      if (import.meta.env.DEV) console.log('Upload already in progress, returning existing promise');
       return inFlightUploads.get(uploadKey)!;
     }
 
     const formData = new FormData();
     formData.append('file', file);
 
-    // Create upload promise
-    const uploadPromise = api.post('/uploads/shirt-photo', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      timeout: 30000, // 30 seconds for shirt photo upload
-    })
-    .then(response => {
-      // Remove from in-flight map after completion
-      inFlightUploads.delete(uploadKey);
-      return response.data.data;
-    })
-    .catch(error => {
-      // Remove from in-flight map after error
-      inFlightUploads.delete(uploadKey);
-      throw error;
-    });
+    // Create upload promise immediately and set it in the map to prevent race condition
+    const uploadPromise = (async () => {
+      try {
+        const response = await api.post('/uploads/shirt-photo', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          timeout: 30000, // 30 seconds for shirt photo upload
+        });
+        return response.data.data;
+      } finally {
+        // Remove from in-flight map after completion or error
+        inFlightUploads.delete(uploadKey);
+      }
+    })();
 
-    // Track this upload
+    // Track this upload IMMEDIATELY to prevent race condition
     inFlightUploads.set(uploadKey, uploadPromise);
 
     return uploadPromise;

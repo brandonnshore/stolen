@@ -119,6 +119,7 @@ export default function CaseStudies() {
                     src={study.image}
                     alt={study.brand}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
                     onError={(e) => {
                       e.currentTarget.src = '/assets/blank-tshirt.png';
                     }}

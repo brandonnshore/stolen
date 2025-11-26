@@ -47,7 +47,7 @@ export default function Products() {
         }
       })
       .catch(err => {
-        console.log('Using mock data, API unavailable:', err.message);
+        if (import.meta.env.DEV) console.log('Using mock data, API unavailable:', err.message);
       });
   }, []);
 
@@ -92,6 +92,7 @@ export default function Products() {
                         alt={product.title}
                         className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-500"
                         style={{ imageRendering: 'auto' }}
+                        loading="lazy"
                         onError={(e) => {
                           e.currentTarget.src = '/assets/blank-tshirt.png';
                         }}
@@ -102,6 +103,7 @@ export default function Products() {
                         alt={product.title}
                         className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-500"
                         style={{ imageRendering: 'auto' }}
+                        loading="lazy"
                       />
                     )}
                   </div>

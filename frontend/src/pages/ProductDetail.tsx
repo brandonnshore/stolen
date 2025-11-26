@@ -115,7 +115,7 @@ export default function ProductDetail() {
         }
       })
       .catch(err => {
-        console.log('Using mock data, API unavailable:', err.message);
+        if (import.meta.env.DEV) console.log('Using mock data, API unavailable:', err.message);
       });
   }, [slug]);
 

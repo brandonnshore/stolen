@@ -68,6 +68,9 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
+  // Add to cart loading state for debouncing
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+
   // Track customization started
   useEffect(() => {
     trackCustomizationStarted(product.title);
@@ -81,6 +84,8 @@ export default function Customizer({ product, variants }: CustomizerProps) {
       }, 4000); // Rotate every 4 seconds
       return () => clearInterval(interval);
     }
+    // Always return cleanup function to prevent React warnings
+    return () => {};
   }, [jobStatus]);
 
   // Current view's artwork
@@ -182,7 +187,16 @@ export default function Customizer({ product, variants }: CustomizerProps) {
 
       try {
         const job = await jobAPI.getStatus(currentJobId);
-        console.log('Job status:', job);
+        if (import.meta.env.DEV) console.log('Job status:', job);
+
+        // Handle null response (job not found)
+        if (!job) {
+          console.error('Job not found:', currentJobId);
+          setJobStatus('error');
+          setJobError('Job not found. Please try uploading again.');
+          cleanup();
+          return;
+        }
 
         // Calculate target progress based on step
         if (job.status === 'running' && job.logs) {
@@ -200,6 +214,8 @@ export default function Customizer({ product, variants }: CustomizerProps) {
         }
 
         if (job.status === 'done') {
+          if (!isActive) return; // Prevent setState on unmounted component
+
           setJobStatus('done');
           setJobProgress({ message: 'Complete!', percent: 100 });
           cleanup(); // Stop polling immediately
@@ -237,6 +253,8 @@ export default function Customizer({ product, variants }: CustomizerProps) {
             // Keep the user on their selected view
           }
         } else if (job.status === 'failed') {
+          if (!isActive) return; // Prevent setState on unmounted component
+
           setJobStatus('error');
           setJobError(job.errorMessage || 'Extraction failed');
           cleanup(); // Stop polling immediately
@@ -274,7 +292,7 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   const loadDesign = async (designId: string) => {
     try {
       const design = await designAPI.getById(designId);
-      console.log('[LOAD] Full design object:', JSON.stringify(design, null, 2));
+      if (import.meta.env.DEV) console.log('[LOAD] Full design object:', JSON.stringify(design, null, 2));
       setLoadedDesignId(design.id);
       setSavedDesignName(design.name); // Set the saved design name
 
@@ -328,10 +346,10 @@ export default function Customizer({ product, variants }: CustomizerProps) {
       }
 
       // Set color/size/variant if available
-      console.log('[LOAD] Design variant_id:', design.variant_id);
-      console.log('[LOAD] Design variant_color:', design.variant_color);
-      console.log('[LOAD] Design variant_size:', design.variant_size);
-      console.log('[LOAD] Design data color/size:', design.design_data?.selectedColor, design.design_data?.selectedSize);
+      if (import.meta.env.DEV) console.log('[LOAD] Design variant_id:', design.variant_id);
+      if (import.meta.env.DEV) console.log('[LOAD] Design variant_color:', design.variant_color);
+      if (import.meta.env.DEV) console.log('[LOAD] Design variant_size:', design.variant_size);
+      if (import.meta.env.DEV) console.log('[LOAD] Design data color/size:', design.design_data?.selectedColor, design.design_data?.selectedSize);
 
       // PRIORITY: design_data.selectedColor takes precedence over variant_color
       // This is because Navy (and other UI-only colors) are stored in design_data
@@ -340,39 +358,39 @@ export default function Customizer({ product, variants }: CustomizerProps) {
 
       // First: Check design_data for the most recent color selection
       if (design.design_data?.selectedColor) {
-        console.log('[LOAD] Using color from design_data (highest priority):', design.design_data.selectedColor);
+        if (import.meta.env.DEV) console.log('[LOAD] Using color from design_data (highest priority):', design.design_data.selectedColor);
         colorToSet = design.design_data.selectedColor;
         sizeToSet = design.design_data.selectedSize || 'M';
 
         // Try to find a matching variant for this color
         const variant = variants.find(v => v.color === colorToSet && v.size === sizeToSet);
         if (variant) {
-          console.log('[LOAD] Found matching variant for design_data color:', variant);
+          if (import.meta.env.DEV) console.log('[LOAD] Found matching variant for design_data color:', variant);
           setSelectedVariant(variant);
         } else {
-          console.log('[LOAD] No variant found for color:', colorToSet, '(UI-only color like Navy)');
+          if (import.meta.env.DEV) console.log('[LOAD] No variant found for color:', colorToSet, '(UI-only color like Navy)');
         }
       }
       // Second: Fall back to variant_id/variant_color if no design_data
       else if (design.variant_id) {
         let variant = variants.find(v => v.id === design.variant_id);
-        console.log('[LOAD] Found variant by ID:', variant);
+        if (import.meta.env.DEV) console.log('[LOAD] Found variant by ID:', variant);
 
         // If variant not found by ID, try to find by color and size from JOIN
         if (!variant && design.variant_color && design.variant_size) {
-          console.log('[LOAD] Variant ID not found, trying color/size lookup:', design.variant_color, design.variant_size);
+          if (import.meta.env.DEV) console.log('[LOAD] Variant ID not found, trying color/size lookup:', design.variant_color, design.variant_size);
           variant = variants.find(v => v.color === design.variant_color && v.size === design.variant_size);
-          console.log('[LOAD] Found variant by color/size:', variant);
+          if (import.meta.env.DEV) console.log('[LOAD] Found variant by color/size:', variant);
         }
 
         if (variant) {
-          console.log('[LOAD] Setting color/size/variant from variant:', variant.color, variant.size);
+          if (import.meta.env.DEV) console.log('[LOAD] Setting color/size/variant from variant:', variant.color, variant.size);
           colorToSet = variant.color;
           sizeToSet = variant.size;
           setSelectedVariant(variant);
         } else if (design.variant_color) {
           // No variant found, but we have color info from JOIN
-          console.log('[LOAD] No variant found, using color from JOIN:', design.variant_color);
+          if (import.meta.env.DEV) console.log('[LOAD] No variant found, using color from JOIN:', design.variant_color);
           colorToSet = design.variant_color;
           sizeToSet = design.variant_size;
         }
@@ -385,7 +403,8 @@ export default function Customizer({ product, variants }: CustomizerProps) {
       }
     } catch (error) {
       console.error('Error loading design:', error);
-      alert('Failed to load design');
+      setJobError('Failed to load design. Please try again.');
+      setJobStatus('error');
     }
   };
 
@@ -407,7 +426,7 @@ export default function Customizer({ product, variants }: CustomizerProps) {
       // Upload shirt photo and start extraction job
       const { asset, jobId, message } = await uploadAPI.uploadShirtPhoto(file);
 
-      console.log('Shirt photo uploaded:', { asset, jobId, message });
+      if (import.meta.env.DEV) console.log('Shirt photo uploaded:', { asset, jobId, message });
 
       // Set the job ID and status to processing
       setCurrentJobId(jobId);
@@ -446,7 +465,8 @@ export default function Customizer({ product, variants }: CustomizerProps) {
         setTimeout(() => setShowToast(false), 3000);
       } catch (error) {
         console.error('Error updating design:', error);
-        alert('Failed to update design');
+        setJobError('Failed to update design. Please try again.');
+        setJobStatus('error');
       }
       return;
     }
@@ -501,7 +521,7 @@ export default function Customizer({ product, variants }: CustomizerProps) {
             ? variants.find(v => v.color === selectedColor && v.size === variantSize)
             : null);
 
-        console.log('[SAVE] Updating design with variant:', {
+        if (import.meta.env.DEV) console.log('[SAVE] Updating design with variant:', {
           variantId: currentVariant?.id,
           color: selectedColor,
           size: selectedSize,
@@ -526,7 +546,7 @@ export default function Customizer({ product, variants }: CustomizerProps) {
             ? variants.find(v => v.color === selectedColor && v.size === variantSize)
             : null);
 
-        console.log('[SAVE] Saving new design with variant:', {
+        if (import.meta.env.DEV) console.log('[SAVE] Saving new design with variant:', {
           variantId: currentVariant?.id,
           color: selectedColor,
           size: selectedSize,
@@ -554,63 +574,78 @@ export default function Customizer({ product, variants }: CustomizerProps) {
   };
 
   const handleAddToCart = () => {
+    // Prevent rapid clicking
+    if (isAddingToCart) {
+      return;
+    }
+
     if (!selectedColor || !selectedSize) {
       setToastMessage('Please select a color and size');
       setShowToast(true);
       return;
     }
 
-    // Capture mockup image from canvas
-    let mockupUrl;
+    setIsAddingToCart(true);
+
     try {
-      if (canvasRef.current && canvasRef.current.captureImage) {
-        mockupUrl = canvasRef.current.captureImage();
+      // Capture mockup image from canvas
+      let mockupUrl;
+      try {
+        if (canvasRef.current && canvasRef.current.captureImage) {
+          mockupUrl = canvasRef.current.captureImage();
+        }
+      } catch (error) {
+        console.error('Error capturing mockup:', error);
       }
+
+      // Use selected variant or create a temporary one for Navy
+      const variant = selectedVariant || {
+        id: `temp-${selectedColor}-${selectedSize}`,
+        color: selectedColor,
+        size: selectedSize,
+        base_price: 12.98
+      };
+
+      const cartItem = {
+        id: editingCartItemId || `${variant.id}-${Date.now()}`,
+        variantId: variant.id,
+        productTitle: product.title,
+        variantColor: selectedColor,
+        variantSize: selectedSize,
+        quantity,
+        unitPrice: unitCost,
+        customization: {
+          method: 'dtg',
+          frontArtworks,
+          backArtworks,
+          neckArtwork,
+        },
+        mockupUrl, // Include the mockup image
+      };
+
+      if (editingCartItemId) {
+        // Update existing cart item
+        updateItem(editingCartItemId, cartItem);
+        setToastMessage('Cart item updated successfully!');
+      } else {
+        // Add new item to cart
+        addItem(cartItem);
+        setToastMessage('Added to cart successfully!');
+      }
+
+      setShowToast(true);
+
+      // Navigate to cart after showing toast
+      setTimeout(() => {
+        setIsAddingToCart(false);
+        navigate('/cart');
+      }, 1500);
     } catch (error) {
-      console.error('Error capturing mockup:', error);
+      console.error('Error adding to cart:', error);
+      setToastMessage('Failed to add to cart. Please try again.');
+      setShowToast(true);
+      setIsAddingToCart(false);
     }
-
-    // Use selected variant or create a temporary one for Navy
-    const variant = selectedVariant || {
-      id: `temp-${selectedColor}-${selectedSize}`,
-      color: selectedColor,
-      size: selectedSize,
-      base_price: 12.98
-    };
-
-    const cartItem = {
-      id: editingCartItemId || `${variant.id}-${Date.now()}`,
-      variantId: variant.id,
-      productTitle: product.title,
-      variantColor: selectedColor,
-      variantSize: selectedSize,
-      quantity,
-      unitPrice: unitCost,
-      customization: {
-        method: 'dtg',
-        frontArtworks,
-        backArtworks,
-        neckArtwork,
-      },
-      mockupUrl, // Include the mockup image
-    };
-
-    if (editingCartItemId) {
-      // Update existing cart item
-      updateItem(editingCartItemId, cartItem);
-      setToastMessage('Cart item updated successfully!');
-    } else {
-      // Add new item to cart
-      addItem(cartItem);
-      setToastMessage('Added to cart successfully!');
-    }
-
-    setShowToast(true);
-
-    // Navigate to cart after showing toast
-    setTimeout(() => {
-      navigate('/cart');
-    }, 1500);
   };
 
   // Auto-open appropriate section when view changes
@@ -914,10 +949,10 @@ export default function Customizer({ product, variants }: CustomizerProps) {
             <div className="space-y-3 pt-2">
               <button
                 onClick={handleAddToCart}
-                disabled={!selectedColor || !selectedSize}
+                disabled={!selectedColor || !selectedSize || isAddingToCart}
                 className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-gray-200 hover:bg-gray-900 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                {editingCartItemId ? 'Update Cart' : 'Add to Cart'}
+                {isAddingToCart ? 'Adding...' : (editingCartItemId ? 'Update Cart' : 'Add to Cart')}
               </button>
               <div className="grid grid-cols-2 gap-3">
                 <button

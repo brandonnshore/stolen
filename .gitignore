@@ -54,3 +54,20 @@ mockups/
 .cache/
 RAILWAY_ENV_VARS.txt
 VERCEL_ENV_VARS.txt
+
+# Temporary files (security)
+*.txt
+!README.txt
+!LICENSE.txt
+*.html
+!frontend/index.html
+!frontend/dist/index.html
+test-upload.html
+
+# Compiled output (should be built on deployment)
+frontend/dist/
+backend/dist/
+
+# SQL migration files (should be versioned elsewhere)
+*.sql
+!backend/src/migrations/*.sql

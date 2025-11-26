@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { designAPI } from '../services/api';
+import { getFullAssetUrl } from '../utils/urlHelpers';
 
 interface SavedDesign {
   id: string;
@@ -161,7 +162,7 @@ export default function Dashboard() {
                   {/* Thumbnail image on top if available */}
                   {design.thumbnail_url && (
                     <img
-                      src={design.thumbnail_url.startsWith('http') ? design.thumbnail_url : `http://localhost:3001${design.thumbnail_url}`}
+                      src={getFullAssetUrl(design.thumbnail_url)}
                       alt={design.name}
                       className="relative w-full h-full object-contain bg-white"
                       loading="lazy"

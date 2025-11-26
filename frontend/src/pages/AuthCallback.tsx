@@ -3,29 +3,29 @@ import { supabase } from '../lib/supabase';
 import { authAPI } from '../services/api';
 
 // Add top-level logging to verify component loads
-console.log('[OAuth] AuthCallback component loaded - TOP OF FILE');
+if (import.meta.env.DEV) console.log('[OAuth] AuthCallback component loaded - TOP OF FILE');
 
 export default function AuthCallback() {
-  console.log('[OAuth] AuthCallback component rendered');
+  if (import.meta.env.DEV) console.log('[OAuth] AuthCallback component rendered');
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    console.log('[OAuth] useEffect triggered, calling handleCallback');
+    if (import.meta.env.DEV) console.log('[OAuth] useEffect triggered, calling handleCallback');
     handleCallback();
   }, []);
 
   const handleCallback = async () => {
     try {
-      console.log('[OAuth] Starting callback handler...');
-      console.log('[OAuth] Current URL:', window.location.href);
-      console.log('[OAuth] URL Hash:', window.location.hash);
-      console.log('[OAuth] URL Search:', window.location.search);
+      if (import.meta.env.DEV) console.log('[OAuth] Starting callback handler...');
+      if (import.meta.env.DEV) console.log('[OAuth] Current URL:', window.location.href);
+      if (import.meta.env.DEV) console.log('[OAuth] URL Hash:', window.location.hash);
+      if (import.meta.env.DEV) console.log('[OAuth] URL Search:', window.location.search);
 
       // Get the session from Supabase
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-      console.log('[OAuth] Session data:', session);
-      console.log('[OAuth] Session error:', sessionError);
+      if (import.meta.env.DEV) console.log('[OAuth] Session data:', session);
+      if (import.meta.env.DEV) console.log('[OAuth] Session error:', sessionError);
 
       if (sessionError) {
         console.error('[OAuth] Session error:', sessionError);
@@ -36,19 +36,19 @@ export default function AuthCallback() {
         const { email, user_metadata } = session.user;
         const name = user_metadata?.full_name || user_metadata?.name || email?.split('@')[0] || 'User';
 
-        console.log('[OAuth] User data:', { email, name, id: session.user.id });
+        if (import.meta.env.DEV) console.log('[OAuth] User data:', { email, name, id: session.user.id });
 
         // Sync the OAuth user with our backend (this sets the auth token in localStorage)
-        console.log('[OAuth] Calling oauthSync...');
+        if (import.meta.env.DEV) console.log('[OAuth] Calling oauthSync...');
         const result = await authAPI.oauthSync(email!, name, session.user.id);
-        console.log('[OAuth] Sync result:', result);
+        if (import.meta.env.DEV) console.log('[OAuth] Sync result:', result);
 
         // Verify token was set
         const token = localStorage.getItem('auth_token');
-        console.log('[OAuth] Token in localStorage:', token ? 'EXISTS' : 'MISSING');
+        if (import.meta.env.DEV) console.log('[OAuth] Token in localStorage:', token ? 'EXISTS' : 'MISSING');
 
         // Redirect to dashboard (full page reload will load the user from the token)
-        console.log('[OAuth] Redirecting to dashboard...');
+        if (import.meta.env.DEV) console.log('[OAuth] Redirecting to dashboard...');
         window.location.href = '/dashboard';
       } else {
         console.error('[OAuth] No session found');

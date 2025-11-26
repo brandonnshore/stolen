@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Upload, ArrowDownToLine, Save } from 'lucide-react';
 import HoodieCanvas from '../components/HoodieCanvas';
 import { uploadAPI, designAPI } from '../services/api';

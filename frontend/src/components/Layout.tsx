@@ -49,6 +49,7 @@ export default function Layout({ children }: LayoutProps) {
                   src={isDark || (isHome && !isScrolled) ? "/assets/stolentee-logo-white.png" : "/assets/stolentee-logo.png"}
                   alt="Stolen Tee"
                   className="h-8 sm:h-10 w-auto"
+                  loading="eager"
                 />
               </Link>
 

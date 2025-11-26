@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
-  console.log('[ProtectedRoute] Loading:', loading, 'IsAuthenticated:', isAuthenticated);
+  if (import.meta.env.DEV) console.log('[ProtectedRoute] Loading:', loading, 'IsAuthenticated:', isAuthenticated);
 
   if (loading) {
     return (
@@ -23,11 +23,11 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
-    console.log('[ProtectedRoute] Not authenticated, redirecting to login');
+    if (import.meta.env.DEV) console.log('[ProtectedRoute] Not authenticated, redirecting to login');
     // Redirect to login but save the attempted location
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  console.log('[ProtectedRoute] Authenticated, rendering protected content');
+  if (import.meta.env.DEV) console.log('[ProtectedRoute] Authenticated, rendering protected content');
   return <>{children}</>;
 }

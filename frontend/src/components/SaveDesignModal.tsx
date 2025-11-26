@@ -27,6 +27,11 @@ export default function SaveDesignModal({
       return;
     }
 
+    if (name.trim().length > 100) {
+      setError('Design name must be 100 characters or less');
+      return;
+    }
+
     setSaving(true);
     setError('');
 
@@ -105,6 +110,7 @@ export default function SaveDesignModal({
                   className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                   disabled={saving}
                   autoFocus
+                  maxLength={100}
                 />
                 {error && (
                   <p className="mt-2 text-sm text-red-600">{error}</p>
