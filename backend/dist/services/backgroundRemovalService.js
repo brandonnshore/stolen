@@ -79,19 +79,15 @@ class BackgroundRemovalService {
             if (error.response) {
                 const statusCode = error.response.status;
                 if (statusCode === 403) {
-                    return {
-                        success: false,
-                        error: 'Remove.bg API key is invalid or expired. Please update your API key in settings.'
-                    };
+                    // Throw with AUTH_FAILED prefix to prevent retries
+                    throw new Error('AUTH_FAILED: Remove.bg API key invalid - do not retry');
                 }
                 else if (statusCode === 402) {
                     // Mark credits as exhausted to prevent further API calls
                     this.creditsExhausted = true;
                     console.log('🚫 Remove.bg credits exhausted - future calls will be skipped until reset');
-                    return {
-                        success: false,
-                        error: 'Remove.bg API credits exhausted. Please add more credits or upgrade your plan.'
-                    };
+                    // Throw with CREDITS_EXHAUSTED prefix to prevent retries
+                    throw new Error('CREDITS_EXHAUSTED: Remove.bg API credits exhausted - do not retry');
                 }
                 else {
                     // Try to parse error message

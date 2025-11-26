@@ -80,20 +80,28 @@ class GeminiService {
                 model: 'gemini-2.5-flash-image-preview',
             });
             // Generate content with the image and prompt for image editing
-            const result = await model.generateContent({
-                contents: [{
-                        role: 'user',
-                        parts: [
-                            { text: this.prompt },
-                            {
-                                inlineData: {
-                                    mimeType,
-                                    data: base64Image
-                                }
-                            }
-                        ]
-                    }]
+            // Wrap in Promise.race with 60-second timeout to prevent hung requests
+            const timeoutMs = 60000; // 60 seconds
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Gemini API call timed out after 60 seconds')), timeoutMs);
             });
+            const result = await Promise.race([
+                model.generateContent({
+                    contents: [{
+                            role: 'user',
+                            parts: [
+                                { text: this.prompt },
+                                {
+                                    inlineData: {
+                                        mimeType,
+                                        data: base64Image
+                                    }
+                                }
+                            ]
+                        }]
+                }),
+                timeoutPromise
+            ]);
             const response = result.response;
             // Nano Banana returns images in the response parts
             // Look for inline image data in the response

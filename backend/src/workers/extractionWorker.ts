@@ -1,4 +1,4 @@
-import { Worker } from 'bullmq';
+import { Worker, QueueEvents } from 'bullmq';
 import IORedis from 'ioredis';
 import jobService from '../services/jobService';
 import geminiService from '../services/geminiService';
@@ -36,14 +36,30 @@ const worker = new Worker(
   },
   {
     connection: new IORedis(redisUrl, {
-      maxRetriesPerRequest: 3, // Limit Redis connection retries (safer than null)
+      maxRetriesPerRequest: null, // Required by BullMQ for blocking operations
     }),
     concurrency: 2, // Process up to 2 jobs concurrently
-    maxStalledCount: 2, // Retry stalled jobs max 2 times before failing
+    lockDuration: 30000, // Lock duration for job processing
     stalledInterval: 30000, // Check for stalled jobs every 30 seconds
-    drainDelay: 30, // Wait 30 seconds between polls when queue is empty (reduces Redis polling from 5s to 30s)
+    maxStalledCount: 2, // Retry stalled jobs max 2 times before failing
   }
 );
+
+// Set up QueueEvents for event-driven architecture (Redis pub/sub)
+const queueEvents = new QueueEvents('logo-extraction', {
+  connection: new IORedis(redisUrl, {
+    maxRetriesPerRequest: null,
+  }),
+});
+
+// Listen for new jobs being added to the queue
+queueEvents.on('added', ({ jobId }) => {
+  console.log(`🔔 New job added to queue: ${jobId}`);
+});
+
+queueEvents.on('error', (err) => {
+  console.error('❌ QueueEvents error:', err);
+});
 
 // Worker event handlers
 worker.on('completed', (job) => {
@@ -60,15 +76,17 @@ worker.on('error', (err) => {
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('⏸️  SIGTERM received, closing worker...');
+  console.log('⏸️  SIGTERM received, closing worker and events...');
+  await queueEvents.close();
   await worker.close();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
-  console.log('⏸️  SIGINT received, closing worker...');
+  console.log('⏸️  SIGINT received, closing worker and events...');
+  await queueEvents.close();
   await worker.close();
   process.exit(0);
 });
 
-console.log('✅ Extraction worker is running and waiting for jobs');
+console.log('✅ Extraction worker is running with event-driven architecture (no polling when idle)');
