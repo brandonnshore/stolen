@@ -41,6 +41,7 @@ const worker = new Worker(
     concurrency: 2, // Process up to 2 jobs concurrently
     maxStalledCount: 2, // Retry stalled jobs max 2 times before failing
     stalledInterval: 30000, // Check for stalled jobs every 30 seconds
+    drainDelay: 30, // Wait 30 seconds between polls when queue is empty (reduces Redis polling from 5s to 30s)
   }
 );
 
