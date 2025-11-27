@@ -21,7 +21,14 @@
     "sourceMap": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts",
+    "src/config/sentry.ts",
+    "src/scripts/migrateToR2.ts",
+    "src/services/r2Storage.ts"
+  ],
   "ts-node": {
     "transpileOnly": true,
     "compilerOptions": {
