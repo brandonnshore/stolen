@@ -3,7 +3,8 @@ import { Product, Variant } from '../types';
 import { uploadAPI, designAPI, jobAPI } from '../services/api';
 import { useCartStore } from '../stores/cartStore';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { ArrowDownToLine, Save, ArrowUp, Minus, Plus, Info } from 'lucide-react';
+import { ArrowDownToLine, Save, ArrowUp, Minus, Plus, Info, Check } from 'lucide-react';
+import toast from 'react-hot-toast';
 import TShirtCanvas from './TShirtCanvas';
 import HoodieCanvas from './HoodieCanvas';
 import { useAuth } from '../contexts/AuthContext';
@@ -73,6 +74,7 @@ export default function Customizer({ product, variants }: CustomizerProps) {
 
   // Add to cart loading state for debouncing
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [addToCartSuccess, setAddToCartSuccess] = useState(false);
 
   // Track customization started
   useEffect(() => {
@@ -344,23 +346,43 @@ export default function Customizer({ product, variants }: CustomizerProps) {
       const isSameProduct = draft.productSlug === product.slug;
 
       if (isRecent && isSameProduct && !loadedDesignId) {
-        // Show toast asking to restore
-        const shouldRestore = confirm(
-          `Found unsaved design from ${new Date(draft.timestamp).toLocaleString()}. Restore it?`
+        // Show toast asking to restore with custom action buttons
+        toast(
+          (t) => (
+            <div className="flex flex-col gap-2">
+              <p className="font-medium">Found unsaved design from {new Date(draft.timestamp).toLocaleString()}.</p>
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={() => {
+                    if (draft.frontArtworks) setFrontArtworks(draft.frontArtworks);
+                    if (draft.backArtworks) setBackArtworks(draft.backArtworks);
+                    if (draft.neckArtwork) setNeckArtwork(draft.neckArtwork);
+                    if (draft.selectedColor) setSelectedColor(draft.selectedColor);
+                    if (draft.selectedSize) setSelectedSize(draft.selectedSize);
+                    toast.success('Design restored successfully!');
+                    toast.dismiss(t.id);
+                  }}
+                  className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                >
+                  Restore
+                </button>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('design-draft');
+                    toast.dismiss(t.id);
+                  }}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          ),
+          {
+            duration: 10000,
+            position: 'top-center',
+          }
         );
-
-        if (shouldRestore) {
-          if (draft.frontArtworks) setFrontArtworks(draft.frontArtworks);
-          if (draft.backArtworks) setBackArtworks(draft.backArtworks);
-          if (draft.neckArtwork) setNeckArtwork(draft.neckArtwork);
-          if (draft.selectedColor) setSelectedColor(draft.selectedColor);
-          if (draft.selectedSize) setSelectedSize(draft.selectedSize);
-
-          setToastMessage('Design restored successfully!');
-          setShowToast(true);
-        } else {
-          localStorage.removeItem('design-draft');
-        }
       } else if (!isRecent) {
         // Clean up old drafts
         localStorage.removeItem('design-draft');
@@ -786,9 +808,11 @@ export default function Customizer({ product, variants }: CustomizerProps) {
 
       setShowToast(true);
 
-      // Navigate to cart after showing toast
+      // Show success state briefly before navigating
+      setAddToCartSuccess(true);
       setTimeout(() => {
         setIsAddingToCart(false);
+        setAddToCartSuccess(false);
         navigate('/cart');
       }, 1500);
     } catch (error) {
@@ -1115,9 +1139,21 @@ export default function Customizer({ product, variants }: CustomizerProps) {
               <button
                 onClick={handleAddToCart}
                 disabled={!selectedColor || !selectedSize || isAddingToCart}
-                className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-gray-200 hover:bg-gray-900 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg shadow-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                  addToCartSuccess
+                    ? 'bg-green-600 text-white'
+                    : 'bg-black text-white hover:bg-gray-900'
+                }`}
               >
-                {isAddingToCart ? 'Adding...' : (editingCartItemId ? 'Update Cart' : 'Add to Cart')}
+                {addToCartSuccess ? (
+                  <>
+                    <Check size={20} /> Added!
+                  </>
+                ) : isAddingToCart ? (
+                  'Adding...'
+                ) : (
+                  editingCartItemId ? 'Update Cart' : 'Add to Cart'
+                )}
               </button>
               <div className="grid grid-cols-2 gap-3">
                 <button

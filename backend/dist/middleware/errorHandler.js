@@ -10,18 +10,15 @@ const env_1 = require("../config/env");
 const errorHandler = (err, req, res, _next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
-    // Log error with FULL details
-    console.error('[ERROR HANDLER] Error caught:', err);
-    console.error('[ERROR HANDLER] Error message:', err.message);
-    console.error('[ERROR HANDLER] Error stack:', err.stack);
-    console.error('[ERROR HANDLER] Request:', req.method, req.originalUrl);
-    console.error('[ERROR HANDLER] Status code:', err.statusCode);
-    // Log error with context
-    logger_1.logger.error('Request error', {
+    // Log error with structured logger
+    logger_1.logger.error('Request error handled', {
         method: req.method,
         url: req.originalUrl,
         statusCode: err.statusCode,
         isOperational: err.isOperational,
+        errorName: err.name,
+        userAgent: req.headers['user-agent'],
+        ip: req.ip,
     }, err);
     if (env_1.isDevelopment) {
         // Development - include full error details for debugging

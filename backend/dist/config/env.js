@@ -79,6 +79,8 @@ function validateEnvironment() {
         RATE_LIMIT_MAX_REQUESTS: rateLimitMax,
         MAX_FILE_SIZE_MB: maxFileSize,
         ALLOWED_FILE_TYPES: process.env.ALLOWED_FILE_TYPES || 'image/png,image/jpeg,image/svg+xml',
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        SENTRY_DEBUG: process.env.SENTRY_DEBUG === 'true',
     };
 }
 /**

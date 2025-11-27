@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle, memo } from 'react';
 import { Stage, Layer, Image as KonvaImage, Transformer } from 'react-konva';
 import Konva from 'konva';
 import { CANVAS_CONFIG, TSHIRT_BOUNDS } from '../constants/canvas';
@@ -11,7 +11,7 @@ interface TShirtCanvasProps {
   view?: 'front' | 'neck' | 'back';
 }
 
-const TShirtCanvas = forwardRef(({
+const TShirtCanvas = memo(forwardRef(({
   tshirtColor = 'white',
   artworks = [],
   onArtworkPositionChange,
@@ -681,7 +681,7 @@ const TShirtCanvas = forwardRef(({
       </div>
     </div>
   );
-});
+}));
 
 TShirtCanvas.displayName = 'TShirtCanvas';
 

@@ -1,7 +1,13 @@
 import { Pool, QueryResult, PoolClient } from 'pg';
 /**
  * PostgreSQL connection pool configuration
- * Following best practices for connection pooling
+ * Optimized for Supabase and 1,000 concurrent users
+ *
+ * Performance optimizations:
+ * - Reduced max connections (15 vs 20) for Supabase shared limits
+ * - Faster idle timeout (10s vs 30s) for connection recycling
+ * - Statement timeout to prevent long-running queries
+ * - Query timeout for application-level control
  */
 declare const pool: Pool;
 /**

@@ -51,10 +51,17 @@ async function checkDatabase(): Promise<HealthCheckResult> {
 async function checkRedis(): Promise<HealthCheckResult> {
   const start = Date.now();
   try {
-    // Import Redis client from job service if it exists
-    // For now, we'll mark as OK if no error
-    // In production, add actual Redis ping
+    // Import Redis client from config
+    const { getRedisClient } = await import('../config/redis');
+    const redis = getRedisClient();
+
+    // Ping Redis
+    await redis.ping();
     const latency = Date.now() - start;
+
+    if (latency > 500) {
+      return { status: 'degraded', latency };
+    }
     return { status: 'ok', latency };
   } catch (error) {
     logger.error('Redis health check failed', {}, error as Error);
@@ -68,12 +75,25 @@ async function checkRedis(): Promise<HealthCheckResult> {
 async function checkStorage(): Promise<HealthCheckResult> {
   const start = Date.now();
   try {
-    // Import Supabase client and check bucket access
-    // For now, we'll assume it's OK if Supabase credentials are configured
     if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
       return { status: 'down', error: 'Supabase credentials not configured' };
     }
+
+    // Import and test Supabase connection
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY);
+
+    // Try to list buckets
+    const { data, error } = await supabase.storage.listBuckets();
+
+    if (error) throw error;
+
     const latency = Date.now() - start;
+
+    if (latency > 1000) {
+      return { status: 'degraded', latency };
+    }
+
     return { status: 'ok', latency };
   } catch (error) {
     logger.error('Storage health check failed', {}, error as Error);

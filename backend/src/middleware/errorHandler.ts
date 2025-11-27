@@ -21,19 +21,15 @@ export const errorHandler = (
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  // Log error with FULL details
-  console.error('[ERROR HANDLER] Error caught:', err);
-  console.error('[ERROR HANDLER] Error message:', err.message);
-  console.error('[ERROR HANDLER] Error stack:', err.stack);
-  console.error('[ERROR HANDLER] Request:', req.method, req.originalUrl);
-  console.error('[ERROR HANDLER] Status code:', err.statusCode);
-
-  // Log error with context
-  logger.error('Request error', {
+  // Log error with structured logger
+  logger.error('Request error handled', {
     method: req.method,
     url: req.originalUrl,
     statusCode: err.statusCode,
     isOperational: err.isOperational,
+    errorName: err.name,
+    userAgent: req.headers['user-agent'],
+    ip: req.ip,
   }, err);
 
   if (isDevelopment) {

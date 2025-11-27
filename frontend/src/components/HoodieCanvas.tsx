@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle, memo } from 'react';
 import { Stage, Layer, Image as KonvaImage, Transformer } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import Konva from 'konva';
@@ -45,7 +45,7 @@ const CONTAINER_MAX_WIDTH = 600;
 const CONTAINER_MAX_HEIGHT = 700;
 const SCALE_FACTOR = 1.15;
 
-const HoodieCanvas = forwardRef<unknown, HoodieCanvasProps>(({
+const HoodieCanvas = memo(forwardRef<unknown, HoodieCanvasProps>(({
   artworks = [],
   onArtworkPositionChange,
   onArtworkDelete,
@@ -462,7 +462,7 @@ const HoodieCanvas = forwardRef<unknown, HoodieCanvasProps>(({
       </div>
     </div>
   );
-});
+}));
 
 HoodieCanvas.displayName = 'HoodieCanvas';
 

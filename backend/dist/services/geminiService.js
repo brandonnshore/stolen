@@ -8,6 +8,7 @@ const database_1 = __importDefault(require("../config/database"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const axios_1 = __importDefault(require("axios"));
+const logger_1 = require("../utils/logger");
 /**
  * GeminiService - Handles AI-powered logo extraction using Google Gemini
  */
@@ -17,23 +18,24 @@ class GeminiService {
         this.prompt = '';
     }
     /**
-     * Initialize the Gemini client with API key from settings
+     * Initialize the Gemini client with API key from environment
+     * SECURITY: API key is now stored in environment variables instead of database
      */
     async initialize() {
         try {
-            // Fetch API key and prompt from database settings
-            const apiKeyResult = await database_1.default.query("SELECT value FROM settings WHERE key = 'gemini_api_key'");
-            const promptResult = await database_1.default.query("SELECT value FROM settings WHERE key = 'gemini_extraction_prompt'");
-            if (!apiKeyResult.rows[0]?.value?.api_key) {
-                throw new Error('Gemini API key not configured in settings');
+            // Get API key from environment (more secure than database storage)
+            const apiKey = process.env.GEMINI_API_KEY;
+            if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
+                throw new Error('Gemini API key not configured. Please set GEMINI_API_KEY in environment variables.');
             }
-            const apiKey = apiKeyResult.rows[0].value.api_key;
+            // Fetch prompt from database (prompt is less sensitive, can stay in DB for easy updates)
+            const promptResult = await database_1.default.query("SELECT value FROM settings WHERE key = 'gemini_extraction_prompt'");
             this.prompt = promptResult.rows[0]?.value?.prompt || this.getDefaultPrompt();
             this.genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);
-            console.log('✅ Gemini service initialized');
+            logger_1.logger.info('Gemini service initialized with environment API key');
         }
         catch (error) {
-            console.error('❌ Failed to initialize Gemini service:', error);
+            logger_1.logger.error('Failed to initialize Gemini service', {}, error);
             throw error;
         }
     }
@@ -53,12 +55,12 @@ class GeminiService {
             await this.initialize();
         }
         try {
-            console.log(`🔄 Starting Gemini extraction for: ${imagePath}`);
+            logger_1.logger.info('Starting Gemini extraction', { imagePath });
             // Read the image file (handle both local paths and Supabase URLs)
             let imageBuffer;
             if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
                 // Download from Supabase
-                console.log(`📥 Downloading image from Supabase: ${imagePath}`);
+                logger_1.logger.info('Downloading image from Supabase', { imagePath });
                 const response = await axios_1.default.get(imagePath, { responseType: 'arraybuffer' });
                 imageBuffer = Buffer.from(response.data);
             }
@@ -115,14 +117,14 @@ class GeminiService {
                 if (part.inlineData && part.inlineData.mimeType?.startsWith('image/')) {
                     // Convert base64 image data to buffer
                     generatedImageBuffer = Buffer.from(part.inlineData.data, 'base64');
-                    console.log('✅ Nano Banana image extraction completed');
+                    logger_1.logger.info('Nano Banana image extraction completed');
                     break;
                 }
             }
             if (!generatedImageBuffer) {
                 // Fallback: if no image in response, log the text and use original
                 const text = response.text ? response.text() : 'No text response';
-                console.log('⚠️ No image in Nano Banana response, using original. Response:', text.substring(0, 200));
+                logger_1.logger.warn('No image in Nano Banana response, using original', { responsePreview: text.substring(0, 200) });
                 generatedImageBuffer = imageBuffer;
             }
             return {
@@ -132,7 +134,7 @@ class GeminiService {
             };
         }
         catch (error) {
-            console.error('❌ Gemini extraction failed:', error);
+            logger_1.logger.error('Gemini extraction failed', {}, error);
             return {
                 success: false,
                 error: error.message || 'Unknown error during extraction'

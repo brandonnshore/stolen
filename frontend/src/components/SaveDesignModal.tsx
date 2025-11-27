@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { X, Check } from 'lucide-react';
 
 interface SaveDesignModalProps {
@@ -9,7 +9,7 @@ interface SaveDesignModalProps {
   currentName?: string;
 }
 
-export default function SaveDesignModal({
+const SaveDesignModal = memo(function SaveDesignModal({
   isOpen,
   onClose,
   onSave,
@@ -155,4 +155,6 @@ export default function SaveDesignModal({
       </div>
     </div>
   );
-}
+});
+
+export default SaveDesignModal;

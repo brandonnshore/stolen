@@ -11,6 +11,7 @@ const backgroundRemovalService_1 = __importDefault(require("./backgroundRemovalS
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const sharp_1 = __importDefault(require("sharp"));
+const logger_1 = require("../utils/logger");
 /**
  * JobService - Manages logo extraction jobs using BullMQ
  */
@@ -23,7 +24,7 @@ class JobService {
                 maxRetriesPerRequest: null,
             }),
         });
-        console.log('✅ Job queue initialized with Redis:', redisUrl.replace(/:[^:]*@/, ':***@'));
+        logger_1.logger.info('Job queue initialized with Redis', { redisUrl: redisUrl.replace(/:[^:]*@/, ':***@') });
     }
     /**
      * Create a new extraction job
@@ -57,11 +58,11 @@ class JobService {
                     count: 500 // Keep max 500 most recent failed jobs
                 }
             });
-            console.log(`✅ Job created: ${jobId}`);
+            logger_1.logger.info('Job created', { jobId });
             return jobId;
         }
         catch (error) {
-            console.error('❌ Failed to create job:', error);
+            logger_1.logger.error('Failed to create job', {}, error);
             throw new Error(`Failed to create extraction job: ${error.message}`);
         }
     }
@@ -89,7 +90,7 @@ class JobService {
             };
         }
         catch (error) {
-            console.error('❌ Failed to get job status:', error);
+            logger_1.logger.error('Failed to get job status', { jobId }, error);
             return null;
         }
     }
@@ -146,7 +147,7 @@ class JobService {
                 density: 300 // Set to 300 DPI for print quality
             })
                 .toFile(transparentPath);
-            console.log('✅ Image saved at 300 DPI for print quality');
+            logger_1.logger.info('Image saved at 300 DPI for print quality', { jobId });
             // Create asset record for transparent image
             const transparentAsset = await this.createAsset({
                 jobId,
@@ -176,10 +177,10 @@ class JobService {
                 }),
                 jobId,
             ]);
-            console.log(`✅ Job completed: ${jobId}`);
+            logger_1.logger.info('Job completed', { jobId });
         }
         catch (error) {
-            console.error(`❌ Job failed: ${jobId}`, error);
+            logger_1.logger.error('Job failed', { jobId }, error);
             // Don't retry if it's a known unrecoverable error
             if (error.message?.startsWith('CREDITS_EXHAUSTED') ||
                 error.message?.startsWith('AUTH_FAILED')) {

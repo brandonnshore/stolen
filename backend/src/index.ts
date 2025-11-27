@@ -9,6 +9,7 @@ import path from 'path';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 import { closePool } from './config/database';
+import { closeRedis } from './config/redis';
 import { initSentry, sentryRequestHandler, sentryTracingHandler, sentryErrorHandler } from './config/sentry';
 
 // Import routes
@@ -105,7 +106,7 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.warn(`[CORS] Blocked origin: ${origin}`);
+      logger.warn('CORS request blocked', { origin });
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -349,6 +350,7 @@ const shutdown = async (signal: string) => {
 
     try {
       await closePool();
+      await closeRedis();
       logger.info('All resources cleaned up, exiting');
       process.exit(0);
     } catch (error) {

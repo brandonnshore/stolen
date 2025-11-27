@@ -18,6 +18,11 @@ function CheckoutForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Real-time validation errors
+  const [emailError, setEmailError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [zipError, setZipError] = useState('');
+
   // Track begin_checkout event when component mounts
   useEffect(() => {
     if (items.length > 0) {
@@ -40,6 +45,59 @@ function CheckoutForm() {
     postal_code: '',
     country: 'US',
   });
+
+  // Validation functions
+  const validateEmail = (value: string) => {
+    if (!value) {
+      setEmailError('');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setEmailError('Please enter a valid email address');
+    } else {
+      setEmailError('');
+    }
+  };
+
+  const validatePhone = (value: string) => {
+    if (!value) {
+      setPhoneError('');
+      return;
+    }
+    const phoneRegex = /^[\d\s\-\(\)\+]+$/;
+    if (!phoneRegex.test(value)) {
+      setPhoneError('Please enter a valid phone number');
+    } else if (value.replace(/\D/g, '').length < 10) {
+      setPhoneError('Phone number must be at least 10 digits');
+    } else {
+      setPhoneError('');
+    }
+  };
+
+  const validateZip = (value: string, country: string) => {
+    if (!value) {
+      setZipError('');
+      return;
+    }
+    if (country === 'US') {
+      const zipRegex = /^\d{5}(-\d{4})?$/;
+      if (!zipRegex.test(value)) {
+        setZipError('Please enter a valid US ZIP code (e.g., 12345 or 12345-6789)');
+      } else {
+        setZipError('');
+      }
+    } else if (country === 'CA') {
+      const postalRegex = /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/;
+      if (!postalRegex.test(value)) {
+        setZipError('Please enter a valid Canadian postal code (e.g., A1A 1A1)');
+      } else {
+        setZipError('');
+      }
+    } else {
+      setZipError('');
+    }
+  };
 
   const handlePaymentRequestPayment = async (paymentMethodId: string) => {
     if (!stripe) {
@@ -203,9 +261,16 @@ function CheckoutForm() {
                 type="email"
                 required
                 value={customerInfo.email}
-                onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
-                className="input"
+                onChange={(e) => {
+                  setCustomerInfo({ ...customerInfo, email: e.target.value });
+                  validateEmail(e.target.value);
+                }}
+                onBlur={(e) => validateEmail(e.target.value)}
+                className={`input ${emailError ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}`}
               />
+              {emailError && (
+                <p className="mt-1 text-sm text-red-600">{emailError}</p>
+              )}
             </div>
             <div>
               <label className="block font-semibold mb-1">Full Name</label>
@@ -222,9 +287,17 @@ function CheckoutForm() {
               <input
                 type="tel"
                 value={customerInfo.phone}
-                onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
-                className="input"
+                onChange={(e) => {
+                  setCustomerInfo({ ...customerInfo, phone: e.target.value });
+                  validatePhone(e.target.value);
+                }}
+                onBlur={(e) => validatePhone(e.target.value)}
+                className={`input ${phoneError ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}`}
+                placeholder="(555) 123-4567"
               />
+              {phoneError && (
+                <p className="mt-1 text-sm text-red-600">{phoneError}</p>
+              )}
             </div>
           </div>
         </div>
@@ -281,15 +354,28 @@ function CheckoutForm() {
                   type="text"
                   required
                   value={shippingAddress.postal_code}
-                  onChange={(e) => setShippingAddress({ ...shippingAddress, postal_code: e.target.value })}
-                  className="input"
+                  onChange={(e) => {
+                    setShippingAddress({ ...shippingAddress, postal_code: e.target.value });
+                    validateZip(e.target.value, shippingAddress.country);
+                  }}
+                  onBlur={(e) => validateZip(e.target.value, shippingAddress.country)}
+                  className={`input ${zipError ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : ''}`}
+                  placeholder={shippingAddress.country === 'US' ? '12345' : 'A1A 1A1'}
                 />
+                {zipError && (
+                  <p className="mt-1 text-sm text-red-600">{zipError}</p>
+                )}
               </div>
               <div>
                 <label className="block font-semibold mb-1">Country</label>
                 <select
                   value={shippingAddress.country}
-                  onChange={(e) => setShippingAddress({ ...shippingAddress, country: e.target.value })}
+                  onChange={(e) => {
+                    setShippingAddress({ ...shippingAddress, country: e.target.value });
+                    if (shippingAddress.postal_code) {
+                      validateZip(shippingAddress.postal_code, e.target.value);
+                    }
+                  }}
                   className="input"
                 >
                   <option value="US">United States</option>

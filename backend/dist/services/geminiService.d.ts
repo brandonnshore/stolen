@@ -10,7 +10,8 @@ declare class GeminiService {
     private genAI;
     private prompt;
     /**
-     * Initialize the Gemini client with API key from settings
+     * Initialize the Gemini client with API key from environment
+     * SECURITY: API key is now stored in environment variables instead of database
      */
     initialize(): Promise<void>;
     /**

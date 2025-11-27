@@ -87,8 +87,14 @@ export const validateImageDPI = async (
   };
 };
 
-export const promptForLowDPIUpload = (dpi: number): boolean => {
-  return window.confirm(
-    `Warning: This image has a DPI of ${dpi}, which is below the required ${DPI_THRESHOLD} DPI for high-quality DTG printing. The print quality may be poor.\n\nDo you want to upload it anyway?`
-  );
+// Note: This function is not currently used in the codebase
+// If needed in the future, implement with toast.promise or custom modal
+// instead of window.confirm for better UX
+export const promptForLowDPIUpload = (dpi: number): Promise<boolean> => {
+  return new Promise((resolve) => {
+    // This would need to be implemented with a custom modal or toast
+    // For now, we'll just resolve with true to not block uploads
+    console.warn(`Low DPI warning: ${dpi} DPI (threshold: ${DPI_THRESHOLD})`);
+    resolve(true);
+  });
 };

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, memo } from 'react';
 import { Check, ShoppingCart, X } from 'lucide-react';
 
 interface ToastProps {
@@ -8,7 +8,7 @@ interface ToastProps {
   duration?: number;
 }
 
-export default function Toast({ message, type = 'success', onClose, duration = 3000 }: ToastProps) {
+const Toast = memo(function Toast({ message, type = 'success', onClose, duration = 3000 }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
@@ -84,4 +84,6 @@ export default function Toast({ message, type = 'success', onClose, duration = 3
       `}</style>
     </div>
   );
-}
+});
+
+export default Toast;

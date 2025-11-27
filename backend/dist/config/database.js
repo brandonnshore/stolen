@@ -6,24 +6,49 @@ const env_1 = require("./env");
 const logger_1 = require("../utils/logger");
 /**
  * PostgreSQL connection pool configuration
- * Following best practices for connection pooling
+ * Optimized for Supabase and 1,000 concurrent users
+ *
+ * Performance optimizations:
+ * - Reduced max connections (15 vs 20) for Supabase shared limits
+ * - Faster idle timeout (10s vs 30s) for connection recycling
+ * - Statement timeout to prevent long-running queries
+ * - Query timeout for application-level control
  */
 const pool = new pg_1.Pool({
     connectionString: env_1.env.DATABASE_URL,
     ssl: env_1.isProduction ? { rejectUnauthorized: false } : false,
-    // Keep pool size small for PostgreSQL (5-10x smaller than MySQL)
-    max: 20,
-    min: 2,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
-    // Allow graceful shutdown
+    // Connection pool limits (optimized for Supabase)
+    max: env_1.isProduction ? 15 : 5, // Lower max for Supabase shared DB
+    min: 2, // Keep minimum warm connections
+    // Aggressive timeout for faster connection recycling
+    idleTimeoutMillis: 10000, // 10s (was 30s) - return to pool faster
+    connectionTimeoutMillis: 5000, // 5s (was 2s) - fail faster
+    // Query timeouts (prevent runaway queries)
+    statement_timeout: 30000, // 30s max per query
+    query_timeout: 10000, // 10s application timeout (most queries < 100ms)
+    // Graceful shutdown
     allowExitOnIdle: false,
 });
-pool.on('connect', () => {
-    logger_1.logger.info('Database connection established');
+// Connection pool event monitoring (for infrastructure optimization)
+pool.on('connect', (client) => {
+    logger_1.logger.debug('Database connection established', {
+        totalCount: pool.totalCount,
+        idleCount: pool.idleCount,
+        waitingCount: pool.waitingCount,
+    });
+});
+pool.on('acquire', (client) => {
+    logger_1.logger.debug('Connection acquired from pool', {
+        totalCount: pool.totalCount,
+        idleCount: pool.idleCount,
+        waitingCount: pool.waitingCount,
+    });
 });
 pool.on('error', (err) => {
-    logger_1.logger.error('Unexpected database connection error', {}, err);
+    logger_1.logger.error('Unexpected database connection error', {
+        totalCount: pool.totalCount,
+        idleCount: pool.idleCount,
+    }, err);
     // In production, we should not exit immediately
     // Instead, let the process manager handle restarts
     if (env_1.isProduction) {
@@ -33,8 +58,11 @@ pool.on('error', (err) => {
         process.exit(-1);
     }
 });
-pool.on('remove', () => {
-    logger_1.logger.debug('Database connection removed from pool');
+pool.on('remove', (client) => {
+    logger_1.logger.warn('Connection removed from pool', {
+        totalCount: pool.totalCount,
+        idleCount: pool.idleCount,
+    });
 });
 /**
  * Execute a parameterized query

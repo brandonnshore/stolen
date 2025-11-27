@@ -6,6 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllOrders = exports.updateOrderProductionStatus = exports.updateOrderPaymentStatus = exports.getOrderItems = exports.getOrderByNumber = exports.getOrderById = exports.createOrder = void 0;
 const database_1 = __importDefault(require("../config/database"));
 const errorHandler_1 = require("../middleware/errorHandler");
+/**
+ * Create a new order with transaction support
+ * Creates or retrieves customer, generates order number, creates order items, and logs status history
+ * @param orderData - Order data including customer info, items, and shipping details
+ * @returns Newly created order object
+ * @throws {Error} If transaction fails, all changes are rolled back
+ */
 const createOrder = async (orderData) => {
     const client = await database_1.default.connect();
     try {
@@ -78,6 +85,11 @@ const createOrder = async (orderData) => {
     }
 };
 exports.createOrder = createOrder;
+/**
+ * Get order by ID
+ * @param orderId - Order UUID
+ * @returns Order object or null if not found
+ */
 const getOrderById = async (orderId) => {
     const result = await database_1.default.query('SELECT * FROM orders WHERE id = $1', [orderId]);
     if (result.rows.length === 0) {
@@ -86,6 +98,11 @@ const getOrderById = async (orderId) => {
     return result.rows[0];
 };
 exports.getOrderById = getOrderById;
+/**
+ * Get order by order number
+ * @param orderNumber - Order number (e.g., "RB-1732635600000-ABC12")
+ * @returns Order object or null if not found
+ */
 const getOrderByNumber = async (orderNumber) => {
     const result = await database_1.default.query('SELECT * FROM orders WHERE order_number = $1', [orderNumber]);
     if (result.rows.length === 0) {
@@ -94,11 +111,24 @@ const getOrderByNumber = async (orderNumber) => {
     return result.rows[0];
 };
 exports.getOrderByNumber = getOrderByNumber;
+/**
+ * Get all items for an order
+ * @param orderId - Order UUID
+ * @returns Array of order items with customization details
+ */
 const getOrderItems = async (orderId) => {
     const result = await database_1.default.query('SELECT * FROM order_items WHERE order_id = $1', [orderId]);
     return result.rows;
 };
 exports.getOrderItems = getOrderItems;
+/**
+ * Update order payment status
+ * @param orderId - Order UUID
+ * @param status - Payment status (e.g., 'succeeded', 'failed', 'pending')
+ * @param paymentIntentId - Optional Stripe payment intent ID
+ * @returns Updated order object
+ * @throws {ApiError} 404 if order not found
+ */
 const updateOrderPaymentStatus = async (orderId, status, paymentIntentId) => {
     const fields = ['payment_status = $1'];
     const values = [status, orderId];
@@ -117,6 +147,14 @@ const updateOrderPaymentStatus = async (orderId, status, paymentIntentId) => {
     return result.rows[0];
 };
 exports.updateOrderPaymentStatus = updateOrderPaymentStatus;
+/**
+ * Update order production status
+ * @param orderId - Order UUID
+ * @param status - Production status (e.g., 'processing', 'shipped', 'delivered')
+ * @param trackingNumber - Optional shipping tracking number
+ * @returns Updated order object
+ * @throws {ApiError} 404 if order not found
+ */
 const updateOrderProductionStatus = async (orderId, status, trackingNumber) => {
     const fields = ['production_status = $1'];
     const values = [status];
@@ -140,6 +178,11 @@ const updateOrderProductionStatus = async (orderId, status, trackingNumber) => {
     return result.rows[0];
 };
 exports.updateOrderProductionStatus = updateOrderProductionStatus;
+/**
+ * Get all orders with optional filters
+ * @param filters - Optional filters object (payment_status, production_status)
+ * @returns Array of orders sorted by creation date (newest first)
+ */
 const getAllOrders = async (filters) => {
     let query = 'SELECT * FROM orders';
     const conditions = [];

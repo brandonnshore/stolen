@@ -1,10 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import sharp from 'sharp';
 import pool from '../config/database';
 import { Asset } from '../models/types';
 import { ApiError } from '../middleware/errorHandler';
 import { uploadToSupabase, deleteFromSupabase, isSupabaseStorageAvailable } from './supabaseStorage';
+import { logger } from '../utils/logger';
 
 const UPLOAD_DIR = process.env.LOCAL_STORAGE_PATH || './uploads';
 const USE_LOCAL_STORAGE = process.env.USE_LOCAL_STORAGE === 'true';
@@ -29,27 +31,94 @@ const validateExtension = (filename: string): boolean => {
   return ALLOWED_EXTENSIONS.includes(ext);
 };
 
+/**
+ * Compress and optimize image before upload
+ * Reduces storage costs and bandwidth usage
+ *
+ * @param buffer - Original image buffer
+ * @param mimetype - Image MIME type
+ * @returns Compressed image buffer
+ */
+const compressImage = async (buffer: Buffer, mimetype: string): Promise<Buffer> => {
+  const startTime = Date.now();
+  const originalSize = buffer.length;
+
+  try {
+    // Skip compression for SVG and PDF files (not raster images)
+    if (mimetype === 'image/svg+xml' || mimetype === 'application/pdf') {
+      return buffer;
+    }
+
+    // Compress image using sharp
+    // - Resize to max 2000x2000 (preserves aspect ratio)
+    // - Convert to JPEG with 85% quality for optimal balance
+    // - Strip metadata to reduce size
+    const compressed = await sharp(buffer)
+      .resize(2000, 2000, {
+        fit: 'inside',
+        withoutEnlargement: true, // Don't upscale smaller images
+      })
+      .jpeg({
+        quality: 85, // Good balance between quality and size
+        progressive: true, // Enable progressive loading
+        mozjpeg: true, // Use mozjpeg for better compression
+      })
+      .toBuffer();
+
+    const compressedSize = compressed.length;
+    const savings = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
+    const duration = Date.now() - startTime;
+
+    logger.info('Image compressed successfully', {
+      originalSize: `${(originalSize / 1024).toFixed(1)}KB`,
+      compressedSize: `${(compressedSize / 1024).toFixed(1)}KB`,
+      savings: `${savings}%`,
+      duration: `${duration}ms`,
+    });
+
+    return compressed;
+  } catch (error) {
+    logger.error('Image compression failed, using original', {}, error as Error);
+    // On compression failure, return original buffer
+    return buffer;
+  }
+};
+
 export const saveFile = async (
   file: Express.Multer.File,
   ownerType: string,
   ownerId?: string
 ): Promise<Asset> => {
-  const hash = crypto.createHash('md5').update(file.buffer).digest('hex');
+  // Validate file extension before processing
+  if (!validateExtension(file.originalname)) {
+    throw new ApiError(400, 'Invalid file extension. Allowed types: .jpg, .jpeg, .png, .svg, .pdf');
+  }
+
+  // Compress image before upload (infrastructure optimization)
+  const compressedBuffer = await compressImage(file.buffer, file.mimetype);
+  const hash = crypto.createHash('md5').update(compressedBuffer).digest('hex');
   let fileUrl: string;
 
   // Use Supabase Storage in production, local filesystem in development
   if (!USE_LOCAL_STORAGE && isSupabaseStorageAvailable()) {
-    // Upload to Supabase Storage (permanent cloud storage)
-    fileUrl = await uploadToSupabase(file);
-    console.log('✅ Uploaded to Supabase Storage:', fileUrl);
+    // Upload compressed image to Supabase Storage (permanent cloud storage)
+    // Create a modified file object with compressed buffer
+    const compressedFile = {
+      ...file,
+      buffer: compressedBuffer,
+      size: compressedBuffer.length,
+    };
+    fileUrl = await uploadToSupabase(compressedFile as Express.Multer.File);
+    console.log('✅ Uploaded compressed image to Supabase Storage:', fileUrl);
   } else {
     // Fallback to local filesystem (development only)
-    const ext = path.extname(file.originalname);
+    // Sanitize extension to prevent attacks
+    const ext = path.extname(file.originalname).toLowerCase();
     const filename = `${hash}${ext}`;
     const filepath = path.join(UPLOAD_DIR, filename);
-    fs.writeFileSync(filepath, file.buffer);
+    fs.writeFileSync(filepath, compressedBuffer);
     fileUrl = `/uploads/${filename}`;
-    console.log('📁 Saved to local storage:', fileUrl);
+    console.log('📁 Saved compressed image to local storage:', fileUrl);
   }
 
   // Create asset record in database
@@ -63,7 +132,7 @@ export const saveFile = async (
       ownerId || null,
       fileUrl,
       file.mimetype,
-      file.size,
+      compressedBuffer.length, // Use compressed size
       file.originalname,
       hash
     ]

@@ -12,6 +12,9 @@ export declare enum LogLevel {
  */
 interface LogContext {
     [key: string]: unknown;
+    correlationId?: string;
+    userId?: string;
+    requestId?: string;
 }
 /**
  * Simple structured logger

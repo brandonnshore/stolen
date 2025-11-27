@@ -8,6 +8,7 @@ import { useCartStore } from '../stores/cartStore';
 import { useAuth } from '../contexts/AuthContext';
 import SaveDesignModal from '../components/SaveDesignModal';
 import Toast from '../components/Toast';
+import { getFullAssetUrl } from '../utils/urlHelpers';
 
 const HOODIE_PRODUCT_ID = '9f9e4e98-4128-4d09-af21-58e5523eed14';
 const HOODIE_COLOR = 'Black';
@@ -125,7 +126,7 @@ export default function HoodieProduct() {
           if (updated[artworkIndex]) {
             updated[artworkIndex] = {
               ...updated[artworkIndex],
-              url: `http://localhost:3001${asset.file_url}`,
+              url: getFullAssetUrl(asset.file_url),
               assetId: asset.id
             };
           }
@@ -164,7 +165,7 @@ export default function HoodieProduct() {
           if (updated[artworkIndex]) {
             updated[artworkIndex] = {
               ...updated[artworkIndex],
-              url: `http://localhost:3001${asset.file_url}`,
+              url: getFullAssetUrl(asset.file_url),
               assetId: asset.id
             };
           }
@@ -330,19 +331,13 @@ export default function HoodieProduct() {
       const allArtworkIds = design.artwork_ids || [];
       const artworkUrls = design.artwork_urls || {};
 
-      const getFullUrl = (url: string): string => {
-        if (!url || url.startsWith('http')) return url;
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-        return `${API_URL}${url}`;
-      };
-
       let artworkIndex = 0;
 
       if (design.design_data) {
         if (design.design_data.front?.length > 0) {
           const frontArtworkData: Artwork[] = design.design_data.front.map((pos: ArtworkPosition) => {
             const assetId = allArtworkIds[artworkIndex];
-            const url = assetId ? getFullUrl(artworkUrls[assetId]) : '';
+            const url = assetId ? getFullAssetUrl(artworkUrls[assetId]) : '';
             artworkIndex++;
             return { url, position: pos, assetId };
           });
@@ -352,7 +347,7 @@ export default function HoodieProduct() {
         if (design.design_data.back?.length > 0) {
           const backArtworkData: Artwork[] = design.design_data.back.map((pos: ArtworkPosition) => {
             const assetId = allArtworkIds[artworkIndex];
-            const url = assetId ? getFullUrl(artworkUrls[assetId]) : '';
+            const url = assetId ? getFullAssetUrl(artworkUrls[assetId]) : '';
             artworkIndex++;
             return { url, position: pos, assetId };
           });
@@ -361,7 +356,7 @@ export default function HoodieProduct() {
 
         if (design.design_data.neck?.length > 0) {
           const assetId = allArtworkIds[artworkIndex];
-          const url = assetId ? getFullUrl(artworkUrls[assetId]) : '';
+          const url = assetId ? getFullAssetUrl(artworkUrls[assetId]) : '';
           setNeckArtwork({
             url,
             position: design.design_data.neck[0],
@@ -570,7 +565,7 @@ export default function HoodieProduct() {
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <div className="w-10 h-10 bg-white border border-gray-200 rounded flex items-center justify-center overflow-hidden">
-                            <img src={artwork.url} alt="Front Artwork" className="w-full h-full object-contain" />
+                            <img src={artwork.url} alt="Front Artwork" className="w-full h-full object-contain" loading="lazy" />
                           </div>
                           <div>
                             <p className="text-xs font-medium">Artwork {index + 1}</p>
@@ -635,7 +630,7 @@ export default function HoodieProduct() {
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <div className="w-10 h-10 bg-white border border-gray-200 rounded flex items-center justify-center overflow-hidden">
-                            <img src={artwork.url} alt="Back Artwork" className="w-full h-full object-contain" />
+                            <img src={artwork.url} alt="Back Artwork" className="w-full h-full object-contain" loading="lazy" />
                           </div>
                           <div>
                             <p className="text-xs font-medium">Artwork {index + 1}</p>
@@ -700,7 +695,7 @@ export default function HoodieProduct() {
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <div className="w-10 h-10 bg-white border border-gray-200 rounded flex items-center justify-center overflow-hidden">
-                            <img src={neckArtwork.url} alt="Neck Label" className="w-full h-full object-contain" />
+                            <img src={neckArtwork.url} alt="Neck Label" className="w-full h-full object-contain" loading="lazy" />
                           </div>
                           <div>
                             <p className="text-xs font-medium">Neck Label</p>

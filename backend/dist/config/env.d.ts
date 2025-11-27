@@ -31,6 +31,8 @@ interface EnvironmentConfig {
     RATE_LIMIT_MAX_REQUESTS: number;
     MAX_FILE_SIZE_MB: number;
     ALLOWED_FILE_TYPES: string;
+    SENTRY_DSN?: string;
+    SENTRY_DEBUG?: boolean;
 }
 /**
  * Validated environment configuration
