@@ -1,4 +1,4 @@
-import { Worker, QueueEvents } from 'bullmq';
+import { Worker, QueueEvents, Queue } from 'bullmq';
 import IORedis from 'ioredis';
 import jobService from '../services/jobService';
 import geminiService from '../services/geminiService';
@@ -20,6 +20,13 @@ console.log('🚀 Starting extraction worker...');
 
 // Create worker to process jobs
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+
+// Create Queue instance to check for pending jobs
+const queue = new Queue('logo-extraction', {
+  connection: new IORedis(redisUrl, {
+    maxRetriesPerRequest: null,
+  }),
+});
 
 const worker = new Worker(
   'logo-extraction',
@@ -66,25 +73,33 @@ queueEvents.on('error', (err) => {
 let idleTimer: NodeJS.Timeout | null = null;
 const IDLE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
-const resetIdleTimer = async () => {
+const resetIdleTimer = () => {
   if (idleTimer) clearTimeout(idleTimer);
 
   idleTimer = setTimeout(async () => {
     console.log('⏰ Worker idle for 5 minutes, checking for pending jobs...');
     try {
-      const waitingCount = await worker.getNextJob(''); // Check if jobs exist
-      if (!waitingCount) {
+      // Check for waiting jobs using the Queue API
+      const waitingCount = await queue.getWaitingCount();
+      const activeCount = await queue.getActiveCount();
+      const totalPending = waitingCount + activeCount;
+
+      if (totalPending === 0) {
         console.log('✅ No pending jobs, shutting down worker to save Redis costs...');
         await queueEvents.close();
+        await queue.close();
         await worker.close();
         process.exit(0);
       } else {
-        console.log(`📋 ${waitingCount} jobs pending, staying alive...`);
+        console.log(`📋 ${totalPending} jobs still pending (${waitingCount} waiting, ${activeCount} active), staying alive...`);
         resetIdleTimer(); // Reset timer if jobs exist
       }
     } catch (error) {
-      console.log('✅ No jobs found, shutting down worker...');
+      console.error('❌ Error checking for pending jobs:', error);
+      // Exit anyway if we can't check (safer to exit and respawn on next upload)
+      console.log('⚠️  Exiting worker due to error checking jobs...');
       await queueEvents.close();
+      await queue.close();
       await worker.close();
       process.exit(0);
     }
@@ -114,6 +129,7 @@ console.log('⏰ Worker will auto-shutdown after 5 minutes idle (saves Redis cos
 process.on('SIGTERM', async () => {
   console.log('⏸️  SIGTERM received, closing worker and events...');
   await queueEvents.close();
+  await queue.close();
   await worker.close();
   process.exit(0);
 });
@@ -121,6 +137,7 @@ process.on('SIGTERM', async () => {
 process.on('SIGINT', async () => {
   console.log('⏸️  SIGINT received, closing worker and events...');
   await queueEvents.close();
+  await queue.close();
   await worker.close();
   process.exit(0);
 });
