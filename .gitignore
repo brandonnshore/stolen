@@ -83,3 +83,10 @@ backend/dist/
 # SQL migration files (should be versioned elsewhere)
 *.sql
 !backend/src/migrations/*.sql
+
+# Additional security patterns (from security audit)
+*.csv
+temp/
+tmp/
+*.bak
+*.backup

@@ -19,28 +19,26 @@ class GeminiService {
   private prompt: string = '';
 
   /**
-   * Initialize the Gemini client with API key from settings
+   * Initialize the Gemini client with API key from environment
+   * SECURITY: API key is now stored in environment variables instead of database
    */
   async initialize(): Promise<void> {
     try {
-      // Fetch API key and prompt from database settings
-      const apiKeyResult = await pool.query(
-        "SELECT value FROM settings WHERE key = 'gemini_api_key'"
-      );
+      // Get API key from environment (more secure than database storage)
+      const apiKey = process.env.GEMINI_API_KEY;
 
+      if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
+        throw new Error('Gemini API key not configured. Please set GEMINI_API_KEY in environment variables.');
+      }
+
+      // Fetch prompt from database (prompt is less sensitive, can stay in DB for easy updates)
       const promptResult = await pool.query(
         "SELECT value FROM settings WHERE key = 'gemini_extraction_prompt'"
       );
 
-      if (!apiKeyResult.rows[0]?.value?.api_key) {
-        throw new Error('Gemini API key not configured in settings');
-      }
-
-      const apiKey = apiKeyResult.rows[0].value.api_key;
       this.prompt = promptResult.rows[0]?.value?.prompt || this.getDefaultPrompt();
-
       this.genAI = new GoogleGenerativeAI(apiKey);
-      logger.info('Gemini service initialized');
+      logger.info('Gemini service initialized with environment API key');
     } catch (error) {
       logger.error('Failed to initialize Gemini service', {}, error as Error);
       throw error;

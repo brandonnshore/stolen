@@ -30,6 +30,11 @@ class BackgroundRemovalService {
       this.apiKey = process.env.REMOVEBG_API_KEY || '';
       this.rembgEndpoint = process.env.REMBG_ENDPOINT || 'http://localhost:5000';
 
+      // Validate Remove.bg API key if provided (security check)
+      if (this.apiKey && (this.apiKey === 'YOUR_API_KEY_HERE' || this.apiKey.length < 10)) {
+        throw new Error('Remove.bg API key not properly configured. Please set a valid REMOVEBG_API_KEY in environment variables.');
+      }
+
       // Check if self-hosted service is available
       if (this.rembgEndpoint) {
         try {

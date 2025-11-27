@@ -5,6 +5,10 @@ import { User } from '../models/types';
 import { ApiError } from '../middleware/errorHandler';
 import { env } from '../config/env';
 
+// Security constant: bcrypt salt rounds for password hashing
+// Higher rounds = more secure but slower (12 is a good balance for 2024)
+const BCRYPT_ROUNDS = 12;
+
 /**
  * Register a new user account
  * @param email - User's email address
@@ -24,8 +28,8 @@ export const registerUser = async (email: string, password: string, name: string
     throw new ApiError(400, 'User already exists');
   }
 
-  // Hash password
-  const password_hash = await bcrypt.hash(password, 10);
+  // Hash password with secure salt rounds
+  const password_hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
   // Create user
   const result = await pool.query(
@@ -38,8 +42,13 @@ export const registerUser = async (email: string, password: string, name: string
   return result.rows[0];
 };
 
+// Dummy hash for timing attack prevention
+// Pre-computed bcrypt hash to ensure consistent timing even when user doesn't exist
+const DUMMY_HASH = '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5NU7RW/tIIiTu';
+
 /**
  * Authenticate user with email and password
+ * Implements timing attack protection by always running bcrypt comparison
  * @param email - User's email address
  * @param password - User's password
  * @returns Object containing user data and JWT token
@@ -52,16 +61,14 @@ export const loginUser = async (email: string, password: string): Promise<{ user
     [email]
   );
 
-  if (result.rows.length === 0) {
-    throw new ApiError(401, 'Invalid credentials');
-  }
-
+  // Always run bcrypt to prevent timing attacks
+  // If user doesn't exist, compare against dummy hash to maintain consistent timing
   const user = result.rows[0];
+  const hashToCompare = user?.password_hash || DUMMY_HASH;
+  const isValid = await bcrypt.compare(password, hashToCompare);
 
-  // Verify password
-  const isValid = await bcrypt.compare(password, user.password_hash);
-
-  if (!isValid) {
+  // Check if user exists and password is valid
+  if (!user || !isValid) {
     throw new ApiError(401, 'Invalid credentials');
   }
 
@@ -114,7 +121,7 @@ export const syncOAuthUser = async (email: string, name: string, supabaseId: str
 
   if (existingUser.rows.length === 0) {
     // Create new OAuth user with a hashed random password they'll never use
-    const oauthPassword = await bcrypt.hash(`oauth-${supabaseId}-${Date.now()}`, 10);
+    const oauthPassword = await bcrypt.hash(`oauth-${supabaseId}-${Date.now()}`, BCRYPT_ROUNDS);
 
     const result = await pool.query(
       `INSERT INTO users (email, password_hash, name, role)
