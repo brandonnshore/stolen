@@ -8,4 +8,4 @@ cmds = ["cd backend && npm ci"]
 cmds = ["cd backend && npm run build"]
 
 [start]
-cmd = "node dist/scripts/runMigrations.js && node dist/index.js"
+cmd = "cd backend && node dist/scripts/runMigrations.js && node dist/index.js"
