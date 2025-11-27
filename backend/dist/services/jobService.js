@@ -12,6 +12,7 @@ const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const sharp_1 = __importDefault(require("sharp"));
 const logger_1 = require("../utils/logger");
+const workerManager_1 = require("../utils/workerManager");
 /**
  * JobService - Manages logo extraction jobs using BullMQ
  */
@@ -58,6 +59,9 @@ class JobService {
                     count: 500 // Keep max 500 most recent failed jobs
                 }
             });
+            // Start worker if not already running (on-demand worker)
+            // Worker will auto-exit after 5 minutes idle to save Redis costs
+            (0, workerManager_1.ensureWorkerRunning)();
             logger_1.logger.info('Job created', { jobId });
             return jobId;
         }

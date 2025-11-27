@@ -38,7 +38,9 @@ healthcheckTimeout = 100
 
 [services.backend]
 # Service-specific configuration
-startCommand = "node dist/scripts/runMigrations.js && node dist/index.js & node dist/workers/extractionWorker.js"
+# REMOVED WORKER from startup to prevent constant Redis polling
+# Worker will be started on-demand when jobs are added
+startCommand = "node dist/scripts/runMigrations.js && node dist/index.js"
 
 # Environment variables (set in Railway dashboard or CLI)
 # Required:

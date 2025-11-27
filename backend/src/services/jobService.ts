@@ -7,6 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
 import { logger } from '../utils/logger';
+import { ensureWorkerRunning } from '../utils/workerManager';
 
 interface CreateJobParams {
   userId?: string;
@@ -91,6 +92,10 @@ class JobService {
           }
         }
       );
+
+      // Start worker if not already running (on-demand worker)
+      // Worker will auto-exit after 5 minutes idle to save Redis costs
+      ensureWorkerRunning();
 
       logger.info('Job created', { jobId });
       return jobId;
