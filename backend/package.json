@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/index.ts",
     "build": "tsc && cp -r public dist/ && cp -r migrations dist/",
-    "start": "node dist/scripts/runMigrations.js && node dist/index.js & node dist/workers/extractionWorker.js",
+    "start": "node dist/scripts/runMigrations.js && node dist/index.js",
+    "start:worker": "node dist/workers/extractionWorker.js",
     "migrate": "npx tsx src/scripts/runMigrations.ts",
     "migrate:create": "node -r ts-node/register migrations/create.ts",
     "migrate:r2": "npx tsx src/scripts/migrateToR2.ts",
