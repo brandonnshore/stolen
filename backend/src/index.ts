@@ -10,7 +10,8 @@ import { env } from './config/env';
 import { logger } from './utils/logger';
 import { closePool } from './config/database';
 import { closeRedis } from './config/redis';
-import { initSentry, sentryRequestHandler, sentryTracingHandler, sentryErrorHandler } from './config/sentry';
+// TEMP DISABLED: Sentry causing build failures with v10 API changes
+// import { initSentry, sentryRequestHandler, sentryTracingHandler, sentryErrorHandler } from './config/sentry';
 
 // Import routes
 import authRoutes from './routes/auth';
@@ -33,17 +34,19 @@ import { initializeStorage } from './services/supabaseStorage';
 
 const app: Application = express();
 
+// TEMP DISABLED: Sentry causing build failures with v10 API changes
 // Initialize Sentry - must be done before other middleware
-initSentry(app);
+// initSentry(app);
 
 // Trust proxy - Railway uses a reverse proxy (one hop)
 app.set('trust proxy', 1);
 
+// TEMP DISABLED: Sentry causing build failures with v10 API changes
 // Sentry request handler - must be the first middleware
-app.use(sentryRequestHandler());
+// app.use(sentryRequestHandler());
 
 // Sentry tracing handler - captures transactions
-app.use(sentryTracingHandler());
+// app.use(sentryTracingHandler());
 
 // Security middleware - Enhanced Helmet configuration with comprehensive security headers
 app.use(helmet({
@@ -324,8 +327,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/designs', designRoutes);
 app.use('/api/jobs', jobRoutes);
 
+// TEMP DISABLED: Sentry causing build failures with v10 API changes
 // Error handling - Sentry error handler must come before custom error handlers
-app.use(sentryErrorHandler());
+// app.use(sentryErrorHandler());
 app.use(notFound);
 app.use(errorHandler);
 
