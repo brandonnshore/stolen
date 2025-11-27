@@ -10,6 +10,10 @@ let redisClient: Redis | null = null;
 
 export function getRedisClient(): Redis {
   if (!redisClient) {
+    if (!env.REDIS_URL) {
+      throw new Error('REDIS_URL environment variable is not set');
+    }
+
     redisClient = new Redis(env.REDIS_URL, {
       maxRetriesPerRequest: 3,
       enableReadyCheck: true,
