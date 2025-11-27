@@ -1,7 +1,8 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import compression from 'compression';
+// TEMP DISABLED: compression package not installed (Agent #4 added import but not package)
+// import compression from 'compression';
 import { rateLimit } from 'express-rate-limit';
 import path from 'path';
 
@@ -118,22 +119,23 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+// TEMP DISABLED: compression package not installed (Agent #4 added code but not package)
 // Compression middleware - compress all responses
-app.use(compression({
-  // Compress all responses
-  filter: (req, res) => {
-    if (req.headers['x-no-compression']) {
-      // Don't compress responses if this request header is present
-      return false;
-    }
-    // Fallback to standard compression filter
-    return compression.filter(req, res);
-  },
-  // Compression level (0-9, 6 is default, 9 is best compression)
-  level: 6,
-  // Minimum response size to compress (bytes)
-  threshold: 1024,
-}));
+// app.use(compression({
+//   // Compress all responses
+//   filter: (req, res) => {
+//     if (req.headers['x-no-compression']) {
+//       // Don't compress responses if this request header is present
+//       return false;
+//     }
+//     // Fallback to standard compression filter
+//     return compression.filter(req, res);
+//   },
+//   // Compression level (0-9, 6 is default, 9 is best compression)
+//   level: 6,
+//   // Minimum response size to compress (bytes)
+//   threshold: 1024,
+// }));
 
 // Rate limiting
 const limiter = rateLimit({
