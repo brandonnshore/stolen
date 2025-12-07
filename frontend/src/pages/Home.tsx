@@ -156,14 +156,14 @@ export default function Home() {
             {trophyItems.map((item, index) => (
               <div
                 key={index}
-                className="polaroid-tilt bg-white dark:bg-gray-950 p-10 shadow-lg border dark:border-gray-800 rounded-lg"
+                className="polaroid-tilt bg-white dark:bg-gray-950 p-5 shadow-lg border dark:border-gray-800 rounded-lg"
               >
                 {/* Before & After Images with Arrow */}
-                <div className="mb-8">
-                  <div className="grid grid-cols-[1fr,auto,1fr] gap-8 items-center">
+                <div className="mb-4">
+                  <div className="grid grid-cols-[1fr,auto,1fr] gap-6 items-center">
                     {/* Before Image - "The photo I uploaded" */}
                     <div className="flex flex-col">
-                      <div className="aspect-square bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden mb-3">
+                      <div className="aspect-square bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden mb-2">
                         <img
                           src={item.beforeImage}
                           alt="Original photo"
@@ -198,7 +198,7 @@ export default function Home() {
 
                     {/* After Image - "What Stolen Tee made" */}
                     <div className="flex flex-col">
-                      <div className="aspect-square bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden mb-3">
+                      <div className="aspect-square bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden mb-2">
                         <img
                           src={item.afterImage}
                           alt="Stolen Tee result"
