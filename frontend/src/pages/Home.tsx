@@ -152,15 +152,15 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
             {trophyItems.map((item, index) => (
               <div
                 key={index}
-                className="polaroid-tilt bg-white dark:bg-gray-950 p-6 shadow-lg border dark:border-gray-800 rounded-lg"
+                className="polaroid-tilt bg-white dark:bg-gray-950 p-8 shadow-lg border dark:border-gray-800 rounded-lg"
               >
                 {/* Before & After Images with Arrow */}
-                <div className="mb-4">
-                  <div className="grid grid-cols-[1fr,auto,1fr] gap-4 items-center">
+                <div className="mb-6">
+                  <div className="grid grid-cols-[1fr,auto,1fr] gap-6 items-center">
                     {/* Before Image - "The photo I uploaded" */}
                     <div className="flex flex-col">
                       <div className="aspect-square bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden mb-2">
@@ -174,7 +174,7 @@ export default function Home() {
                           }}
                         />
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
                         Original photo
                       </p>
                     </div>
@@ -182,7 +182,7 @@ export default function Home() {
                     {/* Arrow */}
                     <div className="flex items-center justify-center">
                       <svg
-                        className="w-6 h-6 text-gray-400 dark:text-gray-600"
+                        className="w-8 h-8 text-gray-400 dark:text-gray-600"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -209,7 +209,7 @@ export default function Home() {
                           }}
                         />
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
                         Stolen Tee made
                       </p>
                     </div>
@@ -218,7 +218,7 @@ export default function Home() {
 
                 {/* Title */}
                 <div className="text-center">
-                  <div className="font-medium text-gray-900 dark:text-white text-sm">
+                  <div className="font-medium text-gray-900 dark:text-white text-base">
                     {item.title}
                   </div>
                 </div>
