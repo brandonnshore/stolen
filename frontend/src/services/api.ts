@@ -265,4 +265,57 @@ export const jobAPI = {
   },
 };
 
+// Admin API (requires admin authentication)
+export const adminAPI = {
+  // Get all orders with complete details
+  getAllOrders: async (filters?: { payment_status?: string; production_status?: string }) => {
+    const params = new URLSearchParams();
+    if (filters?.payment_status) params.append('payment_status', filters.payment_status);
+    if (filters?.production_status) params.append('production_status', filters.production_status);
+
+    const queryString = params.toString();
+    const url = `/admin/orders${queryString ? `?${queryString}` : ''}`;
+
+    const response = await api.get(url);
+    return response.data.data.orders;
+  },
+
+  // Get single order by ID with full details
+  getOrderById: async (orderId: string) => {
+    const response = await api.get(`/admin/orders/${orderId}`);
+    return response.data.data.order;
+  },
+
+  // Update order production status
+  updateOrderStatus: async (
+    orderId: string,
+    status: string,
+    options?: {
+      tracking_number?: string;
+      carrier?: string;
+      internal_notes?: string;
+    }
+  ) => {
+    const response = await api.patch(`/admin/orders/${orderId}/status`, {
+      status,
+      ...options,
+    });
+    return response.data.data.order;
+  },
+
+  // Convenience method to add tracking number
+  addTrackingNumber: async (
+    orderId: string,
+    trackingNumber: string,
+    carrier?: string
+  ) => {
+    const response = await api.patch(`/admin/orders/${orderId}/status`, {
+      status: 'shipped',
+      tracking_number: trackingNumber,
+      carrier: carrier || 'USPS',
+    });
+    return response.data.data.order;
+  },
+};
+
 export default api;
