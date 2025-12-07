@@ -36,7 +36,7 @@ export const registerUser = async (email: string, password: string, name: string
     `INSERT INTO users (email, password_hash, name, role)
      VALUES ($1, $2, $3, $4)
      RETURNING id, email, name, role, created_at, updated_at`,
-    [email, password_hash, name, 'fulfillment']
+    [email, password_hash, name, 'customer']
   );
 
   return result.rows[0];
@@ -127,7 +127,7 @@ export const syncOAuthUser = async (email: string, name: string, supabaseId: str
       `INSERT INTO users (email, password_hash, name, role)
        VALUES ($1, $2, $3, $4)
        RETURNING id, email, name, role, created_at, updated_at`,
-      [email, oauthPassword, name, 'fulfillment']
+      [email, oauthPassword, name, 'customer']
     );
 
     user = result.rows[0];
