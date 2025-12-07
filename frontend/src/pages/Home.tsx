@@ -51,14 +51,26 @@ export default function Home() {
   const productColors = ['#000000', '#1e3a8a', '#6b7280', '#ffffff', '#7c2d12'];
 
   const trophyItems = [
-    { title: 'Coachella Find', designer: '@vintage_hunter', status: 'CLASSIFIED' },
-    { title: 'Supreme Drop', designer: '@streetwear_king', status: 'EXTRACTED' },
-    { title: 'Band Tee \'85', designer: '@retro_collector', status: 'STOLEN' },
-    { title: 'Skate Logo', designer: '@urban_style', status: 'CLASSIFIED' },
-    { title: 'Nike Vintage', designer: '@sneaker_head', status: 'EXTRACTED' },
-    { title: 'Concert Merch', designer: '@music_fan', status: 'STOLEN' },
-    { title: 'Japanese Street', designer: '@tokyo_vibes', status: 'CLASSIFIED' },
-    { title: 'Graffiti Art', designer: '@street_artist', status: 'EXTRACTED' },
+    {
+      title: 'Example 1',
+      beforeImage: '/assets/trophy/before-1.jpg', // Placeholder - replace with actual image
+      afterImage: '/assets/trophy/after-1.jpg',   // Placeholder - replace with actual image
+    },
+    {
+      title: 'Example 2',
+      beforeImage: '/assets/trophy/before-2.jpg', // Placeholder - replace with actual image
+      afterImage: '/assets/trophy/after-2.jpg',   // Placeholder - replace with actual image
+    },
+    {
+      title: 'Example 3',
+      beforeImage: '/assets/trophy/before-3.jpg', // Placeholder - replace with actual image
+      afterImage: '/assets/trophy/after-3.jpg',   // Placeholder - replace with actual image
+    },
+    {
+      title: 'Example 4',
+      beforeImage: '/assets/trophy/before-4.jpg', // Placeholder - replace with actual image
+      afterImage: '/assets/trophy/after-4.jpg',   // Placeholder - replace with actual image
+    },
   ];
 
   return (
@@ -140,33 +152,75 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {trophyItems.map((item, index) => (
               <div
                 key={index}
-                className="polaroid-tilt bg-white dark:bg-gray-950 p-4 shadow-lg border dark:border-gray-800"
+                className="polaroid-tilt bg-white dark:bg-gray-950 p-6 shadow-lg border dark:border-gray-800 rounded-lg"
               >
-                {/* Polaroid Image Area */}
-                <div className="aspect-square bg-gray-100 dark:bg-gray-900 mb-3 relative overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-600">
-                    <div className="text-center">
-                      <div className="text-6xl mb-2">👕</div>
-                      <div className="text-sm font-medium">{item.title}</div>
+                {/* Before & After Images with Arrow */}
+                <div className="mb-4">
+                  <div className="grid grid-cols-[1fr,auto,1fr] gap-4 items-center">
+                    {/* Before Image - "The photo I uploaded" */}
+                    <div className="flex flex-col">
+                      <div className="aspect-square bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden mb-2">
+                        <img
+                          src={item.beforeImage}
+                          alt="Original photo"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback to placeholder if image doesn't exist
+                            e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f3f4f6" width="200" height="200"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="14" fill="%239ca3af"%3EBefore%3C/text%3E%3C/svg%3E';
+                          }}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                        Original photo
+                      </p>
                     </div>
-                  </div>
 
-                  {/* Stamp Overlay */}
-                  <div className="absolute top-3 right-3">
-                    <div className="stamp">
-                      {item.status}
+                    {/* Arrow */}
+                    <div className="flex items-center justify-center">
+                      <svg
+                        className="w-6 h-6 text-gray-400 dark:text-gray-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </div>
+
+                    {/* After Image - "What Stolen Tee made" */}
+                    <div className="flex flex-col">
+                      <div className="aspect-square bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden mb-2">
+                        <img
+                          src={item.afterImage}
+                          alt="Stolen Tee result"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback to placeholder if image doesn't exist
+                            e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f3f4f6" width="200" height="200"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="14" fill="%239ca3af"%3EAfter%3C/text%3E%3C/svg%3E';
+                          }}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                        Stolen Tee made
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Polaroid Caption */}
+                {/* Title */}
                 <div className="text-center">
-                  <div className="font-medium text-gray-900 dark:text-white text-sm mb-1">{item.title}</div>
-                  <div className="text-gray-500 dark:text-gray-400 text-xs">{item.designer}</div>
+                  <div className="font-medium text-gray-900 dark:text-white text-sm">
+                    {item.title}
+                  </div>
                 </div>
               </div>
             ))}
