@@ -52,24 +52,20 @@ export default function Home() {
 
   const trophyItems = [
     {
-      title: 'Example 1',
-      beforeImage: '/assets/trophy/before-1.jpg', // Placeholder - replace with actual image
-      afterImage: '/assets/trophy/after-1.jpg',   // Placeholder - replace with actual image
+      beforeImage: '/assets/trophy/before-1.jpg',
+      afterImage: '/assets/trophy/after-1.jpg',
     },
     {
-      title: 'Example 2',
-      beforeImage: '/assets/trophy/before-2.jpg', // Placeholder - replace with actual image
-      afterImage: '/assets/trophy/after-2.jpg',   // Placeholder - replace with actual image
+      beforeImage: '/assets/trophy/before-2.jpg',
+      afterImage: '/assets/trophy/after-2.jpg',
     },
     {
-      title: 'Example 3',
-      beforeImage: '/assets/trophy/before-3.jpg', // Placeholder - replace with actual image
-      afterImage: '/assets/trophy/after-3.jpg',   // Placeholder - replace with actual image
+      beforeImage: '/assets/trophy/before-3.jpg',
+      afterImage: '/assets/trophy/after-3.jpg',
     },
     {
-      title: 'Example 4',
-      beforeImage: '/assets/trophy/before-4.jpg', // Placeholder - replace with actual image
-      afterImage: '/assets/trophy/after-4.jpg',   // Placeholder - replace with actual image
+      beforeImage: '/assets/trophy/before-4.jpg',
+      afterImage: '/assets/trophy/after-4.jpg',
     },
   ];
 
@@ -174,9 +170,11 @@ export default function Home() {
                           }}
                         />
                       </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                        Original photo
-                      </p>
+                      <div className="flex justify-center mt-2">
+                        <div className="stamp">
+                          ORIGINAL
+                        </div>
+                      </div>
                     </div>
 
                     {/* Arrow */}
@@ -209,17 +207,12 @@ export default function Home() {
                           }}
                         />
                       </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                        Stolen Tee made
-                      </p>
+                      <div className="flex justify-center mt-2">
+                        <div className="stamp">
+                          STOLEN
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* Title */}
-                <div className="text-center">
-                  <div className="font-medium text-gray-900 dark:text-white text-base">
-                    {item.title}
                   </div>
                 </div>
               </div>
