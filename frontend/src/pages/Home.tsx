@@ -152,18 +152,18 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
             {trophyItems.map((item, index) => (
               <div
                 key={index}
-                className="polaroid-tilt bg-white dark:bg-gray-950 p-8 shadow-lg border dark:border-gray-800 rounded-lg"
+                className="polaroid-tilt bg-white dark:bg-gray-950 p-10 shadow-lg border dark:border-gray-800 rounded-lg"
               >
                 {/* Before & After Images with Arrow */}
-                <div className="mb-6">
-                  <div className="grid grid-cols-[1fr,auto,1fr] gap-6 items-center">
+                <div className="mb-8">
+                  <div className="grid grid-cols-[1fr,auto,1fr] gap-8 items-center">
                     {/* Before Image - "The photo I uploaded" */}
                     <div className="flex flex-col">
-                      <div className="aspect-square bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden mb-2">
+                      <div className="aspect-square bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden mb-3">
                         <img
                           src={item.beforeImage}
                           alt="Original photo"
@@ -182,7 +182,7 @@ export default function Home() {
                     {/* Arrow */}
                     <div className="flex items-center justify-center">
                       <svg
-                        className="w-8 h-8 text-gray-400 dark:text-gray-600"
+                        className="w-10 h-10 text-gray-400 dark:text-gray-600"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -198,7 +198,7 @@ export default function Home() {
 
                     {/* After Image - "What Stolen Tee made" */}
                     <div className="flex flex-col">
-                      <div className="aspect-square bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden mb-2">
+                      <div className="aspect-square bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden mb-3">
                         <img
                           src={item.afterImage}
                           alt="Stolen Tee result"
