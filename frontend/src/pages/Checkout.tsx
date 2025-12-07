@@ -9,6 +9,8 @@ import { trackPurchase, trackBeginCheckout } from '../utils/analytics';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
+const SHIPPING_COST = 4.98;
+
 function CheckoutForm() {
   const navigate = useNavigate();
   const stripe = useStripe();
@@ -127,8 +129,8 @@ function CheckoutForm() {
         billing_address: shippingAddress,
         subtotal: getTotalPrice(),
         tax: 0,
-        shipping: 0,
-        total: getTotalPrice(),
+        shipping: SHIPPING_COST,
+        total: getTotalPrice() + SHIPPING_COST,
       };
 
       const { order, client_secret } = await orderAPI.create(orderData);
@@ -189,8 +191,8 @@ function CheckoutForm() {
         billing_address: shippingAddress,
         subtotal: getTotalPrice(),
         tax: 0,
-        shipping: 0,
-        total: getTotalPrice(),
+        shipping: SHIPPING_COST,
+        total: getTotalPrice() + SHIPPING_COST,
       };
 
       const { order, client_secret } = await orderAPI.create(orderData);
@@ -453,7 +455,7 @@ function CheckoutForm() {
             </div>
             <div className="flex justify-between text-gray-600">
               <span>Shipping</span>
-              <span>FREE</span>
+              <span>${SHIPPING_COST.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-gray-600">
               <span>Tax</span>
@@ -461,7 +463,7 @@ function CheckoutForm() {
             </div>
             <div className="border-t pt-2 flex justify-between font-bold text-lg">
               <span>Total</span>
-              <span className="text-primary-600">${getTotalPrice().toFixed(2)}</span>
+              <span className="text-primary-600">${(getTotalPrice() + SHIPPING_COST).toFixed(2)}</span>
             </div>
           </div>
 

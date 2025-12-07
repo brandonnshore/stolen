@@ -31,7 +31,7 @@ const registerUser = async (email, password, name) => {
     // Create user
     const result = await database_1.default.query(`INSERT INTO users (email, password_hash, name, role)
      VALUES ($1, $2, $3, $4)
-     RETURNING id, email, name, role, created_at, updated_at`, [email, password_hash, name, 'fulfillment']);
+     RETURNING id, email, name, role, created_at, updated_at`, [email, password_hash, name, 'customer']);
     return result.rows[0];
 };
 exports.registerUser = registerUser;
@@ -98,7 +98,7 @@ const syncOAuthUser = async (email, name, supabaseId) => {
         const oauthPassword = await bcrypt_1.default.hash(`oauth-${supabaseId}-${Date.now()}`, BCRYPT_ROUNDS);
         const result = await database_1.default.query(`INSERT INTO users (email, password_hash, name, role)
        VALUES ($1, $2, $3, $4)
-       RETURNING id, email, name, role, created_at, updated_at`, [email, oauthPassword, name, 'fulfillment']);
+       RETURNING id, email, name, role, created_at, updated_at`, [email, oauthPassword, name, 'customer']);
         user = result.rows[0];
     }
     else {

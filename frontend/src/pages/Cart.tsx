@@ -190,7 +190,7 @@ export default function Cart() {
                 </div>
                 <div className="flex justify-between text-sm sm:text-lg">
                   <span className="text-gray-600">Shipping</span>
-                  <span className="text-gray-600">TBD</span>
+                  <span className="text-gray-600">$4.98</span>
                 </div>
                 <div className="flex justify-between text-sm sm:text-lg">
                   <span className="text-gray-600">Tax</span>

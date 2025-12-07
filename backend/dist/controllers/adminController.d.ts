@@ -3,5 +3,6 @@ export declare const createProduct: (req: Request, res: Response, next: NextFunc
 export declare const updateProduct: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 export declare const deleteProduct: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 export declare const getAllOrders: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const getOrderById: (req: Request, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>> | undefined>;
 export declare const updateOrderStatus: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 //# sourceMappingURL=adminController.d.ts.map

@@ -13,6 +13,7 @@ router.put('/products/:id', adminController_1.updateProduct);
 router.delete('/products/:id', adminController_1.deleteProduct);
 // Order management
 router.get('/orders', adminController_1.getAllOrders);
+router.get('/orders/:id', adminController_1.getOrderById);
 router.patch('/orders/:id/status', adminController_1.updateOrderStatus);
 exports.default = router;
 //# sourceMappingURL=admin.js.map

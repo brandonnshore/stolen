@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { createProduct as createProductService, updateProduct as updateProductService, deleteProduct as deleteProductService } from '../services/productService';
 import { getAllOrders as getAllOrdersService, updateOrderProductionStatus } from '../services/orderService';
+import { getAllOrdersForAdmin, getOrderByIdForAdmin, updateOrderProductionStatusAdmin } from '../services/adminOrderService';
 
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -46,7 +47,8 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
 export const getAllOrders = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const filters = req.query;
-    const orders = await getAllOrdersService(filters);
+    // Use enhanced admin service with complete data joins
+    const orders = await getAllOrdersForAdmin(filters);
 
     res.status(200).json({
       success: true,
@@ -57,12 +59,40 @@ export const getAllOrders = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
+export const getOrderById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const order = await getOrderByIdForAdmin(id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: { order }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateOrderStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const { status, tracking_number } = req.body;
+    const { status, tracking_number, carrier, internal_notes } = req.body;
 
-    const order = await updateOrderProductionStatus(id, status, tracking_number);
+    // Use enhanced admin service
+    const order = await updateOrderProductionStatusAdmin(
+      id,
+      status,
+      tracking_number,
+      carrier,
+      internal_notes
+    );
 
     res.status(200).json({
       success: true,

@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleStripeWebhook = exports.handleProductionUpdate = void 0;
 const stripe_1 = __importDefault(require("stripe"));
 const orderService_1 = require("../services/orderService");
+const emailService_1 = require("../services/emailService");
 const logger_1 = require("../utils/logger");
 const env_1 = require("../config/env");
 const stripe = new stripe_1.default(env_1.env.STRIPE_SECRET_KEY, {
@@ -55,6 +56,18 @@ const handleStripeWebhook = async (req, res, next) => {
                     logger_1.logger.info('Order payment status updated to paid', {
                         order_id: paymentIntent.metadata.order_id
                     });
+                    // Send order confirmation email
+                    try {
+                        const order = await (0, orderService_1.getOrderById)(paymentIntent.metadata.order_id);
+                        await (0, emailService_1.sendOrderConfirmationEmail)(order);
+                    }
+                    catch (emailError) {
+                        logger_1.logger.error('Failed to send confirmation email', {
+                            error: emailError,
+                            order_id: paymentIntent.metadata.order_id
+                        });
+                        // Don't fail the webhook if email fails
+                    }
                 }
                 break;
             }

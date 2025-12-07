@@ -5,6 +5,7 @@ import {
   updateProduct,
   deleteProduct,
   getAllOrders,
+  getOrderById,
   updateOrderStatus,
 } from '../controllers/adminController';
 
@@ -21,6 +22,7 @@ router.delete('/products/:id', deleteProduct);
 
 // Order management
 router.get('/orders', getAllOrders);
+router.get('/orders/:id', getOrderById);
 router.patch('/orders/:id/status', updateOrderStatus);
 
 export default router;

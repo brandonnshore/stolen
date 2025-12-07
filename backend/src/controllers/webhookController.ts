@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import Stripe from 'stripe';
-import { updateOrderPaymentStatus } from '../services/orderService';
+import { updateOrderPaymentStatus, getOrderById } from '../services/orderService';
+import { sendOrderConfirmationEmail } from '../services/emailService';
 import { logger } from '../utils/logger';
 import { env } from '../config/env';
 
@@ -63,6 +64,18 @@ export const handleStripeWebhook = async (req: Request, res: Response, next: Nex
           logger.info('Order payment status updated to paid', {
             order_id: paymentIntent.metadata.order_id
           });
+
+          // Send order confirmation email
+          try {
+            const order = await getOrderById(paymentIntent.metadata.order_id);
+            await sendOrderConfirmationEmail(order);
+          } catch (emailError) {
+            logger.error('Failed to send confirmation email',{
+              error: emailError,
+              order_id: paymentIntent.metadata.order_id
+            });
+            // Don't fail the webhook if email fails
+          }
         }
         break;
       }

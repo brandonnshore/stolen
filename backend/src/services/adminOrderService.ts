@@ -1,5 +1,7 @@
 import pool from '../config/database';
 import { ApiError } from '../middleware/errorHandler';
+import { sendOrderStatusUpdateEmail } from './emailService';
+import { logger } from '../utils/logger';
 
 /**
  * Enhanced Admin Order Service
@@ -419,6 +421,13 @@ export const updateOrderProductionStatusAdmin = async (
   carrier?: string,
   internalNotes?: string
 ): Promise<AdminOrder> => {
+  // Get current order to track status change
+  const currentOrderResult = await pool.query(
+    'SELECT production_status FROM orders WHERE id = $1',
+    [orderId]
+  );
+  const oldStatus = currentOrderResult.rows[0]?.production_status || '';
+
   const fields = ['production_status = $1'];
   const values: any[] = [status];
   let paramCount = 2;
@@ -469,6 +478,18 @@ export const updateOrderProductionStatusAdmin = async (
   const updatedOrder = await getOrderByIdForAdmin(orderId);
   if (!updatedOrder) {
     throw new ApiError(404, 'Order not found after update');
+  }
+
+  // Send status update email (async, don't wait)
+  if (oldStatus !== status) {
+    sendOrderStatusUpdateEmail(updatedOrder, oldStatus).catch((error) => {
+      logger.error('Failed to send status update email', {
+        error,
+        order_id: orderId,
+        old_status: oldStatus,
+        new_status: status
+      });
+    });
   }
 
   return updatedOrder;

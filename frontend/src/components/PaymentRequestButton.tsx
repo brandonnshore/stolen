@@ -34,10 +34,10 @@ export default function PaymentRequestButton({
       requestShipping: true,
       shippingOptions: [
         {
-          id: 'free-shipping',
-          label: 'Free Shipping',
+          id: 'standard-shipping',
+          label: 'Standard Shipping',
           detail: 'Arrives in 5-7 business days',
-          amount: 0,
+          amount: 498, // $4.98 in cents
         },
       ],
     });
