@@ -6,7 +6,6 @@ import { Product } from '../types';
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('All');
   const [heistCount, setHeistCount] = useState(12847);
 
   useEffect(() => {
@@ -47,8 +46,18 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  const categories = ['T-Shirts', 'Hoodies', 'Sportswear', 'Hats & Bags', 'Women'];
-  const productColors = ['#000000', '#1e3a8a', '#6b7280', '#ffffff', '#7c2d12'];
+  // Color mapping for product variants
+  const colorHexMap: { [key: string]: string } = {
+    'Black': '#000000',
+    'White': '#ffffff',
+    'Gray': '#6b7280',
+    'Blue': '#1e3a8a',
+    'Navy': '#1e3a8a',
+    'Brown': '#7c2d12',
+    'Red': '#dc2626',
+    'Green': '#16a34a',
+    'Yellow': '#eab308',
+  };
 
   const trophyItems = [
     {
@@ -232,31 +241,6 @@ export default function Home() {
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
               Upload any design. Our AI extracts it perfectly and prints it on these premium garments at 300 DPI quality.
             </p>
-
-            {/* Category Filters */}
-            <div className="flex flex-wrap justify-center gap-2 mb-4 px-4">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${selectedCategory === category
-                    ? 'bg-black dark:bg-white text-white dark:text-black'
-                    : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
-                    }`}
-                >
-                  {category}
-                </button>
-              ))}
-              <button
-                onClick={() => setSelectedCategory('All')}
-                className={`px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${selectedCategory === 'All'
-                  ? 'bg-black dark:bg-white text-white dark:text-black'
-                  : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900'
-                  }`}
-              >
-                All products
-              </button>
-            </div>
           </div>
 
           {/* Product Grid */}
@@ -298,16 +282,19 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Color dots */}
-                  <div className="flex justify-center gap-1.5 mb-2">
-                    {productColors.map((color, i) => (
-                      <div
-                        key={i}
-                        className="w-3 h-3 rounded-full border border-gray-300"
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                  </div>
+                  {/* Color dots - only show available colors */}
+                  {product.variants && product.variants.length > 0 && (
+                    <div className="flex justify-center gap-1.5 mb-2">
+                      {[...new Set(product.variants.map(v => v.color))].map((color) => (
+                        <div
+                          key={color}
+                          className="w-3 h-3 rounded-full border border-gray-300"
+                          style={{ backgroundColor: colorHexMap[color] || '#6b7280' }}
+                          title={color}
+                        />
+                      ))}
+                    </div>
+                  )}
 
                   {/* Product info */}
                   <div className="text-center">
