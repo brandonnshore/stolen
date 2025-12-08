@@ -127,6 +127,15 @@ export const priceAPI = {
 
 // Order API
 export const orderAPI = {
+  calculateTax: async (items: any[], shippingAddress: any, shipping: number) => {
+    const response = await api.post('/orders/calculate-tax', {
+      items,
+      shipping_address: shippingAddress,
+      shipping,
+    });
+    return response.data.data;
+  },
+
   create: async (orderData: any) => {
     const response = await api.post('/orders/create', orderData);
     return response.data.data;

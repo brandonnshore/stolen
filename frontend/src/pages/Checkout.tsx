@@ -19,18 +19,13 @@ function CheckoutForm() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [calculatedTax, setCalculatedTax] = useState<number>(0);
+  const [taxLoading, setTaxLoading] = useState(false);
 
   // Real-time validation errors
   const [emailError, setEmailError] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [zipError, setZipError] = useState('');
-
-  // Track begin_checkout event when component mounts
-  useEffect(() => {
-    if (items.length > 0) {
-      trackBeginCheckout(getTotalPrice(), items);
-    }
-  }, []); // Run only once on mount
 
   // Form state
   const [customerInfo, setCustomerInfo] = useState({
@@ -47,6 +42,45 @@ function CheckoutForm() {
     postal_code: '',
     country: 'US',
   });
+
+  // Track begin_checkout event when component mounts
+  useEffect(() => {
+    if (items.length > 0) {
+      trackBeginCheckout(getTotalPrice(), items);
+    }
+  }, []); // Run only once on mount
+
+  // Calculate tax when address is complete
+  const calculateTaxForOrder = async () => {
+    if (!shippingAddress.line1 || !shippingAddress.city || !shippingAddress.state || !shippingAddress.postal_code) {
+      return; // Address not complete yet
+    }
+
+    setTaxLoading(true);
+    try {
+      const itemsForTax = items.map((item) => ({
+        variant_id: item.variantId,
+        quantity: item.quantity,
+        unit_price: item.unitPrice,
+        total_price: item.unitPrice * item.quantity,
+      }));
+
+      const taxData = await orderAPI.calculateTax(itemsForTax, shippingAddress, SHIPPING_COST);
+      setCalculatedTax(taxData.tax || 0);
+    } catch (err) {
+      console.error('Tax calculation error:', err);
+      setCalculatedTax(0); // Fallback to 0 if tax calculation fails
+    } finally {
+      setTaxLoading(false);
+    }
+  };
+
+  // Recalculate tax when address changes
+  useEffect(() => {
+    if (shippingAddress.line1 && shippingAddress.city && shippingAddress.state && shippingAddress.postal_code) {
+      calculateTaxForOrder();
+    }
+  }, [shippingAddress.line1, shippingAddress.city, shippingAddress.state, shippingAddress.postal_code, shippingAddress.country]);
 
   // Validation functions
   const validateEmail = (value: string) => {
@@ -128,9 +162,9 @@ function CheckoutForm() {
         shipping_address: shippingAddress,
         billing_address: shippingAddress,
         subtotal: getTotalPrice(),
-        tax: 0,
+        tax: calculatedTax,
         shipping: SHIPPING_COST,
-        total: getTotalPrice() + SHIPPING_COST,
+        total: getTotalPrice() + SHIPPING_COST + calculatedTax,
       };
 
       const { order, client_secret } = await orderAPI.create(orderData);
@@ -149,7 +183,7 @@ function CheckoutForm() {
         await orderAPI.capturePayment(order.id, paymentIntent.id);
 
         // Track purchase in Google Analytics
-        trackPurchase(order.order_number, getTotalPrice(), items);
+        trackPurchase(order.order_number, getTotalPrice() + SHIPPING_COST + calculatedTax, items);
 
         // Clear cart
         clearCart();
@@ -190,9 +224,9 @@ function CheckoutForm() {
         shipping_address: shippingAddress,
         billing_address: shippingAddress,
         subtotal: getTotalPrice(),
-        tax: 0,
+        tax: calculatedTax,
         shipping: SHIPPING_COST,
-        total: getTotalPrice() + SHIPPING_COST,
+        total: getTotalPrice() + SHIPPING_COST + calculatedTax,
       };
 
       const { order, client_secret } = await orderAPI.create(orderData);
@@ -222,7 +256,7 @@ function CheckoutForm() {
         await orderAPI.capturePayment(order.id, paymentIntent.id);
 
         // Track purchase in Google Analytics
-        trackPurchase(order.order_number, getTotalPrice(), items);
+        trackPurchase(order.order_number, getTotalPrice() + SHIPPING_COST + calculatedTax, items);
 
         // Clear cart
         clearCart();
@@ -394,7 +428,7 @@ function CheckoutForm() {
 
           {/* Apple Pay / Google Pay */}
           <PaymentRequestButton
-            totalAmount={getTotalPrice()}
+            totalAmount={getTotalPrice() + SHIPPING_COST + calculatedTax}
             onPaymentSuccess={handlePaymentRequestPayment}
             disabled={loading}
           />
@@ -459,11 +493,11 @@ function CheckoutForm() {
             </div>
             <div className="flex justify-between text-gray-600">
               <span>Tax</span>
-              <span>$0.00</span>
+              <span>{taxLoading ? 'Calculating...' : `$${calculatedTax.toFixed(2)}`}</span>
             </div>
             <div className="border-t pt-2 flex justify-between font-bold text-lg">
               <span>Total</span>
-              <span className="text-primary-600">${(getTotalPrice() + SHIPPING_COST).toFixed(2)}</span>
+              <span className="text-primary-600">${(getTotalPrice() + SHIPPING_COST + calculatedTax).toFixed(2)}</span>
             </div>
           </div>
 
@@ -472,7 +506,7 @@ function CheckoutForm() {
             disabled={!stripe || loading}
             className="btn-primary w-full"
           >
-            {loading ? 'Processing...' : `Pay $${getTotalPrice().toFixed(2)}`}
+            {loading ? 'Processing...' : `Pay $${(getTotalPrice() + SHIPPING_COST + calculatedTax).toFixed(2)}`}
           </button>
 
           <p className="text-xs text-gray-500 mt-4 text-center">
