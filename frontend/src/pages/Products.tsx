@@ -18,7 +18,11 @@ export default function Products() {
         images: ['/assets/hoodie-black-front.png'],
         status: 'active' as const,
         variants: [
-          { id: '2', product_id: '2', color: 'Black', size: 'M', sku: 'HOODIE-BLK-M', base_price: 35.99, stock_level: 100 }
+          { id: '6', product_id: '2', color: 'Black', size: 'M', sku: 'HOODIE-BLK-M', base_price: 35.99, stock_level: 100 },
+          { id: '7', product_id: '2', color: 'White', size: 'M', sku: 'HOODIE-WHT-M', base_price: 35.99, stock_level: 100 },
+          { id: '8', product_id: '2', color: 'Gray', size: 'M', sku: 'HOODIE-GRY-M', base_price: 35.99, stock_level: 100 },
+          { id: '9', product_id: '2', color: 'Navy', size: 'M', sku: 'HOODIE-NVY-M', base_price: 35.99, stock_level: 100 },
+          { id: '10', product_id: '2', color: 'Brown', size: 'M', sku: 'HOODIE-BRN-M', base_price: 35.99, stock_level: 100 }
         ]
       },
       {
@@ -29,7 +33,11 @@ export default function Products() {
         images: ['/assets/blank-tshirt.png'],
         status: 'active' as const,
         variants: [
-          { id: '1', product_id: '1', color: 'White', size: 'M', sku: 'TEE-WHT-M', base_price: 12.99, stock_level: 100 }
+          { id: '1', product_id: '1', color: 'Black', size: 'M', sku: 'TEE-BLK-M', base_price: 12.99, stock_level: 100 },
+          { id: '2', product_id: '1', color: 'White', size: 'M', sku: 'TEE-WHT-M', base_price: 12.99, stock_level: 100 },
+          { id: '3', product_id: '1', color: 'Gray', size: 'M', sku: 'TEE-GRY-M', base_price: 12.99, stock_level: 100 },
+          { id: '4', product_id: '1', color: 'Navy', size: 'M', sku: 'TEE-NVY-M', base_price: 12.99, stock_level: 100 },
+          { id: '5', product_id: '1', color: 'Brown', size: 'M', sku: 'TEE-BRN-M', base_price: 12.99, stock_level: 100 }
         ]
       }
     ].sort((a, b) => a.title.localeCompare(b.title));

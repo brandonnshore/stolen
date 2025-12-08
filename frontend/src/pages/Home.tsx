@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Product } from '../types';
+import { productAPI } from '../services/api';
 // import TweetWall3D from '../components/TweetWall3D';
 
 export default function Home() {
@@ -9,8 +10,8 @@ export default function Home() {
   const [heistCount, setHeistCount] = useState(12847);
 
   useEffect(() => {
-    // Hardcoded products - no API calls
-    const products = [
+    // Fallback products in case API fails
+    const fallbackProducts = [
       {
         id: '1',
         title: 'Classic Cotton T-Shirt',
@@ -19,7 +20,11 @@ export default function Home() {
         images: ['/assets/blank-tshirt.png'],
         status: 'active' as const,
         variants: [
-          { id: '1', product_id: '1', color: 'White', size: 'M', sku: 'TEE-WHT-M', base_price: 12.99, stock_level: 100 }
+          { id: '1', product_id: '1', color: 'Black', size: 'M', sku: 'TEE-BLK-M', base_price: 12.99, stock_level: 100 },
+          { id: '2', product_id: '1', color: 'White', size: 'M', sku: 'TEE-WHT-M', base_price: 12.99, stock_level: 100 },
+          { id: '3', product_id: '1', color: 'Gray', size: 'M', sku: 'TEE-GRY-M', base_price: 12.99, stock_level: 100 },
+          { id: '4', product_id: '1', color: 'Navy', size: 'M', sku: 'TEE-NVY-M', base_price: 12.99, stock_level: 100 },
+          { id: '5', product_id: '1', color: 'Brown', size: 'M', sku: 'TEE-BRN-M', base_price: 12.99, stock_level: 100 }
         ]
       },
       {
@@ -30,13 +35,29 @@ export default function Home() {
         images: ['/assets/hoodie-black-front.png'],
         status: 'active' as const,
         variants: [
-          { id: '2', product_id: '2', color: 'Black', size: 'M', sku: 'HOODIE-BLK-M', base_price: 35.99, stock_level: 100 }
+          { id: '6', product_id: '2', color: 'Black', size: 'M', sku: 'HOODIE-BLK-M', base_price: 35.99, stock_level: 100 },
+          { id: '7', product_id: '2', color: 'White', size: 'M', sku: 'HOODIE-WHT-M', base_price: 35.99, stock_level: 100 },
+          { id: '8', product_id: '2', color: 'Gray', size: 'M', sku: 'HOODIE-GRY-M', base_price: 35.99, stock_level: 100 },
+          { id: '9', product_id: '2', color: 'Navy', size: 'M', sku: 'HOODIE-NVY-M', base_price: 35.99, stock_level: 100 },
+          { id: '10', product_id: '2', color: 'Brown', size: 'M', sku: 'HOODIE-BRN-M', base_price: 35.99, stock_level: 100 }
         ]
       }
     ];
 
-    setProducts(products);
+    // Start with fallback data for instant display
+    setProducts(fallbackProducts);
     setLoading(false);
+
+    // Fetch real data from API in background
+    productAPI.getAll()
+      .then(data => {
+        if (data && data.length > 0) {
+          setProducts(data);
+        }
+      })
+      .catch(err => {
+        if (import.meta.env.DEV) console.log('Using fallback data, API unavailable:', err.message);
+      });
 
     // Animate heist counter
     const interval = setInterval(() => {
