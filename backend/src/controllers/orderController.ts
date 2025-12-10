@@ -4,7 +4,7 @@ import { ApiError } from '../middleware/errorHandler';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18'
+  apiVersion: '2023-10-16' as any  // Type assertion to allow newer versions
 });
 
 export const createOrder = async (req: Request, res: Response, next: NextFunction) => {

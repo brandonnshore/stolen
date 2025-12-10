@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/node';
-import { ProfilingIntegration } from '@sentry/profiling-node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { env } from './env';
 
 /**
@@ -27,11 +27,11 @@ export function initSentry(app: any) {
     // Performance Monitoring
     integrations: [
       // Enable HTTP calls tracing
-      new Sentry.Integrations.Http({ tracing: true }),
+      Sentry.httpIntegration({ tracing: true }),
       // Enable Express.js middleware tracing
-      new Sentry.Integrations.Express({ app }),
+      Sentry.expressIntegration({ app }),
       // Enable Profiling
-      new ProfilingIntegration(),
+      nodeProfilingIntegration(),
     ],
 
     // Release tracking
@@ -66,18 +66,18 @@ export function initSentry(app: any) {
 /**
  * Request handler middleware - must be the first middleware
  */
-export const sentryRequestHandler = () => Sentry.Handlers.requestHandler();
+export const sentryRequestHandler = () => Sentry.requestDataIntegration();
 
 /**
  * Tracing middleware - should be after request handler
  */
-export const sentryTracingHandler = () => Sentry.Handlers.tracingHandler();
+export const sentryTracingHandler = () => Sentry.tracingMiddleware();
 
 /**
  * Error handler middleware - must be before other error middleware
  */
-export const sentryErrorHandler = () => Sentry.Handlers.errorHandler({
-  shouldHandleError(error) {
+export const sentryErrorHandler = () => Sentry.errorHandler({
+  shouldHandleError(_error: Error) {
     // Capture all errors with status code 500 or greater
     return true;
   },
