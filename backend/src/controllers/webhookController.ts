@@ -6,7 +6,7 @@ import { logger } from '../utils/logger';
 import { env } from '../config/env';
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16'
+  apiVersion: '2024-12-18.acacia' as any  // Latest API version for proper tax calculations
 });
 
 export const handleProductionUpdate = async (_req: Request, res: Response, next: NextFunction) => {
