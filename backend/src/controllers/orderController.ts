@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { createOrder as createOrderService, getOrderById, getOrderByNumber, getOrderItems, updateOrderPaymentStatus } from '../services/orderService';
 import { ApiError } from '../middleware/errorHandler';
+import { env } from '../config/env';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: '2024-10-28.acacia' as any  // Latest stable API version for proper tax calculations
 });
 
