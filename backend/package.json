@@ -1,6 +1,6 @@
 {
   "name": "stolentee-backend",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Backend API for Stolen Tee AI logo extraction platform",
   "main": "src/index.ts",
   "scripts": {
