@@ -4,9 +4,16 @@ import { ApiError } from '../middleware/errorHandler';
 import { env } from '../config/env';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-10-28.acacia' as any  // Latest stable API version for proper tax calculations
-});
+// Lazy initialization of Stripe to prevent module loading failures
+let stripeClient: Stripe | null = null;
+function getStripe(): Stripe {
+  if (!stripeClient) {
+    stripeClient = new Stripe(env.STRIPE_SECRET_KEY, {
+      apiVersion: '2024-10-28.acacia' as any  // Latest stable API version for proper tax calculations
+    });
+  }
+  return stripeClient;
+}
 
 export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -33,7 +40,7 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
     }
 
     // Create tax calculation
-    const taxCalculation = await stripe.tax.calculations.create({
+    const taxCalculation = await getStripe().tax.calculations.create({
       currency: 'usd',
       line_items: lineItems,
       customer_details: {
@@ -54,7 +61,7 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
 
     const order = await createOrderService(orderData);
 
-    const paymentIntent = await stripe.paymentIntents.create({
+    const paymentIntent = await getStripe().paymentIntents.create({
       amount: Math.round(order.total * 100),
       currency: 'usd',
       metadata: {
@@ -87,7 +94,7 @@ export const capturePayment = async (req: Request, res: Response, next: NextFunc
     }
 
     // Verify payment intent with Stripe
-    const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
+    const paymentIntent = await getStripe().paymentIntents.retrieve(payment_intent_id);
 
     if (paymentIntent.status === 'succeeded') {
       const order = await updateOrderPaymentStatus(id, 'paid', payment_intent_id);
@@ -129,7 +136,7 @@ export const calculateTax = async (req: Request, res: Response, next: NextFuncti
     }
 
     // Create tax calculation
-    const taxCalculation = await stripe.tax.calculations.create({
+    const taxCalculation = await getStripe().tax.calculations.create({
       currency: 'usd',
       line_items: lineItems,
       customer_details: {

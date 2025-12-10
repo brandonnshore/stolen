@@ -1,4 +1,4 @@
-// Railway cache-busting: Force fresh build for tax calculation fix (v1.0.2)
+// Railway cache-busting: Lazy Stripe init to prevent module load failures (v1.0.3)
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
