@@ -10,7 +10,7 @@ const emailService_1 = require("../services/emailService");
 const logger_1 = require("../utils/logger");
 const env_1 = require("../config/env");
 const stripe = new stripe_1.default(env_1.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2023-10-16'
+    apiVersion: '2024-12-18.acacia' // Latest stable API version for proper tax calculations
 });
 const handleProductionUpdate = async (_req, res, next) => {
     try {

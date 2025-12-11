@@ -12,8 +12,6 @@ import { env } from './config/env';
 import { logger } from './utils/logger';
 import { closePool } from './config/database';
 import { closeRedis } from './config/redis';
-// TEMP DISABLED: Sentry v10 API changes need more work - will fix after tax issue resolved
-// import { initSentry, sentryRequestHandler, sentryTracingHandler, sentryErrorHandler } from './config/sentry';
 
 // Import routes
 import authRoutes from './routes/auth';
@@ -36,19 +34,8 @@ import { initializeStorage } from './services/supabaseStorage';
 
 const app: Application = express();
 
-// TEMP DISABLED: Sentry v10 API changes need more work - will fix after tax issue resolved
-// Initialize Sentry - must be done before other middleware
-// initSentry(app);
-
 // Trust proxy - Railway uses a reverse proxy (one hop)
 app.set('trust proxy', 1);
-
-// TEMP DISABLED: Sentry v10 API changes need more work - will fix after tax issue resolved
-// Sentry request handler - must be the first middleware
-// app.use(sentryRequestHandler());
-
-// Sentry tracing handler - captures transactions
-// app.use(sentryTracingHandler());
 
 // Security middleware - Enhanced Helmet configuration with comprehensive security headers
 app.use(helmet({
@@ -330,9 +317,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/designs', designRoutes);
 app.use('/api/jobs', jobRoutes);
 
-// TEMP DISABLED: Sentry v10 API changes need more work - will fix after tax issue resolved
-// Error handling - Sentry error handler must come before custom error handlers
-// app.use(sentryErrorHandler());
+// Error handling
 app.use(notFound);
 app.use(errorHandler);
 

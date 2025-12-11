@@ -3,21 +3,61 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOrder = exports.capturePayment = exports.createOrder = void 0;
+exports.getOrder = exports.calculateTax = exports.capturePayment = exports.createOrder = void 0;
 const orderService_1 = require("../services/orderService");
 const errorHandler_1 = require("../middleware/errorHandler");
+const env_1 = require("../config/env");
 const stripe_1 = __importDefault(require("stripe"));
-const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY || '', {
-    apiVersion: '2023-10-16'
-});
+// Lazy initialization of Stripe to prevent module loading failures
+let stripeClient = null;
+function getStripe() {
+    if (!stripeClient) {
+        stripeClient = new stripe_1.default(env_1.env.STRIPE_SECRET_KEY, {
+            apiVersion: '2024-12-18.acacia' // Latest stable API version for proper tax calculations
+        });
+    }
+    return stripeClient;
+}
 const createOrder = async (req, res, next) => {
     try {
         const orderData = req.body;
         if (!orderData.customer || !orderData.items || !orderData.shipping_address) {
             throw new errorHandler_1.ApiError(400, 'customer, items, and shipping_address are required');
         }
+        // Calculate tax using Stripe Tax
+        const lineItems = orderData.items.map((item) => ({
+            amount: Math.round(item.total_price * 100), // Convert to cents
+            reference: item.variant_id || 'product',
+            tax_code: 'txcd_20030000', // Apparel tax code
+        }));
+        // Add shipping as a line item for tax calculation
+        if (orderData.shipping && orderData.shipping > 0) {
+            lineItems.push({
+                amount: Math.round(orderData.shipping * 100),
+                reference: 'shipping',
+                tax_code: 'txcd_92010001', // Shipping tax code
+            });
+        }
+        // Create tax calculation
+        const taxCalculation = await getStripe().tax.calculations.create({
+            currency: 'usd',
+            line_items: lineItems,
+            customer_details: {
+                address: {
+                    line1: orderData.shipping_address.line1,
+                    city: orderData.shipping_address.city,
+                    state: orderData.shipping_address.state,
+                    postal_code: orderData.shipping_address.postal_code,
+                    country: orderData.shipping_address.country || 'US',
+                },
+                address_source: 'shipping',
+            },
+        });
+        // Update orderData with calculated tax
+        orderData.tax = taxCalculation.tax_amount_exclusive / 100; // Convert from cents to dollars
+        orderData.total = orderData.subtotal + orderData.shipping + orderData.tax;
         const order = await (0, orderService_1.createOrder)(orderData);
-        const paymentIntent = await stripe.paymentIntents.create({
+        const paymentIntent = await getStripe().paymentIntents.create({
             amount: Math.round(order.total * 100),
             currency: 'usd',
             metadata: {
@@ -47,7 +87,7 @@ const capturePayment = async (req, res, next) => {
             throw new errorHandler_1.ApiError(400, 'payment_intent_id is required');
         }
         // Verify payment intent with Stripe
-        const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
+        const paymentIntent = await getStripe().paymentIntents.retrieve(payment_intent_id);
         if (paymentIntent.status === 'succeeded') {
             const order = await (0, orderService_1.updateOrderPaymentStatus)(id, 'paid', payment_intent_id);
             res.status(200).json({
@@ -64,6 +104,54 @@ const capturePayment = async (req, res, next) => {
     }
 };
 exports.capturePayment = capturePayment;
+const calculateTax = async (req, res, next) => {
+    try {
+        const { items, shipping_address, shipping } = req.body;
+        if (!items || !shipping_address) {
+            throw new errorHandler_1.ApiError(400, 'items and shipping_address are required');
+        }
+        // Calculate tax using Stripe Tax
+        const lineItems = items.map((item) => ({
+            amount: Math.round(item.total_price * 100), // Convert to cents
+            reference: item.variant_id || 'product',
+            tax_code: 'txcd_20030000', // Apparel tax code
+        }));
+        // Add shipping as a line item for tax calculation
+        if (shipping && shipping > 0) {
+            lineItems.push({
+                amount: Math.round(shipping * 100),
+                reference: 'shipping',
+                tax_code: 'txcd_92010001', // Shipping tax code
+            });
+        }
+        // Create tax calculation
+        const taxCalculation = await getStripe().tax.calculations.create({
+            currency: 'usd',
+            line_items: lineItems,
+            customer_details: {
+                address: {
+                    line1: shipping_address.line1,
+                    city: shipping_address.city,
+                    state: shipping_address.state,
+                    postal_code: shipping_address.postal_code,
+                    country: shipping_address.country || 'US',
+                },
+                address_source: 'shipping',
+            },
+        });
+        res.status(200).json({
+            success: true,
+            data: {
+                tax: taxCalculation.tax_amount_exclusive / 100, // Convert from cents to dollars
+                tax_breakdown: taxCalculation.tax_breakdown,
+            }
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.calculateTax = calculateTax;
 const getOrder = async (req, res, next) => {
     try {
         const { id } = req.params;

@@ -36,6 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// Railway cache-busting: Explicit route ordering with comments (v1.0.5)
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
@@ -48,8 +49,6 @@ const env_1 = require("./config/env");
 const logger_1 = require("./utils/logger");
 const database_1 = require("./config/database");
 const redis_1 = require("./config/redis");
-// TEMP DISABLED: Sentry causing build failures with v10 API changes
-// import { initSentry, sentryRequestHandler, sentryTracingHandler, sentryErrorHandler } from './config/sentry';
 // Import routes
 const auth_1 = __importDefault(require("./routes/auth"));
 const products_1 = __importDefault(require("./routes/products"));
@@ -67,16 +66,8 @@ const notFound_1 = require("./middleware/notFound");
 // Import storage initialization
 const supabaseStorage_1 = require("./services/supabaseStorage");
 const app = (0, express_1.default)();
-// TEMP DISABLED: Sentry causing build failures with v10 API changes
-// Initialize Sentry - must be done before other middleware
-// initSentry(app);
 // Trust proxy - Railway uses a reverse proxy (one hop)
 app.set('trust proxy', 1);
-// TEMP DISABLED: Sentry causing build failures with v10 API changes
-// Sentry request handler - must be the first middleware
-// app.use(sentryRequestHandler());
-// Sentry tracing handler - captures transactions
-// app.use(sentryTracingHandler());
 // Security middleware - Enhanced Helmet configuration with comprehensive security headers
 app.use((0, helmet_1.default)({
     crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -325,9 +316,7 @@ app.use('/api/webhooks', webhooks_1.default);
 app.use('/api/admin', admin_1.default);
 app.use('/api/designs', designs_1.default);
 app.use('/api/jobs', jobRoutes_1.default);
-// TEMP DISABLED: Sentry causing build failures with v10 API changes
-// Error handling - Sentry error handler must come before custom error handlers
-// app.use(sentryErrorHandler());
+// Error handling
 app.use(notFound_1.notFound);
 app.use(errorHandler_1.errorHandler);
 // Start server
