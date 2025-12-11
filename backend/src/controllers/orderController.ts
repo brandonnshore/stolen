@@ -30,19 +30,13 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
       tax_code: 'txcd_20030000', // Apparel tax code
     }));
 
-    // Add shipping as a line item for tax calculation
-    if (orderData.shipping && orderData.shipping > 0) {
-      lineItems.push({
-        amount: Math.round(orderData.shipping * 100),
-        reference: 'shipping_fee',
-        tax_code: 'txcd_92010001', // Shipping tax code
-      });
-    }
-
-    // Create tax calculation
+    // Create tax calculation with shipping_cost parameter
     const taxCalculation = await getStripe().tax.calculations.create({
       currency: 'usd',
       line_items: lineItems,
+      shipping_cost: orderData.shipping && orderData.shipping > 0 
+        ? { amount: Math.round(orderData.shipping * 100) }
+        : undefined,
       customer_details: {
         address: {
           line1: orderData.shipping_address.line1,
@@ -126,15 +120,6 @@ export const calculateTax = async (req: Request, res: Response, next: NextFuncti
       tax_code: 'txcd_20030000', // Apparel tax code
     }));
 
-    // Add shipping as a line item for tax calculation
-    if (shipping && shipping > 0) {
-      lineItems.push({
-        amount: Math.round(shipping * 100),
-        reference: 'shipping_fee',
-        tax_code: 'txcd_92010001', // Shipping tax code
-      });
-    }
-
     // Create tax calculation
     console.log('[TAX] Calculating tax for address:', {
       city: shipping_address.city,
@@ -146,6 +131,9 @@ export const calculateTax = async (req: Request, res: Response, next: NextFuncti
     const taxCalculation = await getStripe().tax.calculations.create({
       currency: 'usd',
       line_items: lineItems,
+      shipping_cost: shipping && shipping > 0 
+        ? { amount: Math.round(shipping * 100) }
+        : undefined,
       customer_details: {
         address: {
           line1: shipping_address.line1,
