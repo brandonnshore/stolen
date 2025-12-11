@@ -34,7 +34,7 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
     if (orderData.shipping && orderData.shipping > 0) {
       lineItems.push({
         amount: Math.round(orderData.shipping * 100),
-        reference: 'shipping',
+        reference: 'shipping_fee',
         tax_code: 'txcd_92010001', // Shipping tax code
       });
     }
@@ -130,7 +130,7 @@ export const calculateTax = async (req: Request, res: Response, next: NextFuncti
     if (shipping && shipping > 0) {
       lineItems.push({
         amount: Math.round(shipping * 100),
-        reference: 'shipping',
+        reference: 'shipping_fee',
         tax_code: 'txcd_92010001', // Shipping tax code
       });
     }
