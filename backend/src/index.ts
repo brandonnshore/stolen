@@ -1,4 +1,4 @@
-// Railway cache-busting: Add test route to diagnose deployment issue (v1.0.4)
+// Railway cache-busting: Explicit route ordering with comments (v1.0.5)
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
