@@ -100,7 +100,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="bg-white dark:bg-black min-h-screen transition-colors duration-300">
+    <div className="bg-white min-h-screen">
       {/* Hero Section */}
       {/* Hero Section */}
       <section className="h-screen flex items-center justify-center overflow-hidden relative">
@@ -142,38 +142,38 @@ export default function Home() {
       </section>
 
       {/* Stats Dashboard */}
-      <section className="py-16 sm:py-20 bg-gray-50 dark:bg-black transition-colors duration-300">
+      <section className="py-16 sm:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white dark:bg-gray-950 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+            <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-gray-100">
               <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 mb-2">{heistCount.toLocaleString()}</div>
-              <div className="text-gray-600 dark:text-gray-300 text-sm uppercase tracking-wider font-medium">Designs Stolen</div>
+              <div className="text-gray-600 text-sm uppercase tracking-wider font-medium">Designs Stolen</div>
             </div>
-            <div className="bg-white dark:bg-gray-950 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+            <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-gray-100">
               <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-500 mb-2">99.2%</div>
-              <div className="text-gray-600 dark:text-gray-300 text-sm uppercase tracking-wider font-medium">Accuracy Rate</div>
+              <div className="text-gray-600 text-sm uppercase tracking-wider font-medium">Accuracy Rate</div>
             </div>
-            <div className="bg-white dark:bg-gray-950 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+            <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-gray-100">
               <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500 mb-2">0</div>
-              <div className="text-gray-600 dark:text-gray-300 text-sm uppercase tracking-wider font-medium">Lawyers Contacted</div>
+              <div className="text-gray-600 text-sm uppercase tracking-wider font-medium">Lawyers Contacted</div>
               <div className="text-gray-400 dark:text-gray-600 text-xs mt-1">(so far)</div>
             </div>
-            <div className="bg-white dark:bg-gray-950 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+            <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-gray-100">
               <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500 mb-2">24/7</div>
-              <div className="text-gray-600 dark:text-gray-300 text-sm uppercase tracking-wider font-medium">Active Heists</div>
+              <div className="text-gray-600 text-sm uppercase tracking-wider font-medium">Active Heists</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Trophy Case */}
-      <section className="py-16 sm:py-20 bg-white dark:bg-black transition-colors duration-300">
+      <section className="py-16 sm:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
               Trophy Case
             </h2>
-            <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
               Recent heists pulled off by our community. Your design could be next.
             </p>
           </div>
@@ -182,14 +182,14 @@ export default function Home() {
             {trophyItems.map((item, index) => (
               <div
                 key={index}
-                className="polaroid-tilt bg-white dark:bg-gray-950 p-5 shadow-lg border dark:border-gray-800 rounded-lg"
+                className="polaroid-tilt bg-white p-5 shadow-lg border border-gray-200 rounded-lg"
               >
                 {/* Before & After Images with Arrow */}
                 <div className="mb-4">
                   <div className="grid grid-cols-[1fr,auto,1fr] gap-6 items-center">
                     {/* Before Image - "The photo I uploaded" */}
                     <div className="flex flex-col">
-                      <div className="aspect-square bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden mb-2">
+                      <div className="aspect-square bg-gray-100 rounded-md overflow-hidden mb-2">
                         <img
                           src={item.beforeImage}
                           alt="Original photo"
@@ -226,7 +226,7 @@ export default function Home() {
 
                     {/* After Image - "What Stolen Tee made" */}
                     <div className="flex flex-col">
-                      <div className="aspect-square bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden mb-2">
+                      <div className="aspect-square bg-gray-100 rounded-md overflow-hidden mb-2">
                         <img
                           src={item.afterImage}
                           alt="Stolen Tee result"
@@ -256,10 +256,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-3 sm:mb-4 text-gray-900 dark:text-white">
+            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-3 sm:mb-4 text-gray-900">
               Premium blanks,<br className="hidden sm:block" /> perfected by AI
             </h2>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
+            <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
               Upload any design. Our AI extracts it perfectly and prints it on these premium garments at 300 DPI quality.
             </p>
           </div>
