@@ -136,6 +136,13 @@ export const calculateTax = async (req: Request, res: Response, next: NextFuncti
     }
 
     // Create tax calculation
+    console.log('[TAX] Calculating tax for address:', {
+      city: shipping_address.city,
+      state: shipping_address.state,
+      postal_code: shipping_address.postal_code,
+      country: shipping_address.country || 'US',
+    });
+
     const taxCalculation = await getStripe().tax.calculations.create({
       currency: 'usd',
       line_items: lineItems,
@@ -151,6 +158,12 @@ export const calculateTax = async (req: Request, res: Response, next: NextFuncti
       },
     });
 
+    console.log('[TAX] Tax calculation result:', {
+      tax_amount: taxCalculation.tax_amount_exclusive / 100,
+      currency: taxCalculation.currency,
+      breakdown: taxCalculation.tax_breakdown,
+    });
+
     res.status(200).json({
       success: true,
       data: {
@@ -158,7 +171,13 @@ export const calculateTax = async (req: Request, res: Response, next: NextFuncti
         tax_breakdown: taxCalculation.tax_breakdown,
       }
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.error('[TAX] Error calculating tax:', {
+      message: error.message,
+      code: error.code,
+      type: error.type,
+      detail: error.raw?.message,
+    });
     next(error);
   }
 };
